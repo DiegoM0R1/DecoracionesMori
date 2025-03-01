@@ -1,0 +1,90 @@
+<!-- templates/citas/solicitar.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Solicitar Cita - {{ servicio.nombre }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="appointment-header py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4">Solicitar Servicio</h1>
+                <p class="lead">Completa el formulario para agendar una cita de evaluación</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="appointment-form py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Solicitud para: {{ servicio.nombre }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="appointmentForm">
+                            {% csrf_token %}
+                            {{ form.non_field_errors }}
+                            
+                            <!-- Información Personal -->
+                            <div class="mb-4">
+                                <h4>Información Personal</h4>
+                                <div class="form-group">
+                                    <label for="nombre">Nombre Completo</label>
+                                    {{ form.nombre }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Correo Electrónico</label>
+                                    {{ form.email }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefono">Teléfono</label>
+                                    {{ form.telefono }}
+                                </div>
+                            </div>
+
+                            <!-- Selección de Fecha -->
+                            <div class="mb-4">
+                                <h4>Selecciona una Fecha</h4>
+                                <div id="calendar"></div>
+                                <input type="hidden" id="selectedDate" name="fecha">
+                            </div>
+
+                            <!-- Botón de Envío -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Solicitar Cita</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            dateClick: function(info) {
+                // Mostrar la fecha seleccionada
+                alert('Fecha seleccionada: ' + info.dateStr);
+                document.getElementById('selectedDate').value = info.dateStr;
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}
