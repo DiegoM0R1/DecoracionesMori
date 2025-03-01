@@ -8,7 +8,21 @@ class User(AbstractUser):
     address = models.TextField(_("Address"), blank=True)
     dni = models.CharField(_("DNI"), max_length=20, blank=True)
     is_verified = models.BooleanField(_("Is verified"), default=False)
-
+    
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='custom_user_set',  # Change this to a unique related name
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='custom_user_set',  # Change this to a unique related name
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
