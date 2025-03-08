@@ -37,3 +37,4 @@ class Appointment(models.Model):
     class Meta:
         verbose_name = _("Appointment")
         verbose_name_plural = _("Appointments")
+
