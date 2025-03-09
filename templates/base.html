@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/form_citas_extras.css">
+    <link rel="stylesheet" href="/static/js/buscar_cliente_dni_api.js">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -17,8 +19,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <img src="/static/imagen/logo.png" alt="DecoracionesMori" height="40">
-                DecoracionesMori
+                <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="DecoracionesMori" height="40">
+                Decoraciones Mori
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -29,7 +31,7 @@
                         <a class="nav-link" href="{% url 'home' %}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">Servicios</a>
+                        <a class="nav-link" href="{% url 'services:service_list' %}">Servicios</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="">Nosotros</a>
@@ -90,7 +92,7 @@
                     <h5>Enlaces Rápidos</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}" class="text-white">Inicio</a></li>
-                        <li><a href="" class="text-white">Servicios</a></li>
+                        <li><a href="{% url 'services:service_list' %}" class="text-white">Servicios</a></li>
                         <li><a href="" class="text-white">Nosotros</a></li>
                         <li><a href="" class="text-white">Contacto</a></li>
                     </ul>
@@ -99,13 +101,13 @@
                     <h5>Contacto</h5>
                     <address>
                         <i class="fas fa-map-marker-alt"></i> Av. Principal 123<br>
-                        <i class="fas fa-phone"></i> +51 123 456 789<br>
+                        <i class="fas fa-phone"></i> +51 923 614 593<br>
                         <i class="fas fa-envelope"></i> info@decoracionesmori.com
                     </address>
                     <div class="social-icons">
-                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.facebook.com/decoracionesmori" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/decoracionesmori/" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="+51 923 614 593" class="text-white me-2"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>

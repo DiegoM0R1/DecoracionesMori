@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.name }} - DecoracionesMori{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="service-header py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4">{{ service.name }}</h1>
+                <p class="lead">{{ service.short_description }}</p>
+                
+                <div class="service-meta">
+                    <p><strong>Categoría:</strong> {{ service.category.name }}</p>
+                    {% if service.base_price %}
+                    <p><strong>Precio desde:</strong> S/. {{ service.base_price }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg">Solicitar Servicio</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                {% if service.main_image %}
+                <img src="{{ service.main_image.url }}" class="img-fluid rounded" alt="{{ service.name }}">
+                {% else %}
+                <img src="/static/imagen/default-service.jpg" class="img-fluid rounded" alt="{{ service.name }}">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="service-details py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Descripción del Servicio</h2>
+                        <div class="service-description">
+                            {{ service.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if service.features.all %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Características</h2>
+                        <ul class="service-features">
+                            {% for feature in service.features.all %}
+                            <li>
+                                <i class="fas fa-check-circle text-success"></i> 
+                                {{ feature.description }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if imagenes %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Galería</h2>
+                        <div class="row service-gallery">
+                            {% for imagen in imagenes %}
+                            <div class="col-md-4 mb-3">
+                                <a href="{{ imagen.image.url }}" data-lightbox="service-gallery" data-title="{{ service.name }}">
+                                    <img src="{{ imagen.image.url }}" class="img-fluid rounded" alt="{{ service.name }}">
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if videos %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Videos</h2>
+                        <div class="row service-videos">
+                            {% for video in videos %}
+                            <div class="col-md-6 mb-3">
+                                <div class="video-container">
+                                    <video controls class="img-fluid rounded">
+                                        <source src="{{ video.video.url }}" type="video/mp4">
+                                        Tu navegador no soporta videos.
+                                    </video>
+                                    <p class="video-title">{{ video.title }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Solicita una cotización</h3>
+                        <p>Completa el formulario y te contactaremos a la brevedad para brindarte una cotización personalizada.</p>
+                        <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary w-100">Solicitar Cotización</a>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Contacto Directo</h3>
+                        <p><i class="fas fa-phone me-2"></i> +51 123 456 789</p>
+                        <p><i class="fas fa-envelope me-2"></i> info@decoracionesmori.com</p>
+                        <p><i class="fab fa-whatsapp me-2"></i> +51 987 654 321</p>
+                    </div>
+                </div>
+                
+                {% if servicios_relacionados %}
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Servicios Relacionados</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for servicio_rel in servicios_relacionados %}
+                            <li class="list-group-item">
+                                <a href="{% url 'services:detalle_servicio' servicio_rel.pk %}">{{ servicio_rel.name }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/js/lightbox.min.js"></script>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% load form_tags %}  <!-- Añade esta línea al inicio de tu template -->
+
+{% block title %}Solicitar Cita - DecoracionesMori{% endblock %}
+
+{% block content %}
+<section class="appointment-request py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h1 class="display-4 mb-3">Solicitar Cita</h1>
+                <p class="lead text-muted">Complete el formulario para solicitar su cita de servicio.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                                        Nombre Completo <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.name|add_class:'form-control' }}
+                                    {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.dni.id_for_label }}" class="form-label">
+                                        DNI/Documento <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.dni|add_class:'form-control' }}
+                                    {% if form.dni.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.dni.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <button type="button" id="buscarDniBtn" class="btn btn-primary">
+                                        Buscar
+                                    </button>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                            {% if field.name != 'dni' %}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                                    {{ field }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        Correo Electrónico <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.email|add_class:'form-control' }}
+                                    {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                        Teléfono <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.phone_number|add_class:'form-control' }}
+                                    {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone_number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.address.id_for_label }}" class="form-label">
+                                    Dirección <span class="text-danger">*</span>
+                                </label>
+                                {{ form.address|add_class:'form-control' }}
+                                {% if form.address.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.preferred_date.id_for_label }}" class="form-label">
+                                        Fecha Preferida <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.preferred_date|add_class:'form-control' }}
+                                    {% if form.preferred_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.preferred_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.preferred_time.id_for_label }}" class="form-label">
+                                        Hora Preferida 
+                                    </label>
+                                    {{ form.preferred_time|add_class:'form-select' }}
+                                    {% if form.preferred_time.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.preferred_time.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if not form.service.widget.is_hidden %}
+                            <div class="mb-3">
+                                <label class="form-label">Servicio Seleccionado</label>
+                                <p class="form-control-plaintext">{{ service.name }}</p>
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                    Notas Adicionales
+                                </label>
+                                {{ form.notes|add_class:'form-control' }}
+                                {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-calendar-check me-2"></i>Solicitar Cita
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-lock me-1"></i>Tus datos están seguros y serán tratados confidencialmente
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Depuración de selectores
+    console.log('Buscando elementos del DOM');
+    console.log('Botón de búsqueda:', document.getElementById('buscarDniBtn'));
+    console.log('Input DNI:', document.getElementById('id_dni'));
+    console.log('Input Nombre:', document.getElementById('id_name'));
+
+    const buscarDniBtn = document.getElementById('buscarDniBtn');
+    const dniInput = document.getElementById('id_dni');
+    const nameInput = document.getElementById('id_name');
+
+    // Verificar si los elementos existen
+    if (!buscarDniBtn || !dniInput || !nameInput) {
+        console.error('Uno o más elementos no encontrados:',
+            'Botón:', buscarDniBtn,
+            'Input DNI:', dniInput,
+            'Input Nombre:', nameInput
+        );
+        return;
+    }
+
+    buscarDniBtn.addEventListener('click', function() {
+        const dni = dniInput.value.trim();
+        
+        console.log('DNI a buscar:', dni);
+
+        // Validaciones
+        if (!dni) {
+            alert('Por favor, ingrese un DNI');
+            return;
+        }
+
+        if (dni.length !== 8) {
+            alert('El DNI debe tener 8 dígitos');
+            return;
+        }
+
+        // Obtener el token CSRF
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        console.log('Realizando fetch con DNI:', dni);
+
+        // Realizar la búsqueda
+        fetch('{% url "appointments:buscar_dni" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: new URLSearchParams({
+                'dni': dni
+            })
+        })
+        .then(response => {
+            console.log('Respuesta recibida:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Datos recibidos:', data);
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            
+            // Rellenar el campo de nombre si se encuentra
+            if (data.nombre) {
+                // Convertir el nombre a título (primera letra de cada palabra en mayúscula)
+                const nombreFormateado = data.nombre
+                    .toLowerCase()
+                    .split(' ')
+                    .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
+                    .join(' ');
+                
+                console.log('Nombre formateado:', nombreFormateado);
+                nameInput.value = nombreFormateado;
+                
+                // Añadir retroalimentación visual
+                nameInput.classList.add('is-valid');
+                setTimeout(() => {
+                    nameInput.classList.remove('is-valid');
+                }, 3000);
+            } else {
+                alert('No se encontró información para este DNI');
+            }
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            alert('Error al buscar el DNI');
+        });
+    });
+});
+</script>
+{% endblock %}

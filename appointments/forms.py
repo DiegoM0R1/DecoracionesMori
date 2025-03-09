@@ -6,31 +6,73 @@ from services.models import Service
 from accounts.models import User
 
 class AppointmentRequestForm(forms.ModelForm):
-    name = forms.CharField(max_length=100)
-    dni = forms.CharField(max_length=20)
-    email = forms.EmailField()
-    phone_number = forms.CharField(max_length=15)
-    address = forms.CharField(widget=forms.Textarea)
-    preferred_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    preferred_time = forms.ChoiceField(choices=[], required=False)
-    
+    name = forms.CharField(
+        max_length=100, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Nombre completo'
+        })
+    )
+    dni = forms.CharField(
+        max_length=20, 
+        label='DNI',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Número de documento'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Correo electrónico'
+        })
+    )
+    phone_number = forms.CharField(
+        max_length=15, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Teléfono de contacto'
+        })
+    )
+    address = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Dirección completa',
+            'rows': 3
+        })
+    )
+    preferred_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date', 
+            'class': 'form-control'
+        })
+    )
+    preferred_time = forms.ChoiceField(
+        choices=[
+            ('', _('Selecciona un horario')),
+            ('morning', _('Mañana (9:00 - 12:00)')),
+            ('afternoon', _('Tarde (13:00 - 17:00)')),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=False
+    )
+
     class Meta:
         model = Appointment
-        fields = ['service', 'notes']
+        fields = ['service', 'notes','dni']
         widgets = {
+            'dni': forms.HiddenInput(),
             'service': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Información adicional (opcional)',
+                'rows': 3
+            })
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # You'd dynamically populate this with available times
-        self.fields['preferred_time'].choices = [
-            ('', _('Select a time')),
-            ('morning', _('Morning (9:00 - 12:00)')),
-            ('afternoon', _('Afternoon (13:00 - 17:00)')),
-        ]
         
-        # If there's an initial service, hide the service field
-        if 'service' in self.initial:
-            self.fields['service'].widget = forms.HiddenInput()
-
+        # Si se pasa un servicio inicial, configura el campo de servicio
+        if 'initial' in kwargs and 'service' in kwargs['initial']:
+            self.fields['service'].initial = kwargs['initial']['service']

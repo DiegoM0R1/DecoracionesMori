@@ -21,17 +21,23 @@ class Service(models.Model):
     is_active = models.BooleanField(_("Is active"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    slug = models.SlugField(_("Slug"), max_length=100, unique=True, blank=True)
+
     class Meta:
         verbose_name = _("Service")
         verbose_name_plural = _("Services")
     
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 class ServiceImage(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(_("Image"), upload_to="services/")
+    image = models.ImageField(_("Image"), upload_to="services/static/services/imagenes/")
     is_featured = models.BooleanField(_("Is featured"), default=False)
     
     class Meta:
@@ -40,7 +46,7 @@ class ServiceImage(models.Model):
 
 class ServiceVideo(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="videos")
-    video = models.FileField(_("Video"), upload_to="services/videos/")
+    video = models.FileField(_("Video"), upload_to="services/static/services/videos/")
     title = models.CharField(_("Title"), max_length=100)
     
     class Meta:
