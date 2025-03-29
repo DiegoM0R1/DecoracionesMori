@@ -43,9 +43,33 @@ INSTALLED_APPS = [
     'quotations',
     'appointments',   
 
-]
 
-JAZZMIN_SETTINGS = {}
+]
+    
+JAZZMIN_SETTINGS = {
+     "site_title": "Decoraciones Mori",
+    "site_header": "Decoraciones Mori Admin",
+    "site_brand": "Decoraciones Mori",
+    "welcome_sign": "Bienvenido al Panel de Administración",
+    "site_logo": "imagen/logo.png",
+    "theme": "darkly",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "auth.User": "fas fa-user",
+        "services.Service": "fas fa-couch",
+        "services.Product": "fas fa-box",
+        "services.ServiceCategory": "fas fa-tags",
+        "services.ProductCategory": "fas fa-tags",
+        "services.ServiceImage": "fas fa-image",
+        "services.ServiceVideo": "fas fa-video",
+        "appointment.appointment": "fas fa-calendar-alt",
+    },
+    "menu": [
+        {"label": "Servicios", "app": "services", "icon": "fas fa-couch"},
+        {"label": "Productos", "app": "products", "icon": "fas fa-box"},
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
