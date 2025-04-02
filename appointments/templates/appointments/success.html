@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Cita Solicitada - DecoracionesMori{% endblock %}
+
+{% block content %}
+<section class="appointment-success py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 text-center">
+                <div class="card shadow border-success">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                        </div>
+                        <h1 class="display-5 text-success mb-3">¡Solicitud Enviada!</h1>
+                        <p class="lead">
+                            Su solicitud de cita ha sido registrada correctamente. 
+                        </p>
+                        <p class="mb-4">
+                            Nos pondremos en contacto con usted pronto para confirmar los detalles.
+                            Si tiene alguna pregunta, no dude en contactarnos.
+                        </p>
+                        <hr class="my-4">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'appointments:home' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-home me-2"></i>Volver al inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

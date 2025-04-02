@@ -10,5 +10,5 @@ urlpatterns = [
     path('request/<int:service_id>/', AppointmentRequestView.as_view(), name='request'),
     path('calendar/', AppointmentCalendarView.as_view(), name='calendar'),
     path('buscar-dni/', buscar_cliente_por_dni, name='buscar_dni'),
-
+    path('success/', TemplateView.as_view(template_name='appointments/success.html'), name='success'),
 ]

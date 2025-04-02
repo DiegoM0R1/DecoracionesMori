@@ -59,9 +59,8 @@ class AppointmentRequestForm(forms.ModelForm):
 
     class Meta:
         model = Appointment
-        fields = ['service', 'notes','dni']
+        fields = ['service', 'notes']
         widgets = {
-            'dni': forms.HiddenInput(),
             'service': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -76,3 +75,14 @@ class AppointmentRequestForm(forms.ModelForm):
         # Si se pasa un servicio inicial, configura el campo de servicio
         if 'initial' in kwargs and 'service' in kwargs['initial']:
             self.fields['service'].initial = kwargs['initial']['service']
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Make sure all required fields are present
+        required_fields = ['name', 'dni', 'email', 'phone_number', 'address', 'preferred_date']
+        for field in required_fields:
+            if field not in cleaned_data or not cleaned_data[field]:
+                self.add_error(field, _('Este campo es obligatorio'))
+        
+        return cleaned_data
