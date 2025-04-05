@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 ]
     
 JAZZMIN_SETTINGS = {
-     "site_title": "Decoraciones Mori",
+    "site_title": "Decoraciones Mori",
     "site_header": "Decoraciones Mori Admin",
     "site_brand": "Decoraciones Mori",
     "welcome_sign": "Bienvenido al Panel de Administración",
@@ -55,20 +55,125 @@ JAZZMIN_SETTINGS = {
     "theme": "darkly",
     "show_sidebar": True,
     "navigation_expanded": True,
+    "search_model": ["auth.User", "services.Service", "services.Product"],
+    "language_chooser": False,
+    "custom_css": "css/custom_admin.css",
+    "custom_js": "js/custom_admin.js",
+    "changeform_format": "horizontal_tabs",
+    "topmenu_links": [
+        {"name": "Inicio", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Sitio Web", "url": "/", "new_window": True},
+        {"model": "auth.User"},
+    ],
+    "usermenu_links": [
+        {"name": "Soporte", "url": "mailto:soporte@decoracionesmori.com", "new_window": True},
+        {"model": "auth.user"}
+    ],
+    "show_ui_builder": True,
     "icons": {
-        "auth.User": "fas fa-user",
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
         "services.Service": "fas fa-couch",
         "services.Product": "fas fa-box",
         "services.ServiceCategory": "fas fa-tags",
         "services.ProductCategory": "fas fa-tags",
         "services.ServiceImage": "fas fa-image",
         "services.ServiceVideo": "fas fa-video",
-        "appointment.appointment": "fas fa-calendar-alt",
+        "appointments.Appointment": "fas fa-calendar-alt",
+        "quotations.Quotation": "fas fa-file-invoice-dollar",
+        "accounts.Profile": "fas fa-id-card",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": [
+        "auth", 
+        "accounts", 
+        "services", 
+        "quotations", 
+        "appointments"
+    ],
+    "custom_links": {
+        "services": [{
+            "name": "Reporte de Servicios", 
+            "url": "admin:service_report", 
+            "icon": "fas fa-chart-bar"
+        }],
+        "quotations": [{
+            "name": "Exportar Cotizaciones", 
+            "url": "admin:export_quotations", 
+            "icon": "fas fa-file-export"
+        }]
     },
     "menu": [
-        {"label": "Servicios", "app": "services", "icon": "fas fa-couch"},
-        {"label": "Productos", "app": "products", "icon": "fas fa-box"},
+        {"app": "auth", "label": "Autenticación", "icon": "fas fa-users-cog"},
+        {"app": "accounts", "label": "Cuentas", "icon": "fas fa-users"},
+        {
+            "label": "Servicios",
+            "icon": "fas fa-couch",
+            "models": [
+                {"model": "services.Service", "label": "Servicios"},
+                {"model": "services.ServiceCategory", "label": "Categorías de Servicios"},
+                {"model": "services.ServiceImage", "label": "Imágenes de Servicios"},
+                {"model": "services.ServiceVideo", "label": "Videos de Servicios"}
+            ]
+        },
+        {
+            "label": "Productos",
+            "icon": "fas fa-box",
+            "models": [
+                {"model": "services.Product", "label": "Productos"},
+                {"model": "services.ProductCategory", "label": "Categorías de Productos"}
+            ]
+        },
+        {"app": "appointments", "label": "Citas", "icon": "fas fa-calendar-alt"},
+        {"app": "quotations", "label": "Cotizaciones", "icon": "fas fa-file-invoice-dollar"},
+        {
+            "label": "Reportes",
+            "icon": "fas fa-chart-line",
+            "models": [
+                {"url": "admin:service_report", "label": "Reporte de Servicios"},
+                {"url": "admin:quotation_report", "label": "Reporte de Cotizaciones"},
+                {"url": "admin:appointment_report", "label": "Reporte de Citas"}
+            ]
+        },
     ],
+}
+
+# Configuración adicional para traducir textos estáticos de Jazzmin
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-dark",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
 }
 
 MIDDLEWARE = [
@@ -135,7 +240,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'es-PE'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'America/Lima'
 

@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %} - Contacto{% endblock %}
+
+{% block content %}
+<!-- Contact Section -->
+<section class="contact-section py-5 position-relative">
+    <!-- Modern overlay with gradient -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(45,52,75,0.8) 100%); z-index: 1;"></div>
+    
+    <!-- Background image with modern parallax effect -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" 
+     >
+    </div>
+
+    
+    <div class="container py-5 position-relative" style="z-index: 2;">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <span class="badge bg-primary mb-2 px-3 py-2 fw-normal">CONTÁCTANOS</span>
+                <h2 class="section-title text-white display-4 fw-bold mb-3">¿Cómo podemos ayudarte?</h2>
+                <p class="section-subtitle text-white-50 fs-5 mb-4 mx-auto" style="max-width: 700px;">Transforma tu espacio con nuestros servicios de decoración personalizados. Estamos listos para atender tus consultas.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Contact Information Card -->
+            <div class="col-md-5 mb-4">
+                <div class="contact-info bg-white p-4 rounded-3 shadow-sm h-100">
+                    <h4 class="mb-4 text-primary fw-bold">Información de contacto</h4>
+                    
+                    <!-- Address with map integration point -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 fw-bold">Dirección:</p>
+                            <p class="mb-0 text-muted">Urbanización Mariscal Cáceres Mz P6 Lt 23, San Juan Lurigancho, Lima</p>
+                            <!-- API Integration Point: Google Maps -->
+                            <a href= "#vermapa" class="text-primary small mt-1">Ver en mapa <i class="fas fa-chevron-right ms-1 small"></i></a>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone with click-to-call -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-phone-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 fw-bold">Teléfono:</p>
+                            <!-- API Integration Point: Click to call -->
+                            <a href="tel:+51923614593" class="text-muted text-decoration-none">+51 923 614 593</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-envelope text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 fw-bold">Email:</p>
+                            <a href="mailto:lizandro.morih1@gmail.com" class="text-muted text-decoration-none">lizandro.morih1@gmail.com</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Horario de atención -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-clock text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0 fw-bold">Horario de atención:</p>
+                            <p class="mb-0 text-muted">Lunes a Viernes: 9am - 6pm</p>
+                            <p class="mb-0 text-muted">Sábados: 9am - 1pm</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <!-- Social Media -->
+                    <div class="mt-4">
+                        <h5 class="mb-3">Síguenos</h5>
+                        <div class="d-flex">
+                            <!-- Facebook -->
+                            <a href="https://www.facebook.com/share/1AFLkMRDkM/" class="btn btn-light me-2 rounded-circle" style="width: 40px; height: 40px; line-height: 40px; padding: 0;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/decoracionesmori/" class="btn btn-light me-2 rounded-circle" style="width: 40px; height: 40px; line-height: 40px; padding: 0;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <!-- WhatsApp -->
+                            <a href="https://wa.me/51923614593" class="btn btn-light me-2 rounded-circle" style="width: 40px; height: 40px; line-height: 40px; padding: 0;">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form Card -->
+            <div class="col-md-7 mb-4">
+                <div class="bg-white p-4 rounded-3 shadow-sm">
+                    <h4 class="mb-4 text-primary fw-bold">Envíanos un mensaje</h4>
+                    <!-- API Integration Point: Form Submission and Validation -->
+                    <form id="contactForm" action="{% url 'contacto' %}" method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Tu nombre" required>
+                                    <label for="name">Nombre completo</label>
+                                    <div class="invalid-feedback">
+                                        Por favor ingresa tu nombre
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Tu correo electrónico" required>
+                                    <label for="email">Correo electrónico</label>
+                                    <div class="invalid-feedback">
+                                        Por favor ingresa un correo válido
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Tu teléfono">
+                            <label for="phone">Teléfono (opcional)</label>
+                        </div>
+                        
+                        <!-- API Integration Point: Service Selection -->
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="service" name="service">
+                                <option value="" selected disabled>Selecciona un servicio</option>
+                                <option value="limpieza">Limpieza y desinfección</option>
+                                <option value="tapiceria">Tapicería y restauración</option>
+                                <option value="cortinas">Instalación de cortinas</option>
+                                <option value="decoracion">Decoración de interiores</option>
+                                <option value="mantenimiento">Mantenimiento de muebles</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <label for="service">Servicio de interés</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="message" name="message" style="height: 150px" placeholder="Escribe tu mensaje..." required></textarea>
+                            <label for="message">Mensaje</label>
+                            <div class="invalid-feedback">
+                                Por favor escribe tu mensaje
+                            </div>
+                        </div>
+                        
+                        <!-- Modern recaptcha integration point -->
+                        <div class="mb-3">
+                            <!-- API Integration Point: reCAPTCHA -->
+                            <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Enviar mensaje
+                                <i class="fas fa-paper-plane ms-2"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- API Integration Point: Success/Error Messages -->
+                        <div id="formResult" class="mt-3"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Integration Point: Google Maps -->
+        <!-- API Integration Point: Google Maps -->
+        <div class="row mt-5" id = "vermapa">
+            <div class="col-12">
+                <div class="card rounded-3 shadow-sm overflow-hidden">
+                    <div class="card-body p-0" style="height: 400px;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d410.2869736364667!2d-76.97765381574118!3d-11.951673194024618!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c5ad22b218a9%3A0xc6ef3800b5d14f6c!2sMZ%20E-6%20LT.16%20MARISCAL%20CACERES!5e0!3m2!1ses-419!2spe!4v1743885380298!5m2!1ses-419!2spe" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    </div>
+</section>
+
+<!-- Add this to your base template or at the end of your content block -->
+{% block extra_js %}
+<script>
+    // Form validation script
+    (function() {
+        'use strict';
+        
+        // Fetch all forms that need validation
+        var forms = document.querySelectorAll('.needs-validation');
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+    
+    // API Integration Point: Google Maps initialization
+    function initMap() {
+        // Replace with your company's coordinates
+        const companyLocation = { lat: -12.0191221, lng: -77.009509 };
+        
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 15,
+            center: companyLocation,
+            styles: [
+                // Custom map styles can be added here
+            ]
+        });
+        
+        const marker = new google.maps.Marker({
+            position: companyLocation,
+            map: map,
+            title: "Decoraciones Mori",
+            animation: google.maps.Animation.DROP
+        });
+        
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="padding: 10px; max-width: 200px;">
+                    <h5 style="margin: 0 0 5px;">Decoraciones Mori</h5>
+                    <p style="margin: 0 0 5px;">Urb. Mariscal Cáceres Mz P6 Lt 23</p>
+                    <p style="margin: 0;">San Juan Lurigancho, Lima</p>
+                </div>
+            `
+        });
+        
+        marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+        });
+    }
+</script>
+
+<!-- API Integration Point: Load Google Maps API 
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
+https://maps.app.goo.gl/H3UXF5QK1vhznFuq9
+API Integration Point: reCAPTCHA API -->
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+{% endblock %}
