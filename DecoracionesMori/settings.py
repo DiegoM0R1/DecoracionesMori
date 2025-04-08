@@ -66,7 +66,7 @@ JAZZMIN_SETTINGS = {
         {"model": "auth.User"},
     ],
     "usermenu_links": [
-        {"name": "Soporte", "url": "mailto:soporte@decoracionesmori.com", "new_window": True},
+        {"name": "Soporte", "url": "mailto:zuluetamori@gmail.com", "new_window": True},
         {"model": "auth.user"}
     ],
     "show_ui_builder": True,
@@ -141,6 +141,9 @@ JAZZMIN_SETTINGS = {
             ]
         },
     ],
+    #login panel admin
+    
+
 }
 
 # Configuración adicional para traducir textos estáticos de Jazzmin
@@ -172,8 +175,8 @@ JAZZMIN_UI_TWEAKS = {
         "info": "btn-info",
         "warning": "btn-warning",
         "danger": "btn-danger",
-        "success": "btn-success"
-    }
+        "success": "btn-success",
+    },
 }
 
 MIDDLEWARE = [
@@ -212,8 +215,12 @@ WSGI_APPLICATION = 'DecoracionesMori.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'decoraciones_mori',
+        'USER': 'root',
+        'PASSWORD': 'D1alZuM0',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 
