@@ -114,3 +114,112 @@ def buscar_cliente_por_dni(request):
             return JsonResponse({'error': f'Error de conexión: {str(e)}'}, status=500)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Appointment, StaffAvailability
+from services.models import Service
+from django.http import JsonResponse
+from django.utils import timezone
+
+@login_required(login_url='client_login')
+def appointment_detail(request, appointment_id):
+    """Vista para que el cliente vea los detalles de una cita específica"""
+    # Verificar que la cita pertenezca al cliente actual
+    appointment = get_object_or_404(Appointment, id=appointment_id, client=request.user)
+    
+    context = {
+        'appointment': appointment,
+    }
+    
+    return render(request, 'appointments/appointment_detail.html', context)
+
+@login_required(login_url='client_login')
+def appointment_list(request):
+    """Lista de todas las citas del cliente"""
+    appointments = request.user.appointments.all().order_by('-created_at')
+    
+    context = {
+        'appointments': appointments,
+    }
+    
+    return render(request, 'appointments/appointment_list.html', context)
+
+@login_required(login_url='client_login')
+def request_appointment(request):
+    """Vista para que el cliente solicite una nueva cita"""
+    if request.method == 'POST':
+        service_id = request.POST.get('service')
+        notes = request.POST.get('notes', '')
+        availability_id = request.POST.get('availability')
+        
+        try:
+            service = Service.objects.get(id=service_id)
+            availability = StaffAvailability.objects.get(id=availability_id)
+            
+            # Verificar que la disponibilidad esté disponible
+            if not availability.is_available:
+                messages.error(request, 'El horario seleccionado ya no está disponible.')
+                return redirect('request_appointment')
+            
+            # Crear la cita
+            appointment = Appointment.objects.create(
+                client=request.user,
+                service=service,
+                staff_availability=availability,
+                notes=notes,
+                status='pending'
+            )
+            
+            # Marcar la disponibilidad como no disponible
+            availability.is_available = False
+            availability.save()
+            
+            messages.success(request, 'Cita solicitada correctamente. Espere a que sea confirmada.')
+            return redirect('appointment_detail', appointment_id=appointment.id)
+            
+        except (Service.DoesNotExist, StaffAvailability.DoesNotExist):
+            messages.error(request, 'Ocurrió un error al crear la cita. Intente nuevamente.')
+    
+    # Obtener servicios disponibles
+    services = Service.objects.filter(is_active=True)
+    
+    # Obtener disponibilidades futuras
+    availabilities = StaffAvailability.objects.filter(
+        date__gte=timezone.now().date(),
+        is_available=True
+    ).order_by('date', 'start_time')
+    
+    context = {
+        'services': services,
+        'availabilities': availabilities,
+    }
+    
+    return render(request, 'appointments/request_appointment.html', context)
+
+@login_required(login_url='client_login')
+def get_availabilities(request):
+    """API para obtener disponibilidades por fecha"""
+    date_str = request.GET.get('date')
+    
+    try:
+        availabilities = StaffAvailability.objects.filter(
+            date=date_str,
+            is_available=True
+        ).order_by('start_time')
+        
+        data = []
+        for availability in availabilities:
+            data.append({
+                'id': availability.id,
+                'staff': f"{availability.staff.first_name} {availability.staff.last_name}",
+                'start_time': availability.start_time.strftime('%H:%M'),
+                'end_time': availability.end_time.strftime('%H:%M'),
+            })
+        
+        return JsonResponse({'availabilities': data})
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

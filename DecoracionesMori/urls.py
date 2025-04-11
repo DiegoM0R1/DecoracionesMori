@@ -27,5 +27,7 @@ urlpatterns = [
 
     path('servicios/', include('services.urls', namespace='services')),
     path('appointments/', include('appointments.urls', namespace='appointments')),
+    path('citas/', include('appointments.urls')),
+
 
 ]

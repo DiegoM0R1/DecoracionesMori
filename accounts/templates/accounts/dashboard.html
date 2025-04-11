@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Panel | Cliente{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Bienvenido, {{ request.user.first_name|default:request.user.username }}</h1>
+    
+    <div class="dashboard-section">
+        <h2>Mis Citas</h2>
+        
+        {% if appointments %}
+            <div class="appointments-list">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments|slice:":5" %}
+                            <tr>
+                                <td>{{ appointment.service.name }}</td>
+                                <td>{{ appointment.staff_availability.date|date:"d/m/Y" }}</td>
+                                <td>{{ appointment.staff_availability.start_time|time:"H:i" }} - {{ appointment.staff_availability.end_time|time:"H:i" }}</td>
+                                <td>
+                                    {% if appointment.status == 'pending' %}
+                                        <span class="badge badge-warning">Pendiente</span>
+                                    {% elif appointment.status == 'confirmed' %}
+                                        <span class="badge badge-success">Confirmada</span>
+                                    {% elif appointment.status == 'completed' %}
+                                        <span class="badge badge-info">Completada</span>
+                                    {% elif appointment.status == 'cancelled' %}
+                                        <span class="badge badge-danger">Cancelada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-primary">Ver detalles</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                {% if appointments.count > 5 %}
+                    <div class="text-center">
+                        <a href="{% url 'appointment_list' %}" class="btn btn-link">Ver todas mis citas</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>No tienes citas registradas. <a href="{% url 'request_appointment' %}">Solicitar una cita</a></p>
+        {% endif %}
+    </div>
+    
+    <div class="dashboard-section">
+        <h2>Mis Cotizaciones</h2>
+        
+        {% if quotations %}
+            <div class="quotations-list">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Fecha</th>
+                            <th>Monto Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quotation in quotations|slice:":5" %}
+                            <tr>
+                                <td>{{ quotation.quotation_number }}</td>
+                                <td>{{ quotation.created_at|date:"d/m/Y" }}</td>
+                                <td>${{ quotation.total_amount }}</td>
+                                <td>
+                                    {% if quotation.status == 'draft' %}
+                                        <span class="badge badge-secondary">Borrador</span>
+                                    {% elif quotation.status == 'sent' %}
+                                        <span class="badge badge-primary">Enviada</span>
+                                    {% elif quotation.status == 'accepted' %}
+                                        <span class="badge badge-success">Aceptada</span>
+                                    {% elif quotation.status == 'rejected' %}
+                                        <span class="badge badge-danger">Rechazada</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No tienes cotizaciones registradas.</p>
+        {% endif %}
+    </div>
+    
+    <div class="dashboard-actions">
+        <a href="{% url 'request_appointment' %}" class="btn btn-primary">Solicitar Nueva Cita</a>
+        <a href="{% url 'client_profile' %}" class="btn btn-secondary">Editar Mi Perfil</a>
+        <a href="{% url 'client_logout' %}" class="btn btn-outline-danger">Cerrar Sesión</a>
+    </div>
+</div>
+{% endblock %}

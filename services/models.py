@@ -1,15 +1,15 @@
-# services/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class ServiceCategory(models.Model):
     name = models.CharField(_("Name"), max_length=100)
     description = models.TextField(_("Description"), blank=True)
-    
+
     class Meta:
+        db_table = 'categoria_servicio'  # Nombre de la tabla en español
         verbose_name = _("Service Category")
         verbose_name_plural = _("Service Categories")
-    
+
     def __str__(self):
         return self.name
 
@@ -24,23 +24,20 @@ class Service(models.Model):
     slug = models.SlugField(_("Slug"), max_length=100, unique=True, blank=True)
 
     class Meta:
+        db_table = 'servicio'  # Nombre de la tabla en español
         verbose_name = _("Service")
         verbose_name_plural = _("Services")
-    
+
     def __str__(self):
         return self.name
-    
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
 class ServiceImage(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(_("Image"), upload_to="services/static/services/imagenes/")
     is_featured = models.BooleanField(_("Is featured"), default=False)
-    
+
     class Meta:
+        db_table = 'imagen_servicio'  # Nombre de la tabla en español
         verbose_name = _("Service Image")
         verbose_name_plural = _("Service Images")
 
@@ -48,8 +45,9 @@ class ServiceVideo(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="videos")
     video = models.FileField(_("Video"), upload_to="services/static/services/videos/")
     title = models.CharField(_("Title"), max_length=100)
-    
+
     class Meta:
+        db_table = 'video_servicio'  # Nombre de la tabla en español
         verbose_name = _("Service Video")
         verbose_name_plural = _("Service Videos")
 
@@ -60,10 +58,11 @@ class Product(models.Model):
     unit = models.CharField(_("Unit"), max_length=20, help_text="e.g., square meter, piece")
     category = models.ForeignKey(ServiceCategory, on_delete=models.SET_NULL, null=True, related_name="products")
     is_active = models.BooleanField(_("Is active"), default=True)
-    
+
     class Meta:
+        db_table = 'producto'  # Nombre de la tabla en español
         verbose_name = _("Product")
         verbose_name_plural = _("Products")
-    
+
     def __str__(self):
         return self.name

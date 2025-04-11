@@ -1,7 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
-from django.contrib import admin
 from .models import ServiceCategory, Service, ServiceImage, ServiceVideo, Product
 
 @admin.register(ServiceCategory)
@@ -11,10 +8,10 @@ class ServiceCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'base_price', 'is_active', 'created_at', 'updated_at')
-    list_filter = ('category', 'is_active')
-    search_fields = ('name', 'description')
-    date_hierarchy = 'created_at'
+     list_display = ('name', 'category', 'base_price', 'is_active', 'created_at')
+     list_filter = ('category', 'is_active')
+     search_fields = ('name', 'description')
+     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(ServiceImage)
 class ServiceImageAdmin(admin.ModelAdmin):

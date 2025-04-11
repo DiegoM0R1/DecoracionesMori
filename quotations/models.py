@@ -1,4 +1,3 @@
-# quotations/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from accounts.models import User
@@ -28,6 +27,7 @@ class Quotation(models.Model):
     notes = models.TextField(_("Notes"), blank=True)
     
     class Meta:
+        db_table = 'cotizacion'  # Nombre de la tabla en español
         verbose_name = _("Quotation")
         verbose_name_plural = _("Quotations")
     
@@ -63,6 +63,7 @@ class QuotationItem(models.Model):
     total_price = models.DecimalField(_("Total Price"), max_digits=10, decimal_places=2)
     
     class Meta:
+        db_table = 'item_cotizacion'  # Nombre de la tabla en español
         verbose_name = _("Quotation Item")
         verbose_name_plural = _("Quotation Items")
     

@@ -1,4 +1,3 @@
-# appointments/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from accounts.models import User
@@ -12,6 +11,7 @@ class StaffAvailability(models.Model):
     is_available = models.BooleanField(default=True)
     
     class Meta:
+        db_table = 'disponibilidad_personal'  # Nombre de la tabla en español
         verbose_name = _("Staff Availability")
         verbose_name_plural = _("Staff Availabilities")
         unique_together = ("staff", "date", "start_time")
@@ -35,6 +35,6 @@ class Appointment(models.Model):
     notes = models.TextField(_("Notes"), blank=True)
     
     class Meta:
+        db_table = 'cita'  # Nombre de la tabla en español
         verbose_name = _("Appointment")
         verbose_name_plural = _("Appointments")
-
