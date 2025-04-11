@@ -25,7 +25,10 @@ class AppointmentCalendarView(LoginRequiredMixin, ListView):
         context['service_id'] = self.request.GET.get('service')
         return context
 
-class AppointmentRequestView(CreateView):
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class AppointmentRequestView(LoginRequiredMixin, CreateView):
+    login_url = 'account_login'
     model = Appointment
     form_class = AppointmentRequestForm
     template_name = 'appointments/request_appointment.html'
@@ -147,8 +150,10 @@ def appointment_list(request):
     
     return render(request, 'appointments/appointment_list.html', context)
 
-@login_required(login_url='client_login')
-def request_appointment(request):
+from django.contrib.auth.decorators import login_required
+
+@login_required(login_url='account_login')
+def request_appointment(request, service_id=None):
     """Vista para que el cliente solicite una nueva cita"""
     if request.method == 'POST':
         service_id = request.POST.get('service')
@@ -162,7 +167,7 @@ def request_appointment(request):
             # Verificar que la disponibilidad esté disponible
             if not availability.is_available:
                 messages.error(request, 'El horario seleccionado ya no está disponible.')
-                return redirect('request_appointment')
+                return redirect('appointments:request_appointment')
             
             # Crear la cita
             appointment = Appointment.objects.create(
@@ -178,7 +183,7 @@ def request_appointment(request):
             availability.save()
             
             messages.success(request, 'Cita solicitada correctamente. Espere a que sea confirmada.')
-            return redirect('appointment_detail', appointment_id=appointment.id)
+            return redirect('appointments:appointment_detail', appointment_id=appointment.id)
             
         except (Service.DoesNotExist, StaffAvailability.DoesNotExist):
             messages.error(request, 'Ocurrió un error al crear la cita. Intente nuevamente.')
@@ -223,3 +228,7 @@ def get_availabilities(request):
     
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+    
+def client_dashboard(request):
+    # Your logic here
+    return render(request, 'template_name.html')

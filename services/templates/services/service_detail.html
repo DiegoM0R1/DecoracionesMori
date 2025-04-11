@@ -1,9 +1,11 @@
 {% extends "base.html" %}
+{% load socialaccount %}
 
 {% block title %}{{ service.name }} - DecoracionesMori{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -21,10 +23,56 @@
                     {% endif %}
                 </div>
                 
-                
-                <div class="mt-4">
-                    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg">Solicitar Servicio</a>
-                </div>
+                <!-- En la plantilla services/templates/services/detalle_servicio.html -->
+
+<!-- Para el botón de solicitar servicio -->
+{% if user.is_authenticated %}
+<a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg">Solicitar Servicio</a>
+{% else %}
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#loginModal">
+    Solicitar Servicio
+</button>
+{% endif %}
+
+<!-- Y más abajo, asegúrate de tener el modal -->
+{% if not user.is_authenticated %}
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Iniciar sesión para continuar</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="text-center">Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.</p>
+            
+            <div class="text-center mb-4">
+                <a href="{% provider_login_url 'google' process='login' next=request.path %}" class="btn btn-google btn-block">
+                    <i class="fab fa-google"></i> Iniciar sesión con Google
+                </a>
+            </div>
+            
+            <div class="text-center">
+                <p>¿No tienes una cuenta?</p>
+                <a href="{% provider_login_url 'google' process='signup' next=request.path %}" class="btn btn-outline-primary">
+                    Registrarse con Google
+                </a>
+            </div>
+            
+            <hr>
+            
+            <div class="text-center">
+                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-link">Iniciar sesión con correo electrónico</a>
+                <br>
+                <a href="{% url 'account_signup' %}?next={{ request.path }}" class="btn btn-link">Registrarse con correo electrónico</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endif %}
             </div>
             <div class="col-md-6">
                 {% if service.main_image %}
@@ -106,13 +154,56 @@
             </div>
             
             <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h3 class="card-title">Solicita una cotización</h3>
-                        <p>Completa el formulario y te contactaremos a la brevedad para brindarte una cotización personalizada.</p>
-                        <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary w-100">Solicitar Cotización</a>
-                    </div>
-                </div>
+               <!-- En la plantilla services/templates/services/detalle_servicio.html -->
+
+<!-- Para el botón de solicitar servicio -->
+{% if user.is_authenticated %}
+<a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg">Solicitar Servicio</a>
+{% else %}
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#loginModal">
+    Solicitar Servicio
+</button>
+{% endif %}
+
+<!-- Y más abajo, asegúrate de tener el modal -->
+{% if not user.is_authenticated %}
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Iniciar sesión para continuar</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="text-center">Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.</p>
+            
+            <div class="text-center mb-4">
+                <a href="{% provider_login_url 'google' process='login' next=request.path %}" class="btn btn-google btn-block">
+                    <i class="fab fa-google"></i> Iniciar sesión con Google
+                </a>
+            </div>
+            
+            <div class="text-center">
+                <p>¿No tienes una cuenta?</p>
+                <a href="{% provider_login_url 'google' process='signup' next=request.path %}" class="btn btn-outline-primary">
+                    Registrarse con Google
+                </a>
+            </div>
+            
+            <hr>
+            
+            <div class="text-center">
+                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-link">Iniciar sesión con correo electrónico</a>
+                <br>
+                <a href="{% url 'account_signup' %}?next={{ request.path }}" class="btn btn-link">Registrarse con correo electrónico</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endif %}
                 
                 <div class="card mb-4">
                     <div class="card-body">
@@ -141,6 +232,64 @@
         </div>
     </div>
 </section>
+
+<!-- Modal de Login/Registro -->
+{% if not user.is_authenticated %}
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Iniciar sesión para continuar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.</p>
+                
+                <div class="text-center mb-4">
+                    <a href="{% provider_login_url 'google' process='login' %}" class="btn btn-google btn-block">
+                        <i class="fab fa-google"></i> Iniciar sesión con Google
+                    </a>
+                </div>
+                
+                <div class="text-center">
+                    <p>¿No tienes una cuenta?</p>
+                    <a href="{% provider_login_url 'google' process='signup' %}" class="btn btn-outline-primary">
+                        Registrarse con Google
+                    </a>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <a href="{% url 'account_login' %}" class="btn btn-link">Iniciar sesión con correo electrónico</a>
+                    <br>
+                    <a href="{% url 'account_signup' %}" class="btn btn-link">Registrarse con correo electrónico</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .btn-google {
+        background-color: #4285F4;
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .btn-google:hover {
+        background-color: #357ae8;
+        color: white;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}

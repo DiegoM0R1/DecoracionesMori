@@ -41,10 +41,58 @@ INSTALLED_APPS = [
     'accounts',
     'services',  # Ensure this line is present
     'quotations',
-    'appointments',   
+    'appointments', 
+
+    #google auth
+    # Allauth
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
 
 ]
+
+
+# Añadir estas configuraciones al final del archivo
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+# Configuraciones de allauth
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Puedes cambiarlo a 'mandatory' si quieres verificación obligatoria
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+
+# Configuración de socialaccount
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+# URL de redirección después del login
+LOGIN_REDIRECT_URL = 'client_dashboard'  # Asegúrate de que esta URL existe en tu proyecto
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'  # Redirección después de cerrar sesión
     
 JAZZMIN_SETTINGS = {
     "site_title": "Decoraciones Mori",
@@ -187,9 +235,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+
 ]
 
 ROOT_URLCONF = 'DecoracionesMori.urls'
+
+
+LOGIN_REDIRECT_URL = '/'  # Redirige a la página principal después de iniciar sesión
 
 TEMPLATES = [
     {
@@ -255,7 +308,22 @@ USE_I18N = True
 
 USE_TZ = True
 
+# En settings.py
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
 
+# Importante: redirección después del login con Google
+SOCIALACCOUNT_LOGIN_ON_GET = True
+LOGIN_REDIRECT_URL = '/'  # Página principal, no admin
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

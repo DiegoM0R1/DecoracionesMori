@@ -17,6 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
+
+# Personalización del panel de administración
+admin.site.site_header = "Panel de Administración de Decoraciones Mori"
+admin.site.site_title = "Panel Administrativo"
+admin.site.index_title = "Bienvenido al Panel de Administración"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,7 +34,13 @@ urlpatterns = [
 
     path('servicios/', include('services.urls', namespace='services')),
     path('appointments/', include('appointments.urls', namespace='appointments')),
-    path('citas/', include('appointments.urls')),
+    path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('accounts/', include('allauth.urls')),  # URLs de allauth para autenticación
+    path('cotizaciones/', include('quotations.urls', namespace='quotations')),
 
 
 ]
+# Servir archivos estáticos en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

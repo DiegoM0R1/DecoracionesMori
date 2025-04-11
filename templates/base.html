@@ -27,9 +27,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Inicio</a>
-                    </li>
+                   
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'services:service_list' %}">Servicios</a>
                     </li>
@@ -39,12 +37,42 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'services:contacto' %}">Contacto</a>
                     </li>
-                 
+                   
+                    <!-- Enlaces solo para usuarios autenticados -->
+               
                 </ul>
             </div>
         </div>
     </nav>
-
+    {% if user.is_authenticated and not user.is_staff %}
+    <!-- Navegación para clientes autenticados (NO admin) -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Decoraciones Mori</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'services:service_list' %}">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'appointments:appointment_list' %}">Mis Citas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'account_logout' %}">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% elif not user.is_authenticated %}
+  
+    {% endif %}
     <!-- Main Content -->
     <main>
         {% if messages %}
