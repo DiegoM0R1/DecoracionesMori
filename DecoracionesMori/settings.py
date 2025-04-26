@@ -94,6 +94,8 @@ LOGOUT_REDIRECT_URL = 'home'
 ACCOUNT_LOGOUT_ON_GET = True  # Permite cerrar sesión con un simple GET
 
 JAZZMIN_SETTINGS = {
+    "custom_css": "css/custom_admin.css",
+    "custom_js": "js/custom_admin.js",
     "site_title": "Decoraciones Mori",
     "site_header": "Decoraciones Mori Admin",
     "site_brand": "Decoraciones Mori",
@@ -104,8 +106,6 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "search_model": ["auth.User", "services.Service", "services.Product"],
     "language_chooser": False,
-    "custom_css": "css/custom_admin.css",
-    "custom_js": "js/custom_admin.js",
     "changeform_format": "horizontal_tabs",
     "topmenu_links": [
         {"name": "Inicio", "url": "admin:index", "permissions": ["auth.view_user"]},
