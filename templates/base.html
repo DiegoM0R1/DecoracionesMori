@@ -4,81 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Decoraciones Mori{% endblock %}</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/form_citas_extras.css">
-    <link rel="stylesheet" href="/static/js/buscar_cliente_dni_api.js">
+    <style>
+        /* Estilos adicionales y animaciones */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa; /* Gris claro de Bootstrap */
+            color: #343a40; /* Negro suave de Bootstrap */
+            line-height: 1.6;
+        }
+
+        /* Navbar Animado */
+        .navbar {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand img {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .navbar-brand:hover img {
+            transform: scale(1.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            padding: 0.8rem 1.2rem;
+            position: relative;
+        }
+
+        .navbar-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #f8f9fa; /* Blanco */
+            transition: width 0.3s ease-in-out;
+        }
+
+        .navbar-nav .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        /* Contenido Principal Animado */
+        main {
+            padding-top: 1rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .alert {
+            animation: slideInDown 0.4s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Footer Animado */
+        .footer {
+            background-color: #343a40 !important; /* Negro suave de Bootstrap */
+            color: #f8f9fa; /* Blanco de Bootstrap */
+            transition: all 0.3s ease-in-out;
+        }
+
+        .footer h5 {
+            color: #ffffff;
+            border-bottom: 2px solid #6c757d; /* Gris medio de Bootstrap */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer a {
+            color: #adb5bd; /* Gris claro de Bootstrap */
+            text-decoration: none;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .footer a:hover {
+            color: #ffffff;
+        }
+
+        .social-icons a {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .social-icons a:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+
+        .footer .text-center p {
+            animation: fadeInUp 0.5s ease-out 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="DecoracionesMori" height="40">
+            <a class="navbar-brand animate__animated animate__bounceInLeft" href="{% url 'home' %}">
+                <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="DecoracionesMori" height="40" class="d-inline-block align-middle">
                 Decoraciones Mori
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                   
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'services:service_list' %}">Servicios</a>
+                        <a class="nav-link animate__animated animate__fadeInDown animate__delay-0-5s" href="{% url 'services:service_list' %}"><i class="fas fa-cogs me-1"></i> Servicios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'services:nosotros' %}">Nosotros</a>
+                        <a class="nav-link animate__animated animate__fadeInDown animate__delay-0-6s" href="{% url 'services:nosotros' %}"><i class="fas fa-info-circle me-1"></i> Nosotros</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'services:contacto' %}">Contacto</a>
+                        <a class="nav-link animate__animated animate__fadeInDown animate__delay-0-7s" href="{% url 'services:contacto' %}"><i class="fas fa-envelope me-1"></i> Contacto</a>
                     </li>
-                   
-                    <!-- Enlaces solo para usuarios autenticados -->
-               
+
+                    {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link animate__animated animate__fadeInDown animate__delay-0-8s" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link animate__animated animate__fadeInDown animate__delay-0-9s" href="{% url 'accounts:register' %}">
+                            <i class="fas fa-user-plus me-1"></i> Registrarse
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown animate__animated animate__fadeInDown animate__delay-1s">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            {% if user.is_staff %}
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-tools me-1"></i> Panel Administración</a></li>
+                            {% else %}
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-id-card me-1"></i> Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'appointments:appointment_list' %}"><i class="fas fa-calendar-alt me-1"></i> Mis Citas</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-    {% if user.is_authenticated and not user.is_staff %}
-    <!-- Navegación para clientes autenticados (NO admin) -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Decoraciones Mori</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'services:service_list' %}">Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'appointments:appointment_list' %}">Mis Citas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_logout' %}">Cerrar Sesión</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% elif not user.is_authenticated %}
-  
-    {% endif %}
-    <!-- Main Content -->
-    <main>
+
+    <main class="mt-5 pt-5">
         {% if messages %}
             <div class="container mt-3">
                 {% for message in messages %}
-                    <div class="alert alert- alert-dismissible fade show">
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
@@ -89,8 +210,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="footer mt-5 py-4 bg-dark text-white">
+    <footer class="footer mt-5 py-4 bg-dark text-white animate__animated animate__fadeInUp animate__delay-0-3s">
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
@@ -100,10 +220,10 @@
                 <div class="col-md-4">
                     <h5>Enlaces Rápidos</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}" class="text-white">Inicio</a></li>
-                        <li><a href="{% url 'services:service_list' %}" class="text-white">Servicios</a></li>
-                        <li><a href="" class="text-white">Nosotros</a></li>
-                        <li><a href="" class="text-white">Contacto</a></li>
+                        <li><a href="{% url 'home' %}" class="text-white"><i class="fas fa-home me-2"></i> Inicio</a></li>
+                        <li><a href="{% url 'services:service_list' %}" class="text-white"><i class="fas fa-cogs me-2"></i> Servicios</a></li>
+                        <li><a href="{% url 'services:nosotros' %}" class="text-white"><i class="fas fa-info-circle me-2"></i> Nosotros</a></li>
+                        <li><a href="{% url 'services:contacto' %}" class="text-white"><i class="fas fa-envelope me-2"></i> Contacto</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -116,7 +236,7 @@
                     <div class="social-icons">
                         <a href="https://www.facebook.com/decoracionesmori" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://www.instagram.com/decoracionesmori/" class="text-white me-2"><i class="fab fa-instagram"></i></a>
-                        <a href="+51 923 614 593" class="text-white me-2"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://wa.me/51923614593" class="text-white me-2"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
@@ -128,11 +248,8 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Custom JS -->
     <script src="/static/js/main.js"></script>
     {% block extra_js %}{% endblock %}
 </body>

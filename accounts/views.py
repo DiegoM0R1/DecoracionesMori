@@ -1,68 +1,74 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from .forms import UserLoginForm
 from django.contrib.auth.decorators import login_required
-from .models import User
-from allauth.account.views import SignupView, LoginView
-from django.urls import reverse_lazy
+from .forms import UserRegistrationForm, UserUpdateForm
 
-
-
-def client_login(request):
-    """Vista para el login de clientes"""
-    if request.user.is_authenticated:
-        if request.user.is_staff:
-            return redirect('admin:index')  # Personal administrativo va al admin
-        else:
-            return redirect('/') 
-
-def client_logout(request):
-    """Vista para cerrar sesión de clientes"""
-    logout(request)
-    return redirect('client_login')
-
-# En accounts/views.py (asegúrate de que esta función esté correctamente implementada)
-@login_required(login_url='account_login')  # Cambiado a account_login para usar allauth
-def client_dashboard(request):
-    """Dashboard para clientes, donde pueden ver sus citas y cotizaciones"""
-    # Solo mostrar si el usuario es un cliente (no staff)
-    if request.user.is_staff:
-        return redirect('admin:index')
-    
-    # Obtenemos las citas del cliente
-    appointments = request.user.appointments.all().order_by('-created_at')
-    
-    # Obtenemos las cotizaciones del cliente
-    quotations = request.user.quotations.all().order_by('-created_at')
-    
-    context = {
-        'appointments': appointments,
-        'quotations': quotations,
-    }
-    
-    return render(request, 'accounts/client_dashboard.html', context)
-
-@login_required(login_url='client_login')
-def client_profile(request):
-    """Vista para que el cliente vea y edite su perfil"""
+def user_login_view(request):
+    """
+    Vista para el inicio de sesión de usuarios
+    """
     if request.method == 'POST':
-        # Obtener datos del formulario
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        phone_number = request.POST.get('phone_number')
-        address = request.POST.get('address')
-        
-        # Actualizar usuario
-        user = request.user
-        user.first_name = first_name
-        user.last_name = last_name
-        user.email = email
-        user.phone_number = phone_number
-        user.address = address
-        user.save()
-        
-        messages.success(request, 'Perfil actualizado correctamente.')
-        return redirect('client_profile')
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, "Has iniciado sesión correctamente.")
+                return redirect('home')  # O la URL que prefieras después del login
+            else:
+                messages.error(request, "Nombre de usuario o contraseña incorrectos.")
+    else:
+        form = UserLoginForm()
     
-    return render(request, 'accounts/client_profile.html')
+    return render(request, 'accounts/login.html', {'form': form})
+
+def user_logout_view(request):
+    """
+    Vista para cerrar sesión de usuarios
+    """
+    logout(request)
+    messages.success(request, "Has cerrado sesión correctamente.")
+    return redirect('home')  # O la URL que prefieras después del logout
+
+def register_view(request):
+    """
+    Vista para el registro de nuevos usuarios
+    """
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Iniciar sesión automáticamente después del registro
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Registro exitoso. Bienvenido {username}!")
+                return redirect('home')  # Cambia 'home' por la URL deseada después del registro
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'accounts/register.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    """
+    Vista para el perfil de usuario
+    """
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tu perfil ha sido actualizado exitosamente.")
+            return redirect('profile')
+    else:
+        form = UserUpdateForm(instance=request.user)
+    
+    return render(request, 'accounts/profile.html', {'form': form})

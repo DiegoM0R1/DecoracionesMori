@@ -33,4 +33,7 @@ class ServiceDetailView(DetailView):
         context['imagenes'] = self.object.images.all()
         context['videos'] = self.object.videos.all()
         context['servicios_relacionados'] = Service.objects.filter(category=self.object.category).exclude(id=self.object.id)[:5]
+        # Añadir contexto para el modal de login si no está autenticado
+        if not self.request.user.is_authenticated:
+            context['show_login_modal'] = True
         return context

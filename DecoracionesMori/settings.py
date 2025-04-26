@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     #google auth
     # Allauth
     'django.contrib.sites',
-
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -55,29 +54,28 @@ INSTALLED_APPS = [
 
 ]
 
+AUTH_USER_MODEL = 'accounts.User'
 
-# Añadir estas configuraciones al final del archivo
+
 AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
+    # Django's default authentication backend
     'django.contrib.auth.backends.ModelBackend',
     
-    # `allauth` specific authentication methods, such as login by e-mail
+    # Add the django-allauth authentication backend
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID = 1
+# Configuraciones de django-allauth
+SITE_ID = 1  # Asegúrate de tener un Site configurado en el admin
 
-# Configuraciones de allauth
+# Quita estas configuraciones antiguas
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Puedes cambiarlo a 'mandatory' si quieres verificación obligatoria
-ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_SESSION_REMEMBER = True
-ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_USERNAME_REQUIRED = True
 
-# Configuración de socialaccount
+
+
+# Configuraciones de inicio de sesión social
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -90,10 +88,11 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# URL de redirección después del login
-LOGIN_REDIRECT_URL = 'client_dashboard'  # Asegúrate de que esta URL existe en tu proyecto
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'  # Redirección después de cerrar sesión
-    
+# URLs de redireccionamiento
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+ACCOUNT_LOGOUT_ON_GET = True  # Permite cerrar sesión con un simple GET
+
 JAZZMIN_SETTINGS = {
     "site_title": "Decoraciones Mori",
     "site_header": "Decoraciones Mori Admin",
@@ -259,6 +258,26 @@ TEMPLATES = [
         },
     },
 ]
+#cofiguracion de estilos de logeo con gmail
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.template': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 
 WSGI_APPLICATION = 'DecoracionesMori.wsgi.application'
 
@@ -308,22 +327,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-# En settings.py
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
 
-# Importante: redirección después del login con Google
-SOCIALACCOUNT_LOGIN_ON_GET = True
-LOGIN_REDIRECT_URL = '/'  # Página principal, no admin
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

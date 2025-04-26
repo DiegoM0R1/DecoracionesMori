@@ -20,10 +20,6 @@ from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 
-# Personalización del panel de administración
-admin.site.site_header = "Panel de Administración de Decoraciones Mori"
-admin.site.site_title = "Panel Administrativo"
-admin.site.index_title = "Bienvenido al Panel de Administración"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +31,7 @@ urlpatterns = [
     path('servicios/', include('services.urls', namespace='services')),
     path('appointments/', include('appointments.urls', namespace='appointments')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('accounts/', include('allauth.urls')),  # URLs de allauth para autenticación
+    path('accounts/', include('allauth.urls')),
     path('cotizaciones/', include('quotations.urls', namespace='quotations')),
 
 

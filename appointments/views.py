@@ -9,7 +9,12 @@ from .forms import AppointmentRequestForm
 from accounts.models import User
 from services.models import Service
 from django.utils import timezone
-
+from django.views.decorators.csrf import csrf_exempt
+import requests
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
 class AppointmentCalendarView(LoginRequiredMixin, ListView):
     template_name = 'appointments/calendar.html'
     model = StaffAvailability
@@ -84,9 +89,7 @@ class AppointmentRequestView(LoginRequiredMixin, CreateView):
         if availabilities.exists():
             appointment.staff_availability = availabilities.first()
 
-from django.views.decorators.csrf import csrf_exempt
 
-import requests
 
 @csrf_exempt
 def buscar_cliente_por_dni(request):

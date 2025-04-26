@@ -1,7 +1,274 @@
 {% extends "base.html" %}
 
 {% block title %} - Inicio{% endblock %}
+{% block extra_css %}
+<style>
+    /* Estilos para la sección Hero */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+    }
 
+    .hero-carousel .carousel-item {
+        height: 80vh; /* Ajusta la altura según necesites */
+        background-size: cover;
+        background-position: center;
+    }
+
+    .hero-carousel .carousel-item img {
+        object-fit: cover;
+        height: 100%;
+    }
+
+    .hero-carousel .carousel-caption {
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        width: 80%;
+    }
+
+    .hero-carousel .carousel-caption h1 {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .hero-carousel .carousel-caption p {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease-out 0.3s;
+    }
+
+    .hero-carousel .carousel-caption .btn-primary {
+        animation: zoomIn 0.8s ease-out 0.6s;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        opacity: 0.7;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        opacity: 1;
+    }
+
+    /* Estilos para la sección de Servicios */
+    .services-overview {
+        background-color: #f8f9fa; /* Gris claro */
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #343a40; /* Negro suave */
+        margin-bottom: 0.5rem;
+        animation: slideInDown 1s ease-out;
+    }
+
+    .section-subtitle {
+        color: #6c757d; /* Gris medio */
+        margin-bottom: 2rem;
+        animation: slideInDown 1s ease-out 0.2s;
+    }
+
+    .service-card {
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .service-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .service-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .service-card .card-title {
+        font-size: 1.25rem;
+        color: #343a40;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-card .card-text {
+        color: #495057;
+        font-size: 1rem;
+    }
+
+    .service-card .btn-outline-primary {
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    .service-card .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Estilos para la sección ¿Por qué elegirnos? */
+    .why-choose-us {
+        /* Mantiene el bg-light */
+    }
+
+    .feature-box {
+        padding: 2rem;
+        border-radius: 0.5rem;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .feature-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite alternate;
+        display: inline-block;
+    }
+
+    .feature-box h4 {
+        color: #343a40;
+        margin-bottom: 1rem;
+    }
+
+    .feature-box p {
+        color: #495057;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.05);
+        }
+    }
+
+    /* Estilos para la sección de Testimonios */
+    .testimonials {
+        background-color: #e9ecef; /* Gris muy claro */
+    }
+
+    .testimonial-item {
+        padding: 2rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin: 1rem;
+    }
+
+    .testimonial-item img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin: 0 auto 1rem;
+        border: 3px solid #007bff;
+        animation: rotate 5s linear infinite;
+    }
+
+    .testimonial-item blockquote {
+        margin-bottom: 0;
+    }
+
+    .testimonial-item blockquote p {
+        font-size: 1.1rem;
+        color: #495057;
+        font-style: italic;
+    }
+
+    .testimonial-item blockquote footer.blockquote-footer {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Estilos para la sección CTA */
+    .cta-section {
+        /* Mantiene el bg-primary y text-white */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        animation: pulseBackground 5s infinite alternate;
+    }
+
+    .cta-section h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        animation: zoomIn 1s ease-out;
+    }
+
+    .cta-section p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        animation: zoomIn 1s ease-out 0.2s;
+    }
+
+    .cta-section .btn-light {
+        animation: fadeInUp 1s ease-out 0.4s;
+    }
+
+    @keyframes pulseBackground {
+        0% { background-color: #007bff; }
+        100% { background-color: #0056b3; }
+    }
+
+    /* Keyframes generales */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+{% endblock %}
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">

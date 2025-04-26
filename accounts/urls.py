@@ -1,15 +1,12 @@
 
 from django.urls import path
-from .views import client_login, client_logout, client_dashboard, client_profile
-from django.views.generic import TemplateView
-app_name = 'accounts'  # Add this line
+from . import views
+
+app_name = 'accounts'
 
 urlpatterns = [
-    # URLs para clientes
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('login/', client_login, name='login'),
-    path('logout/', client_logout, name='logout'),
-    path('dashboard/', client_dashboard, name='dashboard'),  # Ensure this line is present
-    path('profile/', client_profile, name='profile'),  # Ensure this line is present
+    path('register/', views.register_view, name='register'),
+    path('login/', views.user_login_view, name='login'),
+    path('logout/', views.user_logout_view, name='logout'),
+    path('profile/', views.profile_view, name='profile'),
 ]
