@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load i18n %} {# Cargar tags de internacionalización si usas _() directamente en plantilla #}
+
+{% block title %}{% trans "Detalle de Cita" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 appointment-detail">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                {# Usamos trans para traducir texto estático #}
+                <h2>{% trans "Cita" %} #{{ appointment.id }}</h2>
+                <span class="status-badge
+                    {% if appointment.status == 'pending' %}badge-warning
+                    {% elif appointment.status == 'confirmed' %}badge-success
+                    {% elif appointment.status == 'completed' %}badge-info
+                    {% elif appointment.status == 'cancelled' %}badge-danger
+                    {% endif %}">
+                    {# Usamos get_status_display para obtener la versión legible del choice #}
+                    {{ appointment.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h3>{% trans "Detalles de la Cita" %}</h3>
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row">{% trans "Servicio" %}:</th>
+                                <td>{{ appointment.service.name }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">{% trans "Fecha" %}:</th>
+                                <td>
+                                    {# CORREGIDO: Usar appointment_date y verificar si existe #}
+                                    {% if appointment.appointment_date %}
+                                        {{ appointment.appointment_date|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span class="text-muted">{% trans "Pendiente" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">{% trans "Hora" %}:</th>
+                                <td>
+                                    {# CORREGIDO: Usar appointment_time y verificar si existe #}
+                                    {% if appointment.appointment_time %}
+                                        {{ appointment.appointment_time|time:"H:i" }}
+                                    {% else %}
+                                         <span class="text-muted">{% trans "Pendiente" %}</span>
+                                    {% endif %}
+                                    {# Nota: Ya no mostramos hora de fin aquí porque no la tenemos directamente #}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">{% trans "Profesional" %}:</th>
+                                <td>
+                                    {# CORREGIDO: Usar staff directo y verificar si existe #}
+                                    {% if appointment.staff %}
+                                        {{ appointment.staff.get_full_name|default:appointment.staff.username }}
+                                    {% else %}
+                                        <span class="text-muted">{% trans "No asignado" %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">{% trans "Fecha de Solicitud" %}:</th>
+                                <td>{{ appointment.created_at|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h3>{% trans "Proceso de la Cita" %}</h3>
+                    {# La lógica del timeline basada en status no necesita cambios #}
+                    <div class="appointment-timeline">
+                        <div class="timeline-item {% if appointment.status == 'pending' or appointment.status == 'confirmed' or appointment.status == 'completed' %}active{% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>{% trans "Cita Solicitada" %}</h4>
+                                <p>{% trans "La cita ha sido solicitada y está pendiente de confirmación." %}</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item {% if appointment.status == 'confirmed' or appointment.status == 'completed' %}active{% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>{% trans "Cita Confirmada" %}</h4>
+                                <p>{% trans "La cita ha sido confirmada por nuestro equipo." %}</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item {% if appointment.status == 'completed' %}active{% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>{% trans "Servicio Completado" %}</h4>
+                                <p>{% trans "El servicio ha sido realizado exitosamente." %}</p>
+                            </div>
+                        </div>
+                         {% if appointment.status == 'cancelled' %}
+                         <div class="timeline-item active"> {# Marcar como activo si está cancelado #}
+                            <div class="timeline-marker bg-danger border-danger"></div> {# Estilo diferente para cancelado #}
+                            <div class="timeline-content">
+                                <h4 class="text-danger">{% trans "Cita Cancelada" %}</h4>
+                                <p>{% trans "La cita ha sido cancelada." %}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if appointment.notes %}
+            <div class="appointment-notes mt-4">
+                <h3>{% trans "Notas" %}</h3>
+                <div class="card bg-light">
+                    <div class="card-body">
+                        {{ appointment.notes|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-footer text-muted">
+             {# Asegúrate que la URL 'appointments:appointment_list' exista en tus urls.py #}
+            <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary">{% trans "Volver a Mis Citas" %}</a>
+
+             {# Asegúrate que la URL 'cancel_appointment' exista y funcione #}
+            {% if appointment.status == 'pending' or appointment.status == 'confirmed' %} {# Permitir cancelar si está pendiente o confirmada? Ajusta según tu lógica #}
+            <button class="btn btn-danger float-right" data-toggle="modal" data-target="#cancelModal">{% trans "Cancelar Cita" %}</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">{% trans "Confirmar Cancelación" %}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>{% trans "¿Está seguro que desea cancelar esta cita?" %}</p>
+                <p class="text-danger"><strong>{% trans "Esta acción no se puede deshacer." %}</strong></p>
+            </div>
+            <div class="modal-footer">
+                 <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}" style="display: inline;">
+                     {% csrf_token %}
+                     <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar Cita" %}</button>
+                 </form>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No, Mantener Cita" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% block extra_css %}
+{# Mover los estilos aquí o a un archivo CSS separado #}
+<style>
+.appointment-timeline {
+    position: relative;
+    border-left: 2px solid #ddd; /* Línea base de la timeline */
+    padding-left: 28px; /* Espacio para los marcadores */
+    margin-left: 10px; /* Margen para que no pegue al borde */
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+    opacity: 0.6; /* Items no activos se ven más tenues */
+}
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item.active {
+    opacity: 1; /* Items activos son opacos */
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -39px; /* Posicionar sobre la línea (-28px - 10px - 1px) */
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #aaa; /* Marcador por defecto */
+    border: 3px solid #fff; /* Borde blanco para separar de la línea */
+    z-index: 1;
+}
+
+.timeline-item.active .timeline-marker {
+    background-color: #28a745; /* Marcador activo (verde) */
+}
+.timeline-item .bg-danger { /* Estilo específico para marcador cancelado */
+     background-color: #dc3545 !important;
+}
+.timeline-item .border-danger {
+     border-color: #dc3545 !important;
+}
+
+
+.timeline-content h4 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.timeline-content p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+.timeline-item.active .timeline-content p {
+    color: #333;
+}
+
+.status-badge {
+    padding: 0.4em 0.7em;
+    font-size: 0.85em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: #fff;
+}
+
+.badge-warning { background-color: #ffc107; color: #212529;}
+.badge-success { background-color: #28a745; }
+.badge-info { background-color: #17a2b8; }
+.badge-danger { background-color: #dc3545; }
+
+/* Asegurar que float-right funcione bien en BS4/BS5 */
+.float-right { float: right !important; }
+
+</style>
+{% endblock %}
+
+{% endblock %}
+

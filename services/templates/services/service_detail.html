@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load socialaccount %}
+{% comment %}{% load service_tags %}{% endcomment %}
 
 {% block title %}{{ service.name }} - DecoracionesMori{% endblock %}
 
@@ -158,6 +159,29 @@
             transform: scale(1);
         }
     }
+    
+    /* Nuevos estilos para galería de imágenes */
+    .service-gallery {
+        margin-top: 3rem;
+    }
+    
+    .gallery-thumbnail {
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .gallery-thumbnail:hover {
+        transform: scale(1.05);
+    }
+    
+    .gallery-thumbnail img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
 </style>
 {% endblock %}
 
@@ -187,10 +211,178 @@
                 {% endif %}
             </div>
             <div class="col-md-6">
-                {% if service.main_image %}
-                <img src="{{ service.main_image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
-                {% else %}
-                <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                {% with featured_image=service.get_featured_image %}
+                    {% if featured_image %}
+                        {% if featured_image.image_url %}
+                            <img src="{{ featured_image.image_url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}"
+                                 onerror="this.onerror=null; this.src='{% if featured_image.image %}{{ featured_image.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}';">
+                        {% elif featured_image.image %}
+                            <img src="{{ featured_image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                        {% else %}
+                            <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                        {% endif %}
+                    {% else %}
+                        <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="service-description py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-4"><i class="fas fa-info-circle me-2"></i>Acerca de este servicio</h2>
+                        <div class="service-content">
+                            {{ service.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if service.images.count > 1 %}
+                <div class="service-gallery">
+                    <h3 class="mb-4"><i class="fas fa-images me-2"></i>Galería de imágenes</h3>
+                    <div class="row">
+                        {% for imagen in service.images.all %}
+                        <div class="col-md-4 gallery-thumbnail">
+                            <a href="{% if imagen.image_url %}{{ imagen.image_url }}{% elif imagen.image %}{{ imagen.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}" 
+                               data-lightbox="service-gallery" 
+                               data-title="{{ service.name }} - Imagen {{ forloop.counter }}">
+                                {% if imagen.image_url %}
+                                <img src="{{ imagen.image_url }}" alt="{{ service.name }}" 
+                                     onerror="this.onerror=null; this.src='{% if imagen.image %}{{ imagen.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}';">
+                                {% elif imagen.image %}
+                                <img src="{{ imagen.image.url }}" alt="{{ service.name }}">
+                                {% else %}
+                                <img src="/static/imagen/default-service.jpg" alt="{{ service.name }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if service.videos.exists %}
+                        <div class="service-videos mt-5">
+                            <h3 class="mb-4"><i class="fas fa-video me-2"></i>Videos</h3>
+                            {% for video in service.videos.all %}
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h4 class="card-title">{{ video.title }}</h4>
+                                    <div class="ratio ratio-16x9 mt-3">
+                                        {% if video.video_url %}
+                                            {# Si hay código de incorporación (iframe), renderízalo directamente #}
+                                            {{ video.video_url|safe }}
+                                        {% elif video.video %}
+                                            {# Si hay un archivo de video subido, usa la etiqueta <video> #}
+                                            <video controls class="w-100">
+                                                {# Asumiendo MP4, podrías necesitar ajustar el 'type' si usas otros formatos #}
+                                                <source src="{{ video.video.url }}" type="video/mp4"> 
+                                                Tu navegador no soporta la etiqueta de video HTML5. Puedes <a href="{{ video.video.url }}">descargar el video aquí</a>.
+                                            </video>
+                                        {% else %}
+                                            {# Caso improbable si la validación del modelo funciona, pero por si acaso #}
+                                            <div class="alert alert-warning" role="alert">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                No hay fuente de video disponible para "{{ video.title }}".
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Detalles del servicio</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-tag me-2"></i>Categoría</span>
+                                <span class="badge bg-primary rounded-pill">{{ service.category.name }}</span>
+                            </li>
+                            {% if service.base_price %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-dollar-sign me-2"></i>Precio desde</span>
+                                <span class="fw-bold">S/. {{ service.base_price }}</span>
+                            </li>
+                            {% endif %}
+                            {% if service.created_at %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar me-2"></i>Disponible desde</span>
+                                <span>{{ service.created_at|date:"d M, Y" }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        
+                        <div class="mt-4">
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary w-100">
+                                <i class="fas fa-calendar-check me-2"></i> Solicitar este servicio
+                            </a>
+                            {% else %}
+                            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="fas fa-sign-in-alt me-2"></i> Solicitar este servicio
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if related_services %}
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h3 class="mb-0"><i class="fas fa-list me-2"></i>Servicios relacionados</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for related in related_services %}
+                            <li class="list-group-item">
+                                <a href="{% url 'services:detalle_servicio' related.pk %}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center">
+                                        <div class="col-md-6">
+                                            {% with featured_image=service.get_featured_image %}
+                                                {% if featured_image %}
+                                                    {% if featured_image.image_url %}
+                                                        {# Renderizar el código de incorporación (iframe) directamente #}
+                                                        <div class="embed-responsive embed-responsive-16by9 rounded shadow-sm"> {# Contenedor opcional para responsiveness #}
+                                                            {{ featured_image.image_url|safe }}
+                                                        </div>
+                                                    {% elif featured_image.image %}
+                                                        {# Mostrar la imagen subida #}
+                                                        <img src="{{ featured_image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                                                    {% else %}
+                                                        {# Imagen por defecto si no hay ni url ni archivo #}
+                                                        <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
+                                                    {% endif %}
+                                                {% else %}
+                                                    {# Imagen por defecto si no hay imagen destacada #}
+                                                    <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-0">{{ related.name }}</h6>
+                                            <small class="text-muted">{{ related.category.name }}</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -249,4 +441,28 @@
     });
 </script>
 {% endif %}
+
+<script>
+    // Configurar lightbox
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'fadeDuration': 300,
+        'albumLabel': "Imagen %1 de %2",
+        'positionFromTop': 80
+    });
+    
+    // Manejar errores de carga de imágenes
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('error', function() {
+                // Si la URL de la imagen falla, intentamos mostrar una imagen de respaldo
+                if (this.getAttribute('data-fallback')) {
+                    this.src = this.getAttribute('data-fallback');
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -47,11 +47,28 @@
             {% for service in services %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card service-card h-100">
-                    {% if service.image %}
-                    <img src="{{ service.image.url }}" class="card-img-top" alt="{{ service.name }}">
-                    {% else %}
-                    <img src="/static/imagen/default-service.jpg" class="card-img-top" alt="{{ service.name }}">
-                    {% endif %}
+                    {% with featured_image=service.get_featured_image %}
+                    <div class="card-img-top-container" style="height: 220px; overflow: hidden; background-color: #eee; border-top-left-radius: 0.8rem; border-top-right-radius: 0.8rem;">
+
+                                                {% if featured_image %}
+                                                    {% if featured_image.image_url %}
+                                                        {# Renderizar el código de incorporación (iframe) directamente #}
+                                                        <div class="embed-responsive embed-responsive-16by9 rounded shadow-sm"> {# Contenedor opcional para responsiveness #}
+                                                            {{ featured_image.image_url|safe }}
+                                                        </div>
+                                                    {% elif featured_image.image %}
+                                                        {# Mostrar la imagen subida #}
+                                                        <img src="{{ featured_image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                                                    {% else %}
+                                                        {# Imagen por defecto si no hay ni url ni archivo #}
+                                                        <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
+                                                    {% endif %}
+                                                {% else %}
+                                                    {# Imagen por defecto si no hay imagen destacada #}
+                                                    <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
+                                                {% endif %}
+                    </div>
+                                            {% endwith %}
                     <div class="card-body">
                         <h5 class="card-title">{{ service.name }}</h5>
                         <p class="card-text">{{ service.description|truncatewords:15 }}</p>

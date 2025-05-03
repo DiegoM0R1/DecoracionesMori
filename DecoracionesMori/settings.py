@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -101,7 +105,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Decoraciones Mori",
     "welcome_sign": "Bienvenido al Panel de Administración",
     "site_logo": "imagen/logo.png",
-    "theme": "darkly",
+    
     "show_sidebar": True,
     "navigation_expanded": True,
     "search_model": ["auth.User", "services.Service", "services.Product"],
@@ -186,8 +190,10 @@ JAZZMIN_SETTINGS = {
                 {"url": "admin:quotation_report", "label": "Reporte de Cotizaciones"},
                 {"url": "admin:appointment_report", "label": "Reporte de Citas"}
             ]
+            
         },
     ],
+
     #login panel admin
     
 
@@ -214,8 +220,8 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme": "darkly",
-    "dark_mode_theme": "darkly",
+    
+    
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",
@@ -325,6 +331,8 @@ TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 
@@ -333,7 +341,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
 
+# Ruta absoluta en el sistema de archivos donde se guardarán los archivos subidos
+# Asegúrate de que esta carpeta exista y tenga permisos de escritura para el servidor web
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -348,4 +360,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Or your preferred email provider
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') # <-- Lee el usuario del .env
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # <-- Lee la contraseña del .env
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # <-- IMPORTANTE: Establece el remitente por defecto

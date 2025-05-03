@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Mis Citas" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>{% trans "Mis Citas" %}</h1>
+        {# Puedes añadir un botón para solicitar una nueva cita si tienes una vista para eso #}
+        {# <a href="{% url 'appointments:select_service_for_request' %}" class="btn btn-primary">{% trans "Solicitar Nueva Cita" %}</a> #}
+    </div>
+
+    {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">{% trans "Servicio" %}</th>
+                        <th scope="col">{% trans "Fecha" %}</th>
+                        <th scope="col">{% trans "Hora" %}</th>
+                        <th scope="col">{% trans "Profesional" %}</th>
+                        <th scope="col">{% trans "Estado" %}</th>
+                        <th scope="col">{% trans "Acciones" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <th scope="row">{{ appointment.id }}</th>
+                        <td>{{ appointment.service.name }}</td>
+                        <td>
+                            {% if appointment.appointment_date %}
+                                {{ appointment.appointment_date|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.appointment_time %}
+                                {{ appointment.appointment_time|time:"H:i" }}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                         <td>
+                            {% if appointment.staff %}
+                                {{ appointment.staff.get_full_name|default:appointment.staff.username }}
+                            {% else %}
+                                <span class="text-muted">{% trans "N/A" %}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge {% if appointment.status == 'pending' %}badge-warning{% elif appointment.status == 'confirmed' %}badge-success{% elif appointment.status == 'completed' %}badge-info{% elif appointment.status == 'cancelled' %}badge-danger{% endif %}">
+                                {{ appointment.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'appointments:appointment_detail' appointment.id %}" class="btn btn-sm btn-info">
+                                {% trans "Ver Detalle" %}
+                            </a>
+                            {# Podrías añadir botón de cancelar aquí también si aplica #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            {% trans "No tienes citas programadas por el momento." %}
+        </div>
+    {% endif %}
+</div>
+
+{# Incluir los estilos del status-badge si no están en base.html o un CSS global #}
+{% block extra_css %}
+<style>
+.status-badge {
+    display: inline-block; /* Asegura que tome padding */
+    padding: 0.4em 0.7em;
+    font-size: 0.85em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: #fff;
+}
+.badge-warning { background-color: #ffc107; color: #212529;}
+.badge-success { background-color: #28a745; }
+.badge-info { background-color: #17a2b8; }
+.badge-danger { background-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% endblock content %}
