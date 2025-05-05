@@ -235,6 +235,7 @@ JAZZMIN_UI_TWEAKS = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware', # <--- ¡IMPORTANTE!
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -335,6 +336,19 @@ USE_L10N = True
 
 USE_TZ = True
 
+# --- Rutas para buscar archivos de traducción (.po, .mo) ---
+# ¡Esta es la línea clave que necesitas añadir/asegurar!
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+    # os.path.join(BASE_DIR, 'locale'), # Alternativa si usas os.path
+]
+
+# Opcional: Lista de idiomas disponibles
+# from django.utils.translation import gettext_lazy as _
+# LANGUAGES = [
+#    ('en', _('English')),
+#    ('es', _('Spanish')),
+# ]
 
 
 # Static files (CSS, JavaScript, Images)
