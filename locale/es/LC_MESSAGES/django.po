@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 05:18-0500\n"
+"POT-Creation-Date: 2025-05-06 07:48-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1339,7 +1339,9 @@ msgstr ""
 
 #: .\accounts\templates\account\password_reset.html:28
 msgid "Please contact us if you have any trouble resetting your password."
-msgstr "Póngase en contacto con nosotros si tiene problemas para restablecer su contraseña"
+msgstr ""
+"Póngase en contacto con nosotros si tiene problemas para restablecer su "
+"contraseña"
 
 #: .\accounts\templates\account\password_reset.html:32
 msgid "Regresar al login"
@@ -1622,18 +1624,19 @@ msgstr ""
 #: .\appointments\models.py:74
 #: .\appointments\templates\appointments\appointment_detail.html:42
 #: .\appointments\templates\appointments\appointment_detail.html:53
+#: .\templates\admin\index.html:364 .\templates\admin\index.html:484
 msgid "Pendiente"
 msgstr ""
 
-#: .\appointments\models.py:75
+#: .\appointments\models.py:75 .\templates\admin\index.html:366
 msgid "Confirmada"
 msgstr ""
 
-#: .\appointments\models.py:76
+#: .\appointments\models.py:76 .\templates\admin\index.html:368
 msgid "Completada"
 msgstr ""
 
-#: .\appointments\models.py:77
+#: .\appointments\models.py:77 .\templates\admin\index.html:370
 msgid "Cancelada"
 msgstr ""
 
@@ -1665,7 +1668,7 @@ msgstr ""
 
 #: .\appointments\models.py:119
 #: .\appointments\templates\appointments\appointment_list.html:24
-#: .\services\admin.py:77 .\services\admin.py:111
+#: .\services\admin.py:104 .\services\admin.py:138
 msgid "Estado"
 msgstr ""
 
@@ -1678,7 +1681,7 @@ msgstr ""
 msgid "Cita"
 msgstr ""
 
-#: .\appointments\models.py:129
+#: .\appointments\models.py:129 .\templates\admin\index.html:301
 msgid "Citas"
 msgstr ""
 
@@ -1927,103 +1930,107 @@ msgstr "Artículo del presupuesto"
 msgid "Quotation Items"
 msgstr "elementos de cotización"
 
-#: .\services\admin.py:12
-msgid "Imagen del servicio"
-msgstr ""
-
-#: .\services\admin.py:13
-msgid "Imágenes del servicio"
-msgstr ""
-
-#: .\services\admin.py:19
+#: .\services\admin.py:25 .\services\admin.py:46
 msgid "Imagen (archivo)"
 msgstr ""
 
-#: .\services\admin.py:21
+#: .\services\admin.py:27 .\services\admin.py:48
 msgid "Imagen (URL)"
 msgstr ""
 
-#: .\services\admin.py:23
+#: .\services\admin.py:29 .\services\admin.py:50
 msgid "Destacada"
 msgstr ""
 
-#: .\services\admin.py:30
-msgid "Video del servicio"
-msgstr ""
-
 #: .\services\admin.py:31
-msgid "Videos del servicio"
-msgstr ""
-
-#: .\services\admin.py:37
-msgid "Título"
+msgid "Servicio asociado"
 msgstr ""
 
 #: .\services\admin.py:39
+msgid "Imagen del servicio"
+msgstr ""
+
+#: .\services\admin.py:40
+msgid "Imágenes del servicio"
+msgstr ""
+
+#: .\services\admin.py:57
+msgid "Video del servicio"
+msgstr ""
+
+#: .\services\admin.py:58
+msgid "Videos del servicio"
+msgstr ""
+
+#: .\services\admin.py:64
+msgid "Título"
+msgstr ""
+
+#: .\services\admin.py:66
 msgid "Video (archivo)"
 msgstr ""
 
-#: .\services\admin.py:41
+#: .\services\admin.py:68
 msgid "Video (URL)"
 msgstr ""
 
-#: .\services\admin.py:51
+#: .\services\admin.py:78
 msgid "Información de la categoría"
 msgstr ""
 
-#: .\services\admin.py:59 .\services\admin.py:85 .\services\admin.py:119
+#: .\services\admin.py:86 .\services\admin.py:112 .\services\admin.py:146
 msgid "Nombre"
 msgstr ""
 
-#: .\services\admin.py:61 .\services\admin.py:91 .\services\admin.py:123
+#: .\services\admin.py:88 .\services\admin.py:118 .\services\admin.py:150
 msgid "Descripción"
 msgstr ""
 
-#: .\services\admin.py:74
+#: .\services\admin.py:101
 msgid "Información básica"
 msgstr ""
 
-#: .\services\admin.py:87 .\services\models.py:24
+#: .\services\admin.py:114 .\services\models.py:24
 msgid "Slug"
 msgstr ""
 
-#: .\services\admin.py:89 .\services\admin.py:121
+#: .\services\admin.py:116 .\services\admin.py:148
 msgid "Categoría"
 msgstr ""
 
-#: .\services\admin.py:93
+#: .\services\admin.py:120
 msgid "Precio base"
 msgstr ""
 
-#: .\services\admin.py:95 .\services\admin.py:129
+#: .\services\admin.py:122 .\services\admin.py:156
 msgid "Activo"
 msgstr ""
 
-#: .\services\admin.py:97
+#: .\services\admin.py:124
 msgid "Fecha de creación"
 msgstr ""
 
-#: .\services\admin.py:108
+#: .\services\admin.py:135
 msgid "Información del producto"
 msgstr ""
 
-#: .\services\admin.py:125
+#: .\services\admin.py:152
 msgid "Precio por unidad"
 msgstr ""
 
-#: .\services\admin.py:127
+#: .\services\admin.py:154
 msgid "Unidad"
 msgstr ""
 
-#: .\services\admin.py:133
+#: .\services\admin.py:160
 msgid "Administración del Sitio"
 msgstr ""
 
-#: .\services\admin.py:134
+#: .\services\admin.py:161
 msgid "Panel de Administración"
 msgstr ""
 
-#: .\services\admin.py:135
+#: .\services\admin.py:162
 msgid "Bienvenido al Panel de Administración"
 msgstr ""
 
@@ -2104,3 +2111,256 @@ msgstr "Unidad"
 #: .\services\models.py:125
 msgid "Products"
 msgstr "Productos"
+
+#: .\templates\admin\index.html:240
+msgid "Panel de Control"
+msgstr ""
+
+#: .\templates\admin\index.html:246
+msgid "Acciones Rápidas"
+msgstr ""
+
+#: .\templates\admin\index.html:250
+msgid "Nueva Cita"
+msgstr ""
+
+#: .\templates\admin\index.html:254
+msgid "Nueva Cotización"
+msgstr ""
+
+#: .\templates\admin\index.html:258
+msgid "Nuevo Usuario"
+msgstr ""
+
+#: .\templates\admin\index.html:262
+msgid "Nuevo Servicio"
+msgstr ""
+
+#: .\templates\admin\index.html:266
+#, fuzzy
+#| msgid "Product"
+msgid "Nuevo Producto"
+msgstr "Producto"
+
+#: .\templates\admin\index.html:272
+msgid "Resumen General"
+msgstr ""
+
+#: .\templates\admin\index.html:276
+msgid "Usuarios"
+msgstr ""
+
+#: .\templates\admin\index.html:280
+msgid "Usuarios Activos"
+msgstr ""
+
+#: .\templates\admin\index.html:284
+#, fuzzy
+#| msgid "Services"
+msgid "Servicios"
+msgstr "Servicios"
+
+#: .\templates\admin\index.html:288
+#, fuzzy
+#| msgid "Products"
+msgid "Productos"
+msgstr "Productos"
+
+#: .\templates\admin\index.html:294
+msgid "Estadísticas de Citas"
+msgstr ""
+
+#: .\templates\admin\index.html:305 .\templates\admin\index.html:577
+msgid "Pendientes"
+msgstr ""
+
+#: .\templates\admin\index.html:309 .\templates\admin\index.html:568
+msgid "Confirmadas"
+msgstr ""
+
+#: .\templates\admin\index.html:313
+msgid "Hoy"
+msgstr ""
+
+#: .\templates\admin\index.html:317
+msgid "Mañana"
+msgstr ""
+
+#: .\templates\admin\index.html:320
+msgid "Ver Todas las Citas"
+msgstr ""
+
+#: .\templates\admin\index.html:324
+msgid "Cotizaciones"
+msgstr ""
+
+#: .\templates\admin\index.html:328 .\templates\admin\index.html:637
+msgid "Borradores"
+msgstr ""
+
+#: .\templates\admin\index.html:332 .\templates\admin\index.html:637
+msgid "Enviadas"
+msgstr ""
+
+#: .\templates\admin\index.html:336 .\templates\admin\index.html:637
+#, fuzzy
+#| msgid "Accepted"
+msgid "Aceptadas"
+msgstr "Aceptado"
+
+#: .\templates\admin\index.html:339
+msgid "Ver Todas las Cotizaciones"
+msgstr ""
+
+#: .\templates\admin\index.html:343
+msgid "Estadísticas de Cotizaciones"
+msgstr ""
+
+#: .\templates\admin\index.html:350
+msgid "Gestión"
+msgstr ""
+
+#: .\templates\admin\index.html:353
+msgid "Próximas Citas"
+msgstr ""
+
+#: .\templates\admin\index.html:376
+msgid "HOY"
+msgstr ""
+
+#: .\templates\admin\index.html:378
+msgid "MAÑANA"
+msgstr ""
+
+#: .\templates\admin\index.html:385
+msgid "No hay citas próximas programadas."
+msgstr ""
+
+#: .\templates\admin\index.html:389
+msgid "Ver todas las citas"
+msgstr ""
+
+#: .\templates\admin\index.html:394
+msgid "Cotizaciones que necesitan seguimiento"
+msgstr ""
+
+#: .\templates\admin\index.html:403 .\templates\admin\index.html:505
+msgid "Sin monto"
+msgstr ""
+
+#: .\templates\admin\index.html:405
+msgid "Enviada"
+msgstr ""
+
+#: .\templates\admin\index.html:409
+#, python-format
+msgid "Enviada hace %(time_since)s"
+msgstr ""
+
+#: .\templates\admin\index.html:414
+msgid "No hay cotizaciones que necesiten seguimiento."
+msgstr ""
+
+#: .\templates\admin\index.html:418
+msgid "Ver todas las cotizaciones enviadas"
+msgstr ""
+
+#: .\templates\admin\index.html:423
+msgid "Servicios Populares"
+msgstr ""
+
+#: .\templates\admin\index.html:431 .\templates\admin\index.html:455
+#, python-format
+msgid "%(counter)s cita"
+msgid_plural "%(counter)s citas"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: .\templates\admin\index.html:435
+msgid "No hay datos de servicios populares."
+msgstr ""
+
+#: .\templates\admin\index.html:439
+msgid "Ver todos los servicios"
+msgstr ""
+
+#: .\templates\admin\index.html:444
+msgid "Clientes Más Activos"
+msgstr ""
+
+#: .\templates\admin\index.html:459
+msgid "No hay datos de clientes activos."
+msgstr ""
+
+#: .\templates\admin\index.html:463
+msgid "Ver todos los usuarios"
+msgstr ""
+
+#: .\templates\admin\index.html:468
+msgid "Pendientes Recientes"
+msgstr ""
+
+#: .\templates\admin\index.html:471
+msgid "Citas Pendientes"
+msgstr ""
+
+#: .\templates\admin\index.html:487
+msgid "No hay citas pendientes recientes."
+msgstr ""
+
+#: .\templates\admin\index.html:491
+msgid "Ver todas las citas pendientes"
+msgstr ""
+
+#: .\templates\admin\index.html:496
+msgid "Cotizaciones (Borrador)"
+msgstr ""
+
+#: .\templates\admin\index.html:506
+msgid "Creado:"
+msgstr ""
+
+#: .\templates\admin\index.html:509
+msgid "Borrador"
+msgstr ""
+
+#: .\templates\admin\index.html:512
+msgid "No hay cotizaciones en borrador recientes."
+msgstr ""
+
+#: .\templates\admin\index.html:516
+msgid "Ver todas las cotizaciones en borrador"
+msgstr ""
+
+#: .\templates\admin\index.html:522
+msgid "Configuración Rápida"
+msgstr ""
+
+#: .\templates\admin\index.html:525
+msgid "Plantillas Semanales"
+msgstr ""
+
+#: .\templates\admin\index.html:528
+msgid "Días Programados"
+msgstr ""
+
+#: .\templates\admin\index.html:531
+msgid "Categorías Servicios"
+msgstr ""
+
+#: .\templates\admin\index.html:534
+msgid "Imágenes Servicios"
+msgstr ""
+
+#: .\templates\admin\index.html:586
+msgid "Completadas"
+msgstr ""
+
+#: .\templates\admin\index.html:601
+msgid "Citas de los últimos 30 días"
+msgstr ""
+
+#: .\templates\admin\index.html:658
+msgid "Cotizaciones por estado (últimos 30 días)"
+msgstr ""
