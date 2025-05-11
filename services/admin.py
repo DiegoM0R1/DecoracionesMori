@@ -5,6 +5,33 @@ from .models import ServiceCategory, Service, ServiceImage, ServiceVideo, Produc
 from .forms import ServiceImageForm, ServiceVideoForm, ServiceForm, ServiceCategoryForm, ProductForm
 
 # Clase base para inlines de imágenes y videos de servicios
+
+@admin.register(ServiceImage)
+class ServiceImageAdmin(admin.ModelAdmin):
+    # Quita 'alt_text' de aquí:
+    list_display = ('service', 'is_featured', 'image')
+    list_filter = ('service', 'is_featured')
+    # Adapta search_fields si usaba alt_text
+    search_fields = ('service__name',)
+    list_per_page = 25
+
+    # Quita 'alt_text' de aquí también si lo tienes:
+    fields = ('service', 'image', 'image_url', 'is_featured')
+
+    # ... (resto de la clase, incluyendo formfield_for_dbfield si es necesario, quitando la parte de alt_text)
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'image':
+            field.label = _('Imagen (archivo)')
+        elif db_field.name == 'image_url':
+            field.label = _('Imagen (URL)')
+        elif db_field.name == 'is_featured':
+            field.label = _('Destacada')
+        elif db_field.name == 'service':
+             field.label = _('Servicio asociado')
+        # elif db_field.name == 'alt_text': <--- Quita o comenta esta parte
+        #     field.label = _('Texto alternativo')
+        return field
 class ServiceImageInline(admin.TabularInline):
     model = ServiceImage
     form = ServiceImageForm

@@ -20,11 +20,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-@5^lch0ee2hwx7fa8w%^67u*@ce1i%ci@+y@8x#wo&ar6_qs+0'
+
+
+# In settings.py
+MAPS_API_KEY = os.environ.get('MAPS_API_KEY', '')  # Get from environment or use empty string
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,8 +48,14 @@ INSTALLED_APPS = [
     'services',  # Ensure this line is present
     'quotations',
     'appointments', 
+    #plottly dash
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'channels',
+
 
     #google auth
+    'clients.apps.ClientsConfig', # O la ruta a tu AppConfig
+
     # Allauth
     'django.contrib.sites',
     'allauth',
@@ -57,6 +65,19 @@ INSTALLED_APPS = [
 
 
 ]
+
+# Add these settings for django-plotly-dash
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+PLOTLY_DASH = {
+    "mapping_function": None,
+    "access_without_dash": False,
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -242,6 +263,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'django_plotly_dash.middleware.BaseMiddleware',
+
 
 ]
 
@@ -377,3 +400,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') # <-- Lee el usuario del .env
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # <-- Lee la contraseña del .env
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # <-- IMPORTANTE: Establece el remitente por defecto
+# Leer la NUEVA clave desde la variable de entorno

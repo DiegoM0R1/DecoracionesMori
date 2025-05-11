@@ -1,0 +1,293 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* Estilos para el dashboard */
+  .dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+  }
+  .dashboard-card {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    overflow: hidden;
+  }
+  .dashboard-card h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 18px;
+  }
+  .plotly-graph {
+    width: 100%;
+    height: 300px;
+  }
+  .dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  .summary-card {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    text-align: center;
+  }
+  .summary-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3498db;
+    margin: 10px 0;
+  }
+  .summary-label {
+    color: #7f8c8d;
+    font-size: 14px;
+  }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<!-- Incluir Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <!-- Sección de Dashboard -->
+  <h1>{% trans 'Dashboard' %}</h1>
+  
+  <!-- Resumen de estadísticas -->
+  <div class="dashboard-summary">
+    <div class="summary-card">
+      <div class="summary-label">{% trans 'Citas Totales' %}</div>
+      <div class="summary-value" id="total-appointments">--</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">{% trans 'Servicios' %}</div>
+      <div class="summary-value" id="total-services">--</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">{% trans 'Clientes' %}</div>
+      <div class="summary-value" id="total-clients">--</div>
+    </div>
+  </div>
+  
+  <div class="dashboard-container">
+    <div class="dashboard-card">
+      <h2>{% trans 'Citas por Estado' %}</h2>
+      <div id="appointments-by-status" class="plotly-graph"></div>
+    </div>
+    
+    <div class="dashboard-card">
+      <h2>{% trans 'Servicios Más Solicitados' %}</h2>
+      <div id="top-services" class="plotly-graph"></div>
+    </div>
+    
+    <div class="dashboard-card">
+      <h2>{% trans 'Citas por Mes' %}</h2>
+      <div id="appointments-by-month" class="plotly-graph"></div>
+    </div>
+    
+    <div class="dashboard-card">
+      <h2>{% trans 'Clientes por Tipo' %}</h2>
+      <div id="clients-by-type" class="plotly-graph"></div>
+    </div>
+    
+    <div class="dashboard-card">
+      <h2>{% trans 'Citas Recientes (Últimos 30 días)' %}</h2>
+      <div id="recent-appointments" class="plotly-graph"></div>
+    </div>
+  </div>
+  
+  <!-- Inicialización de los gráficos con Plotly -->
+  <script>
+    // Función para cargar los datos y crear los gráficos
+    function loadDashboardData() {
+      fetch('/admin/dashboard-data/')  // URL directa, sin usar template tag
+        .then(response => response.json())
+        .then(data => {
+          // Actualizar contadores de resumen
+          const totalAppointments = data.appointments_by_status.reduce((sum, item) => sum + item.count, 0);
+          document.getElementById('total-appointments').textContent = totalAppointments;
+          
+          const totalServices = data.top_services.reduce((sum, item) => sum + item.count, 0);
+          document.getElementById('total-services').textContent = data.top_services.length; 
+          
+          const totalClients = data.clients_by_type.reduce((sum, item) => sum + item.count, 0);
+          document.getElementById('total-clients').textContent = totalClients;
+          
+          // Mapear los estados a nombres más legibles (si es necesario)
+          const statusMap = {
+            'PENDING': 'Pendiente',
+            'CONFIRMED': 'Confirmada',
+            'COMPLETED': 'Completada',
+            'CANCELLED': 'Cancelada',
+            // Añadir más mapeos según sea necesario
+          };
+          
+          // Gráfico de citas por estado
+          Plotly.newPlot('appointments-by-status', [{
+            type: 'pie',
+            labels: data.appointments_by_status.map(item => statusMap[item.status] || item.status),
+            values: data.appointments_by_status.map(item => item.count),
+            hole: 0.4,
+            marker: {
+              colors: ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12']
+            }
+          }], {
+            margin: {t: 10, b: 10, l: 10, r: 10},
+            showlegend: true,
+            legend: {orientation: 'h', y: -0.1}
+          });
+          
+          // Gráfico de servicios más solicitados
+          Plotly.newPlot('top-services', [{
+            type: 'bar',
+            x: data.top_services.map(item => item.service__name),
+            y: data.top_services.map(item => item.count),
+            marker: {
+              color: '#3498db',
+              line: {
+                color: '#2980b9',
+                width: 1.5
+              }
+            }
+          }], {
+            margin: {t: 10, b: 80, l: 50, r: 10},
+            xaxis: {
+              tickangle: -45,
+              automargin: true
+            }
+          });
+          
+          // Gráfico de citas por mes
+          const months = data.appointments_by_month.map(item => {
+            const date = new Date(item.month);
+            return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+          });
+          
+          Plotly.newPlot('appointments-by-month', [{
+            type: 'scatter',
+            mode: 'lines+markers',
+            x: months,
+            y: data.appointments_by_month.map(item => item.count),
+            line: {color: '#2ecc71', width: 3},
+            marker: {
+              size: 8,
+              color: '#27ae60'
+            }
+          }], {
+            margin: {t: 10, b: 50, l: 50, r: 10},
+            xaxis: {
+              tickangle: -45,
+              automargin: true
+            }
+          });
+          
+          // Gráfico de clientes por tipo
+          const clientTypeMap = {
+            'REGULAR': 'Regular',
+            'VIP': 'VIP',
+            'CORPORATE': 'Corporativo',
+            'NEW': 'Nuevo',
+            // Añadir más mapeos según sea necesario
+          };
+          
+          Plotly.newPlot('clients-by-type', [{
+            type: 'bar',
+            x: data.clients_by_type.map(item => clientTypeMap[item.client_type] || item.client_type),
+            y: data.clients_by_type.map(item => item.count),
+            marker: {
+              color: '#9b59b6',
+              line: {
+                color: '#8e44ad',
+                width: 1.5
+              }
+            }
+          }], {
+            margin: {t: 10, b: 50, l: 50, r: 10}
+          });
+          
+          // Gráfico de citas recientes
+          const recentDates = data.recent_appointments.map(item => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+          });
+          
+          Plotly.newPlot('recent-appointments', [{
+            type: 'bar',
+            x: recentDates,
+            y: data.recent_appointments.map(item => item.count),
+            marker: {
+              color: '#f39c12',
+              line: {
+                color: '#e67e22',
+                width: 1.5
+              }
+            }
+          }], {
+            margin: {t: 10, b: 50, l: 50, r: 10},
+            xaxis: {
+              tickangle: -45,
+              automargin: true
+            }
+          });
+        })
+        .catch(error => console.error('Error loading dashboard data:', error));
+    }
+    
+    // Cargar los datos cuando la página está lista
+    document.addEventListener('DOMContentLoaded', loadDashboardData);
+  </script>
+  
+  <!-- Contenido original del index -->
+  {% if app_list %}
+    <h2>{% trans 'Aplicaciones' %}</h2>
+    {% for app in app_list %}
+      <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+        <table>
+        <caption>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+        </caption>
+        {% for model in app.models %}
+            <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% translate "Add" %}</a></td>
+            {% else %}
+                <td></td>
+            {% endif %}
+
+            {% if model.admin_url and show_changelinks %}
+                {% if model.view_only %}
+                <td><a href="{{ model.admin_url }}" class="viewlink">{% translate "View" %}</a></td>
+                {% else %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% translate "Change" %}</a></td>
+                {% endif %}
+            {% elif show_changelinks %}
+                <td></td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>{% blocktranslate %}You don't have permission to view or edit anything.{% endblocktranslate %}</p>
+  {% endif %}
+</div>
+{% endblock %}

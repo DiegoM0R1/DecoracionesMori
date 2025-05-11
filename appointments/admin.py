@@ -75,3 +75,5 @@ class AppointmentAdmin(admin.ModelAdmin):
 
     # Ya no se necesitan los métodos get_appointment_date/time
     # porque los campos están directamente en el modelo.
+
+    

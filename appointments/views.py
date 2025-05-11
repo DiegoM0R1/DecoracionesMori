@@ -19,6 +19,11 @@ import datetime
 from django.utils.translation import gettext_lazy as _
 User = settings.AUTH_USER_MODEL
 from django.urls import reverse # O reverse_lazy si es necesario
+from django.utils.translation import gettext # Importa gettext
+# Al inicio de tu appointments/views.py
+from django.contrib.auth import get_user_model
+# ... otras importaciones ...
+User = get_user_model() # En lugar de User = settings.AUTH_USER_MODEL
 
 # --- Vista de Calendario (Simplificada o requiere JS pesado) ---
 # Esta vista necesita una redefinición completa.
@@ -56,62 +61,127 @@ class AppointmentRequestView(LoginRequiredMixin, CreateView):
         # Redirigir al detalle de la cita recién creada
         return reverse_lazy('appointments:appointment_detail', kwargs={'appointment_id': self.object.pk})
 
+    # En appointments/views.py, dentro de la clase AppointmentRequestView
+
     def get_form_kwargs(self):
-        """Pasar service_id al formulario."""
+        """Pasar service_id y user al formulario.""" # Descripción actualizada
         kwargs = super().get_form_kwargs()
         kwargs['service_id'] = self.kwargs.get('service_id')
+        kwargs['user'] = self.request.user # <-- AÑADE ESTA LÍNEA
         return kwargs
 
     def get_context_data(self, **kwargs):
         """Añadir servicio al contexto."""
         context = super().get_context_data(**kwargs)
         context['service'] = get_object_or_404(Service, pk=self.kwargs.get('service_id'))
+
+        context['MAPS_API_KEY'] = settings.MAPS_API_KEY 
+        
+        # Añadir traducciones para JavaScript
+        context['js_translations'] = {
+            'marker_title': gettext('Arrastra para ajustar la ubicación exacta'),
+            'geocoding_failed': gettext('Geocodificación inversa falló:'),
+            'autocomplete_no_geometry': gettext('Lugar de Autocomplete no tiene geometría:'),
+            'alert_dni_error': gettext('Error al buscar DNI:'), # Ejemplo si tienes alertas en DNI JS
+            'alert_config_error': gettext('Error de configuración interna. Por favor, recarga la página.'), # Ejemplo
+            # Añade aquí cualquier otra cadena de texto que uses en alert() o console.warn()
+            # que quieras que sea traducible.
+        }
         return context
 
     def form_valid(self, form):
-        """Procesar el formulario válido: crear/obtener cliente, guardar cita."""
-        # Obtener o crear el cliente basado en DNI/Email
-        # Esta lógica asume que el cliente podría no estar logueado
-        # Si REQUIERES login (como indica LoginRequiredMixin), usa request.user
-        # email = form.cleaned_data['email']
-        # dni = form.cleaned_data['dni']
-        # user, created = User.objects.get_or_create(
-        #     dni=dni, # O usar email como unique identifier
-        #     defaults={
-        #         'email': email,
-        #         'username': email, # O generar username
-        #         'phone_number': form.cleaned_data['phone_number'],
-        #         'address': form.cleaned_data['address'],
-        #         'first_name': form.cleaned_data['name'].split(' ')[0],
-        #         'last_name': ' '.join(form.cleaned_data['name'].split(' ')[1:]),
-        #     }
-        # )
-        # if not created: # Actualizar datos si ya existía
-        #     user.email = email
-        #     user.phone_number = form.cleaned_data['phone_number']
-        #     # ... actualiza otros campos si es necesario
-        #     user.save()
+        """
+        Procesar el formulario válido:
+        1. Actualizar el perfil del usuario logueado con datos del formulario.
+        2. Asignar el usuario como cliente de la cita.
+        3. Guardar la cita.
+        """
+        user_to_update = self.request.user
 
-        # --- Lógica si el usuario DEBE estar logueado ---
-        user = self.request.user
+        # --- Actualización de Nombre y Apellidos usando campos ocultos ---
+        nombres_capturados = form.cleaned_data.get('nombres_hidden', '').strip()
+        paterno_capturado = form.cleaned_data.get('apellido_paterno_hidden', '').strip()
+        materno_capturado = form.cleaned_data.get('apellido_materno_hidden', '').strip()
 
-        # Crear la instancia de la cita
-        appointment = form.save(commit=False)
-        appointment.client = user # Asignar el cliente logueado
-        # El servicio, fecha, hora, staff y notas ya vienen del form.
+        # Usar los nombres capturados del DNI para first_name
+        # y la combinación de apellidos para last_name.
+        if nombres_capturados: # Si la búsqueda de DNI llenó estos campos
+            # Formatear a Title Case (primera letra mayúscula en cada palabra)
+            formatted_first_name = ' '.join(word.capitalize() for word in nombres_capturados.lower().split())
+            
+            surnames_list = []
+            if paterno_capturado:
+                surnames_list.append(' '.join(word.capitalize() for word in paterno_capturado.lower().split()))
+            if materno_capturado:
+                surnames_list.append(' '.join(word.capitalize() for word in materno_capturado.lower().split()))
+            formatted_last_name = ' '.join(surnames_list).strip()
 
-        # La validación principal (disponibilidad de fecha/hora)
-        # debería ocurrir en el método clean() del formulario.
+            if user_to_update.first_name != formatted_first_name or \
+               user_to_update.last_name != formatted_last_name:
+                user_to_update.first_name = formatted_first_name
+                user_to_update.last_name = formatted_last_name
+        else:
+            # Fallback: Si los campos ocultos del DNI están vacíos (ej. DNI no encontrado o no ingresado),
+            # usar el valor del campo de nombre visible (que el usuario podría haber llenado manualmente).
+            visible_full_name = form.cleaned_data.get('name', "").strip()
+            if visible_full_name:
+                name_parts = visible_full_name.split(' ', 1)
+                # Asignación simple: primera palabra a nombres, resto a apellidos.
+                user_to_update.first_name = name_parts[0].capitalize() # Solo la primera palabra capitalizada
+                user_to_update.last_name = ' '.join(word.capitalize() for word in (name_parts[1] if len(name_parts) > 1 else '').lower().split())
 
-        # Guardar la cita
-        appointment.save()
-        messages.success(self.request, _('Cita solicitada correctamente. Su estado es "Pendiente".'))
+        
+        # DNI (asumiendo que tu modelo User tiene un campo 'dni')
+        form_dni = form.cleaned_data.get('dni', "").strip()
+        if hasattr(user_to_update, 'dni'): # Comprueba si el usuario tiene el atributo dni
+            if user_to_update.dni != form_dni:
+                user_to_update.dni = form_dni
+        
+        # Teléfono (asumiendo que tu modelo User tiene un campo 'phone_number')
+        form_phone_number = form.cleaned_data.get('phone_number', "").strip()
+        if hasattr(user_to_update, 'phone_number'):
+            if user_to_update.phone_number != form_phone_number:
+                user_to_update.phone_number = form_phone_number
+        
+        # Dirección (asumiendo que tu modelo User tiene un campo 'address')
+        form_address = form.cleaned_data.get('address', "").strip()
+        if hasattr(user_to_update, 'address'):
+            if user_to_update.address != form_address:
+                user_to_update.address = form_address
+        
+        user_to_update.save() # Guardar todos los cambios en el perfil del usuario
+
+        # 2. Preparar la instancia de la cita
+        form.instance.client = user_to_update # Asignar el cliente (usuario logueado)
+
+        # Asegurar que el servicio está asignado (el form debería manejarlo con HiddenInput e initial)
+        if not form.instance.service and self.kwargs.get('service_id'):
+             form.instance.service = get_object_or_404(Service, pk=self.kwargs.get('service_id'))
+        
+        # 3. Dejar que CreateView guarde la cita y maneje la redirección.
+        # super().form_valid(form) llamará a form.save() (que guarda form.instance)
+        # y luego redirigirá usando get_success_url().
+        # El mensaje de éxito se ha movido a get_success_url.
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Por favor corrige los errores en el formulario."))
-        return super().form_invalid(form)
+        # (Opcional pero recomendado) Mejorar el mensaje de error
+        error_list = []
+        for field, errors in form.errors.items():
+            # Trata de obtener la etiqueta del campo para un mensaje más amigable
+            field_label = field
+            if field in form.fields:
+                field_label = form.fields[field].label or field
+            error_list.append(f"{field_label}: {', '.join(errors)}")
+        
+        if form.non_field_errors():
+            error_list.append(f"{_('Errores generales')}: {', '.join(form.non_field_errors())}")
 
+        detailed_error_message = _("Por favor corrige los siguientes errores: ") + "; ".join(error_list)
+        messages.error(self.request, detailed_error_message)
+        
+        return super().form_invalid(form)
+    
 # --- Búsqueda DNI (Sin cambios, parece independiente) ---
 @csrf_exempt # Considera usar autenticación de API si es posible
 def buscar_cliente_por_dni(request):
@@ -261,3 +331,35 @@ def cancel_appointment_view(request, appointment_id):
     # o a la lista de citas. Redirigir al detalle es útil para ver el cambio.
     return redirect('appointments:appointment_detail', appointment_id=appointment.id)
 # ------------------------------------
+# en appointments/views.py
+def get_daily_availability_status(request):
+    # Este endpoint podría devolver un objeto con fechas y su estado (disponible, lleno, no laborable)
+    # para un rango de fechas (ej. próximo mes).
+    # Por ahora, es un concepto. La implementación detallada dependerá del datepicker.
+    data_summary = {}
+    today = timezone.now().date()
+    one_day_hence = today + datetime.timedelta(days=1)
+
+    # Query para los próximos 30-60 días
+    date_range = [one_day_hence + datetime.timedelta(days=i) for i in range(60)]
+
+    for day_to_check in date_range:
+        status = "available"
+        try:
+            workday = ScheduledWorkDay.objects.get(date=day_to_check)
+            if not workday.is_working:
+                status = "not_working"
+        except ScheduledWorkDay.DoesNotExist:
+            status = "not_scheduled" # Administrador necesita configurar este día
+
+        if status == "available": # Solo si es laborable y programado, chequear cupos
+            count = Appointment.objects.filter(
+                appointment_date=day_to_check,
+                status__in=['pending', 'confirmed']
+            ).count()
+            if count >= 3:
+                status = "full"
+        data_summary[day_to_check.isoformat()] = status
+
+    return JsonResponse(data_summary)
+

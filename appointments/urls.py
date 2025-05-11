@@ -8,6 +8,7 @@ from .views import (
     buscar_cliente_por_dni,
     appointment_detail,
     get_availabilities,
+    get_daily_availability_status,
 )
 from .views import cancel_appointment_view # Importa la vista de cancelación
 from django.utils.translation import gettext_lazy as _
@@ -25,7 +26,7 @@ urlpatterns = [
 
     # --- Detalles y Acciones Específicas ---
     path('<int:appointment_id>/', appointment_detail, name='appointment_detail'),
-
+    path('api/daily-availability/', get_daily_availability_status, name='api_daily_availability'),
     # --- Endpoints Auxiliares / API ---
     path('buscar-dni/', buscar_cliente_por_dni, name='buscar_dni'),
     path('api/disponibilidades/', get_availabilities, name='get_availabilities'), # API actualizada (básica)
