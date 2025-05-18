@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cotización - {{ service.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .info-box {
+            width: 48%;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total-container {
+            width: 40%;
+            margin-left: auto;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Decoraciones Mori</h1>
+        <h2>Cotización Nº {{ numero_cotizacion }}</h2>
+    </div>
+    
+    <div class="info-container">
+        <div class="info-box">
+            <h3>Cliente</h3>
+            <p><strong>Nombre:</strong> {{ cliente.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ cliente.email }}</p>
+        </div>
+        <div class="info-box">
+            <h3>Información</h3>
+            <p><strong>Fecha:</strong> {{ fecha|date:"d/m/Y" }}</p>
+            <p><strong>Válido hasta:</strong> {{ validez|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+    
+    <h3>Detalle del Servicio</h3>
+    <table>
+        <tr>
+            <th>Descripción</th>
+            <th>Precio Base</th>
+        </tr>
+        <tr>
+            <td>
+                <strong>{{ service.name }}</strong><br>
+                {{ service.description|truncatewords:30 }}
+            </td>
+            <td>S/. {{ service.base_price }}</td>
+        </tr>
+    </table>
+    
+    {% if componentes %}
+    <h3>Productos incluidos</h3>
+    <table>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Uni.</th>
+            <th>Subtotal</th>
+        </tr>
+        {% for componente in componentes %}
+        <tr>
+            <td>{{ componente.product.name }}</td>
+            <td>{{ componente.quantity }} {{ componente.product.unit }}</td>
+            <td>S/. {{ componente.product.price_per_unit }}</td>
+            <td>S/. {{ componente.quantity|floatformat:2|stringformat:"s"|add:" * "|add:componente.product.price_per_unit|floatformat:2|stringformat:"s"|add:" = S/. "|add:componente.quantity|floatformat:2|stringformat:"s"|multiply:componente.product.price_per_unit|floatformat:2|stringformat:"s" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    
+    <div class="total-container">
+        <div class="total-row">
+            <strong>Subtotal:</strong>
+            <span>S/. {{ subtotal|floatformat:2 }}</span>
+        </div>
+        <div class="total-row">
+            <strong>IGV (18%):</strong>
+            <span>S/. {{ igv|floatformat:2 }}</span>
+        </div>
+        <div class="total-row" style="font-weight: bold; font-size: 1.2em; border-top: 1px solid #000;">
+            <strong>TOTAL:</strong>
+            <span>S/. {{ total|floatformat:2 }}</span>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Notas:</strong></p>
+        <p>1. Esta cotización es válida por 15 días calendario.</p>
+        <p>2. Los precios incluyen IGV.</p>
+        <p>3. Para consultas adicionales, contáctenos al: +51 999 999 999</p>
+        <p>4. Correo electrónico: info@decoracionesmori.com</p>
+    </div>
+</body>
+</html>

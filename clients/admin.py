@@ -3,9 +3,9 @@ from django.contrib import admin
 from .models import ClientProfile
 
 class ClientProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'client_type', 'get_full_name', 'get_email', 'get_phone']
+    list_display = ['client_type', 'get_full_name', 'get_email', 'get_phone', 'get_address']
     list_filter = ['client_type']
-    search_fields = ['user__username', 'user__email', 'user__first_name', 'user__last_name', 'user__phone_number']
+    search_fields = ['user__username', 'user__email', 'user__first_name', 'user__last_name', 'user__phone_number','user__address']
     
     def get_full_name(self, obj):
         return obj.user.get_full_name() or obj.user.username
@@ -18,7 +18,9 @@ class ClientProfileAdmin(admin.ModelAdmin):
     def get_phone(self, obj):
         return obj.user.phone_number
     get_phone.short_description = 'Teléfono'
-    
+    def get_address(self, obj):
+        return obj.user.address
+    get_address.short_description = 'Dirección'
     # El método get_registration_date parece que no está definido
     # Puedes añadirlo si necesitas la fecha de registro:
     def get_registration_date(self, obj):

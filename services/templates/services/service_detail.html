@@ -200,15 +200,33 @@
                     {% endif %}
                 </div>
 
-                {% if user.is_authenticated %}
-                <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-calendar-check me-2"></i> Solicitar Servicio
-                </a>
-                {% else %}
-                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
-                    <i class="fas fa-sign-in-alt me-2"></i> Solicitar Servicio
-                </button>
-                {% endif %}
+                <!-- Reemplaza el bloque de botones existente en la parte superior -->
+<!-- Reemplaza el bloque de botones existente en la parte superior -->
+{% if user.is_authenticated %}
+<div class="d-flex gap-2 mt-3">
+    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary">
+        <i class="fas fa-calendar-check me-2"></i> Solicitar Servicio
+    </a>
+    <a href="{% url 'services:cotizar' service.id %}" class="btn btn-outline-primary">
+        <i class="fas fa-calculator me-2"></i> Cotización Personalizada
+    </a>
+    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
+        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
+    </a>
+</div>
+{% else %}
+<div class="d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <i class="fas fa-sign-in-alt me-2"></i> Solicitar Servicio
+    </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <i class="fas fa-calculator me-2"></i> Cotización Personalizada
+    </button>
+    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
+        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
+    </a>
+</div>
+{% endif %}
             </div>
             <div class="col-md-6">
                 {% with featured_image=service.get_featured_image %}
@@ -229,7 +247,80 @@
         </div>
     </div>
 </section>
-
+{% if componentes %}
+<section class="products-carousel py-4 bg-white">
+    <div class="container">
+        <h2 class="mb-4 text-center"><i class="fas fa-boxes me-2"></i>Nosotros trabajamos con:</h2>
+        
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for componente in componentes %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card h-100 product-card shadow">
+                                <div class="row g-0">
+                                    <div class="col-md-6">
+                                        <div class="position-relative" style="height: 200px; overflow: hidden;">
+                                            {% with featured_image=componente.product.get_featured_image %}
+                                                {% if featured_image %}
+                                                    {% if featured_image.image %}
+                                                        <img src="{{ featured_image.image.url }}" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% elif featured_image.image_url %}
+                                                        <div style="width: 100%; height: 100%;">
+                                                            {{ featured_image.image_url|safe }}
+                                                        </div>
+                                                    {% else %}
+                                                        <img src="/static/imagen/default-product.jpg" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% endif %}
+                                                {% else %}
+                                                    <img src="/static/imagen/default-product.jpg" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ componente.product.name }}</h5>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ componente.quantity }} {{ componente.product.unit }}</small>
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-primary rounded-pill fs-6">S/. {{ componente.product.price_per_unit }}</span>
+                                                {% if componente.product.category %}
+                                                <span class="badge bg-secondary">{{ componente.product.category.name }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Controles del carrusel -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+            
+            <!-- Indicadores del carrusel -->
+            <div class="carousel-indicators" style="bottom: -40px;">
+                {% for componente in componentes %}
+                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
 <section class="service-description py-5">
     <div class="container">
         <div class="row">
@@ -326,20 +417,38 @@
                             {% endif %}
                         </ul>
                         
-                        <div class="mt-4">
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary w-100">
-                                <i class="fas fa-calendar-check me-2"></i> Solicitar este servicio
-                            </a>
-                            {% else %}
-                            <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
-                                <i class="fas fa-sign-in-alt me-2"></i> Solicitar este servicio
-                            </button>
-                            {% endif %}
-                        </div>
+<!-- Reemplaza el bloque de botones existente en la parte superior -->
+{% if user.is_authenticated %}
+<div class="d-flex gap-2 mt-3">
+    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary">
+        <i class="fas fa-calendar-check me-2"></i> Solicitar Servicio
+    </a>
+    <a href="{% url 'services:cotizar' service.id %}" class="btn btn-outline-primary">
+        <i class="fas fa-calculator me-2"></i> Cotización Personalizada
+    </a>
+    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
+        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
+    </a>
+</div>
+{% else %}
+<div class="d-flex gap-2 mt-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <i class="fas fa-sign-in-alt me-2"></i> Solicitar Servicio
+    </button>
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <i class="fas fa-calculator me-2"></i> Cotización Personalizada
+    </button>
+    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
+        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
+    </a>
+</div>
+{% endif %}
                     </div>
                 </div>
                 
+
+
+
                 {% if related_services %}
                 <div class="card">
                     <div class="card-header bg-light">

@@ -1,0 +1,56 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        #cotizacion-form {
+            display: none; /* Ocultar el formulario inicialmente */
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .cotizar-btn {
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.cotizar-btn').click(function(e) {
+                e.preventDefault();
+                $('#cotizacion-form').toggle(); // Mostrar/ocultar el formulario
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block after_field_sets %}
+    {{ block.super }}
+    {% if has_change_permission %}
+        <div class="submit-row">
+            {{ block.super }}
+        </div>
+
+        <h2>Cotización</h2>
+        <form action="" method="post" id="cotizacion-form">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            {% for form in formset %}
+                {{ form.errors }}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                {% for field in form.visible_fields %}
+                    <div class="form-row">
+                        {{ field.label_tag }} {{ field }}
+                    </div>
+                {% endfor %}
+                <hr>
+            {% endfor %}
+            <div class="submit-row">
+                <input type="submit" name="_cotizar" value="Guardar Cotización">
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

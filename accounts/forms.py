@@ -72,7 +72,7 @@ class UserRegistrationForm(UserCreationForm):
             })
         }
     
-        def save(self, commit=True):
+    def save(self, commit=True):
             """
             Guardar usuario con email
             """

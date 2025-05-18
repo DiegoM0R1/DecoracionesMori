@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'services',  # Ensure this line is present
-    'quotations',
     'appointments', 
+    'invoices',
+    'inventory',
+
     #plottly dash
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'channels',

@@ -1,0 +1,82 @@
+/* static/css/admin_invoice.css */
+@page {
+    size: letter;
+    margin: 1cm;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+.invoice-header {
+    background-color: #ffff00; /* Encabezados amarillos como en el ejemplo */
+    font-weight: bold;
+    padding: 5px;
+}
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.invoice-table th {
+    background-color: #ffff00; /* Encabezados amarillos */
+    border: 1px solid #000;
+    padding: 5px;
+}
+.invoice-table td {
+    border: 1px solid #000;
+    padding: 5px;
+}
+.totals {
+    margin-top: 10px;
+    text-align: right;
+}
+.payment-details {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+.field-get_invoice_number {
+    font-weight: bold;
+}
+
+.field-total {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.field-status .status-emitida {
+    background-color: #007bff;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.field-status .status-pagada {
+    background-color: #28a745;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.field-status .status-anulada {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* Estilos para la vista de detalle */
+fieldset.module.totales-fieldset {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.field-subtotal, .field-igv, .field-total {
+    font-size: 1.1em;
+}
+
+.field-total input {
+    font-weight: bold;
+    font-size: 1.2em;
+}

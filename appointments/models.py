@@ -122,7 +122,7 @@ class Appointment(models.Model):
         default="pending"
     )
     notes = models.TextField(_("Notas del Cliente"), blank=True)
-
+   
     class Meta:
         db_table = 'citas' # Nombre de tabla en español
         verbose_name = _("Cita")

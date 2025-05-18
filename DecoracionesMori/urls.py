@@ -94,7 +94,8 @@ urlpatterns = [
     path('appointments/', include('appointments.urls', namespace='appointments')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('accounts/', include('allauth.urls')),
-    path('cotizaciones/', include('quotations.urls', namespace='quotations')),
+    path('invoices/', include('invoices.urls', namespace='invoices')),
+
 ]
 
 # Servir archivos estáticos en desarrollo

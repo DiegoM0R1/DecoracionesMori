@@ -1,7 +1,7 @@
 # services/forms.py
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from .models import Service, ServiceCategory, ServiceImage, ServiceVideo, Product
+from .models import Service, ServiceCategory, ServiceImage, ServiceVideo, Product, ProductImage
 
 class ServiceImageForm(forms.ModelForm):
     """
@@ -89,6 +89,11 @@ class ProductForm(forms.ModelForm):
     """
     Formulario personalizado para Product.
     """
+    # Añadir a forms.py
+    class ProductImageForm(forms.ModelForm):
+        class Meta:
+            model = ProductImage
+            fields = '__all__'
     class Meta:
         model = Product
         fields = ['name', 'category', 'description', 'price_per_unit', 'unit', 'is_active']

@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cotización Personalizada - {{ service.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    
+    .chat-message {
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        border-radius: 10px;
+        max-width: 80%;
+        animation: fadeIn 0.5s;
+    }
+    
+    .bot-message {
+        background-color: #e3f2fd;
+        margin-right: auto;
+        border-bottom-left-radius: 0;
+    }
+    
+    .user-message {
+        background-color: #e8f5e9;
+        margin-left: auto;
+        text-align: right;
+        border-bottom-right-radius: 0;
+    }
+    
+    .chat-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .chat-options button {
+        transition: all 0.3s;
+    }
+    
+    .chat-options button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .product-selection {
+        margin-top: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+        background-color: #fff;
+    }
+    
+    .product-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #eee;
+        transition: all 0.3s;
+    }
+    
+    .product-item:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 15px;
+    }
+    
+    .product-info {
+        flex-grow: 1;
+    }
+    
+    .product-price {
+        font-weight: bold;
+        color: #4CAF50;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+    }
+    
+    .quantity-control button {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .quantity-control button:hover {
+        background-color: #e9ecef;
+    }
+    
+    .quantity-control input {
+        width: 60px;
+        text-align: center;
+        margin: 0 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    
+    .summary-container {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .loading-dots {
+        display: inline-block;
+    }
+    
+    .loading-dots::after {
+        content: '.';
+        animation: dots 1.5s steps(5, end) infinite;
+    }
+    
+    @keyframes dots {
+        0%, 20% { content: '.'; }
+        40% { content: '..'; }
+        60% { content: '...'; }
+        80%, 100% { content: ''; }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .back-to-service {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <a href="{% url 'services:detalle_servicio' service.id %}" class="btn btn-outline-secondary back-to-service">
+        <i class="fas fa-arrow-left me-2"></i>Volver al servicio
+    </a>
+
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h1>Cotización Personalizada</h1>
+            <h3 class="text-muted">{{ service.name }}</h3>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div id="chat-messages">
+            <!-- Los mensajes se cargarán dinámicamente con JavaScript -->
+        </div>
+        
+        <div id="user-input" class="mt-4">
+            <!-- Las opciones de usuario se cargarán dinámicamente -->
+        </div>
+        
+        <div id="product-selector" class="product-selection" style="display:none;">
+            <!-- Aquí se mostrarán los productos para seleccionar -->
+        </div>
+        
+        <div id="summary-container" class="summary-container" style="display:none;">
+            <!-- Aquí se mostrará el resumen final -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar mensaje de procesamiento -->
+<div class="modal fade" id="processingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-5">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <h5>Generando su cotización personalizada<span class="loading-dots"></span></h5>
+                <p class="text-muted">Esto solo tomará unos momentos</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario oculto para enviar datos al PDF -->
+<form id="pdf-form" method="POST" action="{% url 'services:generar_pdf_cotizacion' service.id %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="selecciones" id="selecciones-input">
+    <input type="hidden" name="metros_totales" id="metros-totales-input">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const productSelector = document.getElementById('product-selector');
+        const summaryContainer = document.getElementById('summary-container');
+        
+        // Datos preparados por Django como JSON
+const service = {{ service_json|safe }};
+const componentes = {{ componentes_json|safe }};
+
+        
+        // Estado de la conversación
+        let conversationState = {
+            step: 'welcome',
+            metrosCuadrados: 0,
+            seleccionados: {}
+        };
+        
+        // Iniciar la conversación
+        startConversation();
+        
+        // Función principal para iniciar la conversación
+        function startConversation() {
+            // Mensaje de bienvenida
+            addBotMessage(`¡Hola! Voy a ayudarte a crear una cotización personalizada para <strong>${service.name}</strong>.`);
+            
+            setTimeout(() => {
+                addBotMessage("Primero necesito algunos datos para darte un precio más preciso.");
+                
+                setTimeout(() => {
+                    askForMetrosCuadrados();
+                }, 1000);
+            }, 1000);
+        }
+        
+        // Preguntar por metros cuadrados
+        function askForMetrosCuadrados() {
+            conversationState.step = 'metros';
+            
+            addBotMessage("¿Para cuántos metros cuadrados necesitas este servicio?");
+            
+            // Crear input para metros cuadrados
+            userInput.innerHTML = `
+                <div class="input-group mb-3">
+                    <input type="number" id="metros-input" class="form-control" min="1" step="1" placeholder="Ingresa los metros cuadrados">
+                    <span class="input-group-text">m²</span>
+                    <button class="btn btn-primary" id="metros-btn">Continuar</button>
+                </div>
+                <div class="form-text">Si no estás seguro, ingresa un valor aproximado. Podemos ajustarlo después.</div>
+            `;
+            
+            // Evento para el botón
+            document.getElementById('metros-btn').addEventListener('click', function() {
+                const metrosInput = document.getElementById('metros-input');
+                const metros = parseInt(metrosInput.value, 10);
+                
+                if (isNaN(metros) || metros <= 0) {
+                    alert("Por favor ingresa un valor válido mayor a 0");
+                    return;
+                }
+                
+                // Guardar metros cuadrados
+                conversationState.metrosCuadrados = metros;
+                
+                // Mostrar mensaje del usuario
+                addUserMessage(`Necesito el servicio para ${metros} metros cuadrados.`);
+                
+                // Continuar con la selección de productos
+                setTimeout(() => {
+                    askForProductSelection();
+                }, 1000);
+            });
+            
+            // También permitir continuar con Enter
+            document.getElementById('metros-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('metros-btn').click();
+                }
+            });
+        }
+        
+        // Preguntar por selección de productos
+        function askForProductSelection() {
+            conversationState.step = 'products';
+            
+            addBotMessage("Ahora, selecciona los productos que te interesan para este servicio:");
+            
+            // Mostrar selector de productos
+            productSelector.style.display = 'block';
+            productSelector.innerHTML = '';
+            
+            // Generar elementos de productos
+            componentes.forEach(producto => {
+                const productHTML = `
+                    <div class="product-item" data-product-id="${producto.id}">
+                        <img src="${producto.imageUrl}" alt="${producto.name}" class="product-image">
+                        <div class="product-info">
+                            <h5>${producto.name}</h5>
+                            <p class="product-price">S/. ${producto.price} por ${producto.unit}</p>
+                        </div>
+                        <div class="quantity-control">
+                            <button type="button" class="btn-decrease">-</button>
+                            <input type="number" min="0" value="0" class="quantity-input" data-product-id="${producto.id}">
+                            <button type="button" class="btn-increase">+</button>
+                        </div>
+                    </div>
+                `;
+                
+                productSelector.innerHTML += productHTML;
+            });
+            
+            // Añadir botón para continuar
+            productSelector.innerHTML += `
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button id="continue-selection" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>Continuar con esta selección
+                    </button>
+                </div>
+            `;
+            
+            // Eventos para los botones de cantidad
+            document.querySelectorAll('.btn-decrease').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentNode.querySelector('.quantity-input');
+                    let value = parseInt(input.value, 10);
+                    if (value > 0) input.value = value - 1;
+                });
+            });
+            
+            document.querySelectorAll('.btn-increase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentNode.querySelector('.quantity-input');
+                    let value = parseInt(input.value, 10);
+                    input.value = value + 1;
+                });
+            });
+            
+            // Evento para continuar después de la selección
+            document.getElementById('continue-selection').addEventListener('click', function() {
+                // Recopilar productos seleccionados
+                const seleccionados = {};
+                let haySeleccionados = false;
+                
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    const productId = input.getAttribute('data-product-id');
+                    const quantity = parseInt(input.value, 10);
+                    
+                    if (quantity > 0) {
+                        seleccionados[productId] = quantity;
+                        haySeleccionados = true;
+                    }
+                });
+                
+                if (!haySeleccionados) {
+                    alert("Por favor selecciona al menos un producto");
+                    return;
+                }
+                
+                // Guardar selección
+                conversationState.seleccionados = seleccionados;
+                
+                // Ocultar selector
+                productSelector.style.display = 'none';
+                
+                // Mostrar mensaje de selección
+                const productosTexto = Object.entries(seleccionados).map(([id, cantidad]) => {
+                    const producto = componentes.find(p => p.id == id);
+                    return `${cantidad} ${producto.unit} de ${producto.name}`;
+                }).join(', ');
+                
+                addUserMessage(`He seleccionado: ${productosTexto}`);
+                
+                // Continuar con el resumen
+                setTimeout(() => {
+                    showSummary();
+                }, 1000);
+            });
+        }
+        
+        // Mostrar resumen de cotización
+        function showSummary() {
+            conversationState.step = 'summary';
+            
+            addBotMessage("¡Excelente! Basado en tu selección, aquí está el resumen de tu cotización:");
+            
+            let subtotal = 0;
+            const seleccionResumen = [];
+            
+            // Calcular subtotal y preparar resumen
+            Object.entries(conversationState.seleccionados).forEach(([id, cantidad]) => {
+                const producto = componentes.find(p => p.id == id);
+                const precioTotal = producto.price * cantidad;
+                subtotal += precioTotal;
+                
+                seleccionResumen.push({
+                    nombre: producto.name,
+                    cantidad: cantidad,
+                    unidad: producto.unit,
+                    precioUnitario: producto.price,
+                    precioTotal: precioTotal
+                });
+            });
+            
+            // Calcular totales
+            const igv = subtotal * 0.18;
+            const total = subtotal + igv;
+            
+            // Mostrar resumen
+            summaryContainer.style.display = 'block';
+            summaryContainer.innerHTML = `
+                <h4 class="mb-4">Resumen de Cotización</h4>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Servicio</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Servicio:</strong> ${service.name}</p>
+                        <p><strong>Área total:</strong> ${conversationState.metrosCuadrados} m²</p>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Productos Seleccionados</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        ${seleccionResumen.map(item => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${item.nombre}</h6>
+                                    <small class="text-muted">${item.cantidad} ${item.unidad} x S/. ${item.precioUnitario.toFixed(2)}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">S/. ${item.precioTotal.toFixed(2)}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Totales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong>S/. ${subtotal.toFixed(2)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>IGV (18%):</span>
+                            <strong>S/. ${igv.toFixed(2)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="fs-5">TOTAL:</span>
+                            <strong class="fs-5">S/. ${total.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota importante:</strong> Esta es una cotización referencial. El precio final puede variar según la evaluación técnica en sitio.
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button id="generar-pdf" class="btn btn-primary">
+                        <i class="fas fa-file-pdf me-2"></i>Generar PDF de Cotización
+                    </button>
+                    <button id="solicitar-cita" class="btn btn-success">
+                        <i class="fas fa-calendar-check me-2"></i>Solicitar cita con esta cotización
+                    </button>
+                    <button id="modificar-seleccion" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit me-2"></i>Modificar mi selección
+                    </button>
+                </div>
+            `;
+            
+            // Evento para generar PDF
+            document.getElementById('generar-pdf').addEventListener('click', function() {
+                // Mostrar modal de procesamiento
+                new bootstrap.Modal(document.getElementById('processingModal')).show();
+                
+                // Preparar datos para enviar
+                document.getElementById('selecciones-input').value = JSON.stringify(conversationState.seleccionados);
+                document.getElementById('metros-totales-input').value = conversationState.metrosCuadrados;
+                
+                // Enviar formulario
+                document.getElementById('pdf-form').submit();
+            });
+            
+            // Evento para solicitar cita
+            document.getElementById('solicitar-cita').addEventListener('click', function() {
+                // Guardar datos en localStorage para autocompletar el formulario de cita
+                localStorage.setItem('cotizacion_servicio_id', service.id);
+                localStorage.setItem('cotizacion_metros', conversationState.metrosCuadrados);
+                localStorage.setItem('cotizacion_productos', JSON.stringify(conversationState.seleccionados));
+                
+                // Redirigir al formulario de cita
+                window.location.href = '{% url "appointments:request" service.id %}';
+            });
+            
+            // Evento para modificar selección
+            document.getElementById('modificar-seleccion').addEventListener('click', function() {
+                summaryContainer.style.display = 'none';
+                askForProductSelection();
+            });
+        }
+        
+        // Función para añadir mensaje del bot
+        function addBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot-message';
+            messageDiv.innerHTML = message;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Función para añadir mensaje del usuario
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user-message';
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            
+            // Limpiar entrada de usuario
+            userInput.innerHTML = '';
+            scrollToBottom();
+        }
+        
+        // Función para scroll al final del chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    });
+</script>
+
+<!-- Script para autocompletar el formulario de cita después de redirigir -->
+<script>
+    // Este script solo se ejecutará en la página del formulario de cita
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si estamos en la página del formulario de cita
+        const appointmentForm = document.querySelector('form[action*="appointments"]');
+        if (!appointmentForm) return;
+        
+        // Verificar si hay datos de cotización en localStorage
+        const cotizacionServicioId = localStorage.getItem('cotizacion_servicio_id');
+        const cotizacionMetros = localStorage.getItem('cotizacion_metros');
+        const cotizacionProductos = localStorage.getItem('cotizacion_productos');
+        
+        if (cotizacionServicioId && cotizacionMetros && cotizacionProductos) {
+            console.log('Autocompletando formulario con datos de cotización');
+            
+            // Encontrar y autocompletar campos relevantes (ajustar IDs según tu formulario)
+            const detailsField = document.getElementById('id_additional_details');
+            
+            if (detailsField) {
+                // Formatear detalles de la cotización
+                const productos = JSON.parse(cotizacionProductos);
+                let detallesTexto = `Cotización previa: ${cotizacionMetros} m²\nProductos seleccionados:\n`;
+                
+                // Añadir cada producto
+                Object.entries(productos).forEach(([id, cantidad]) => {
+                    detallesTexto += `- Producto ID ${id}: ${cantidad} unidades\n`;
+                });
+                
+                // Añadir a cualquier texto existente
+                detailsField.value = detallesTexto + (detailsField.value ? "\n\n" + detailsField.value : "");
+            }
+            
+            // Limpiar localStorage después de usar los datos
+            localStorage.removeItem('cotizacion_servicio_id');
+            localStorage.removeItem('cotizacion_metros');
+            localStorage.removeItem('cotizacion_productos');
+        }
+    });
+</script>
+{% endblock %}

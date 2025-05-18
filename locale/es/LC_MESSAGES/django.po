@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 07:48-0500\n"
+"POT-Creation-Date: 2025-05-09 15:17-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -663,6 +663,7 @@ msgid "Currently"
 msgstr ""
 
 #: .\DecoMoriEnv\Lib\site-packages\django\forms\widgets.py:463
+#: .\templates\admin\index.html:279
 msgid "Change"
 msgstr ""
 
@@ -1243,6 +1244,18 @@ msgstr ""
 msgid "Connect, get help, or contribute"
 msgstr "Conéctese, obtenga ayuda o contribuya"
 
+#: .\DecoracionesMori\admin.py:78
+msgid "Administración DecoracionesMori"
+msgstr ""
+
+#: .\DecoracionesMori\admin.py:79
+msgid "Panel de Control"
+msgstr ""
+
+#: .\DecoracionesMori\admin.py:80
+msgid "Dashboard DecoracionesMori"
+msgstr ""
+
 #: .\accounts\models.py:11
 msgid "Phone number"
 msgstr "Numero de Teléfono"
@@ -1251,7 +1264,7 @@ msgstr "Numero de Teléfono"
 msgid "Address"
 msgstr "Dirreción"
 
-#: .\accounts\models.py:13 .\appointments\forms.py:17
+#: .\accounts\models.py:13 .\appointments\forms.py:18
 msgid "DNI"
 msgstr ""
 
@@ -1283,40 +1296,82 @@ msgstr "Usuario"
 msgid "Users"
 msgstr "Usuarios"
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:6
+#: .\accounts\templates\account\email\password_reset_key_message.html:7
 #, python-format
 msgid "Restablecimiento de Contraseña en %(site_name)s"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:9
+#: .\accounts\templates\account\email\password_reset_key_message.html:67
+msgid "Recuperación de Contraseña"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:69
+msgid "Estimado(a) cliente,"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:71
+#, python-format
+msgid ""
+"Hemos recibido una solicitud para restablecer la contraseña de su cuenta en "
+"%(site_name)s."
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:73
+msgid ""
+"Para continuar con el proceso de recuperación, por favor haga clic en el "
+"siguiente botón:"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:76
+msgid "Restablecer Contraseña"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:79
+msgid "O puede copiar y pegar el siguiente enlace en su navegador:"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:82
+msgid "Su nombre de usuario es:"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:84
+msgid ""
+"Si usted no solicitó restablecer su contraseña, puede ignorar este mensaje y "
+"su contraseña permanecerá sin cambios."
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:88
+#, python-format
+msgid "Este correo fue enviado por %(site_name)s"
+msgstr ""
+
+#: .\accounts\templates\account\email\password_reset_key_message.html:89
+msgid "Todos los derechos reservados"
+msgstr ""
+
 #: .\accounts\templates\account\email\password_reset_key_message.txt:2
 #, python-format
 msgid "Hola desde %(site_name)s,"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:11
 #: .\accounts\templates\account\email\password_reset_key_message.txt:4
 msgid ""
 "Recibes este correo electrónico porque solicitaste restablecer la contraseña "
 "de tu cuenta en"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:13
 #: .\accounts\templates\account\email\password_reset_key_message.txt:6
 msgid "Por favor, ve a la siguiente página y elige una nueva contraseña:"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:16
 #: .\accounts\templates\account\email\password_reset_key_message.txt:9
 msgid "Tu nombre de usuario, en caso de que lo hayas olvidado:"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:18
 #: .\accounts\templates\account\email\password_reset_key_message.txt:11
 msgid "¡Gracias por usar nuestro sitio!"
 msgstr ""
 
-#: .\accounts\templates\account\email\password_reset_key_message.html:20
 #: .\accounts\templates\account\email\password_reset_key_message.txt:13
 #, python-format
 msgid "El equipo de %(site_name)s"
@@ -1468,79 +1523,100 @@ msgstr ""
 msgid "Metadata"
 msgstr ""
 
-#: .\appointments\forms.py:16
-msgid "Nombre Completo"
-msgstr ""
-
-#: .\appointments\forms.py:16
-msgid "Nombre completo"
-msgstr ""
-
-#: .\appointments\forms.py:17
-msgid "Número de documento"
-msgstr ""
-
-#: .\appointments\forms.py:18
-msgid "Correo Electrónico"
-msgstr ""
-
-#: .\appointments\forms.py:18
-msgid "Correo electrónico"
-msgstr ""
-
-#: .\appointments\forms.py:19
-msgid "Teléfono"
-msgstr ""
-
-#: .\appointments\forms.py:19
-msgid "Teléfono de contacto"
-msgstr ""
-
-#: .\appointments\forms.py:20
-msgid "Dirección"
-msgstr ""
-
-#: .\appointments\forms.py:20
-msgid "Dirección completa (opcional)"
+#: .\appointments\forms.py:21
+msgid "Tu número de documento"
 msgstr ""
 
 #: .\appointments\forms.py:24
-msgid "Fecha Preferida"
+msgid "Nombre Completo"
+msgstr ""
+
+#: .\appointments\forms.py:26
+msgid "Tu nombre completo (se autocompleta con DNI)"
+msgstr ""
+
+#: .\appointments\forms.py:29
+msgid "Correo Electrónico"
 msgstr ""
 
 #: .\appointments\forms.py:30
+msgid "Tu correo electrónico"
+msgstr ""
+
+#: .\appointments\forms.py:33
+msgid "Teléfono"
+msgstr ""
+
+#: .\appointments\forms.py:35
+msgid "Tu teléfono de contacto"
+msgstr ""
+
+#: .\appointments\forms.py:38
+msgid "Dirección"
+msgstr ""
+
+#: .\appointments\forms.py:42
+msgid "Empieza a escribir tu dirección..."
+msgstr ""
+
+#: .\appointments\forms.py:49
+msgid "Fecha Preferida"
+msgstr ""
+
+#: .\appointments\forms.py:53
 msgid "Hora Preferida"
 msgstr ""
 
-#: .\appointments\forms.py:36
+#: .\appointments\forms.py:57
 msgid "Profesional Preferido (Opcional)"
 msgstr ""
 
-#: .\appointments\forms.py:50
-msgid "Información adicional (opcional)"
+#: .\appointments\forms.py:61
+msgid "Cualquier profesional disponible"
 msgstr ""
 
-#: .\appointments\forms.py:55
+#: .\appointments\forms.py:74
+msgid "Información adicional sobre tu cita (opcional)"
+msgstr ""
+
+#: .\appointments\forms.py:79
 msgid "Notas Adicionales"
 msgstr ""
 
-#: .\appointments\forms.py:83
-msgid "No puedes seleccionar una fecha pasada."
+#: .\appointments\forms.py:120
+msgid ""
+"La fecha de la cita debe ser con al menos un día de antelación (a partir de "
+"mañana)."
 msgstr ""
 
-#: .\appointments\forms.py:87
-msgid "La fecha seleccionada no es un día laborable."
+#: .\appointments\forms.py:127
+msgid ""
+"La fecha seleccionada no es un día laborable según nuestra programación."
 msgstr ""
 
-#: .\appointments\forms.py:89 .\appointments\forms.py:117
-msgid "No hay información de horario para la fecha seleccionada."
-msgstr ""
-
-#: .\appointments\forms.py:107
+#: .\appointments\forms.py:130
 #, python-brace-format
 msgid ""
-"La hora seleccionada está fuera del horario laboral general ({start}-{end}) "
-"para este día."
+"No hay información de horario laboral para la fecha {date}. Por favor, "
+"consulte con el administrador."
+msgstr ""
+
+#: .\appointments\forms.py:139
+msgid "Se requiere una dirección de correo electrónico."
+msgstr ""
+
+#: .\appointments\forms.py:171
+#, python-brace-format
+msgid ""
+"Lo sentimos, ya no hay cupos disponibles para el día {date}. Se permite un "
+"máximo de 3 citas diarias."
+msgstr ""
+
+#: .\appointments\forms.py:190 .\appointments\models.py:159
+#, python-brace-format
+msgid ""
+"La hora seleccionada ({time}) está fuera del horario laboral ({start}-{end}) "
+"para el día {date}."
 msgstr ""
 
 #: .\appointments\models.py:17
@@ -1624,23 +1700,22 @@ msgstr ""
 #: .\appointments\models.py:74
 #: .\appointments\templates\appointments\appointment_detail.html:42
 #: .\appointments\templates\appointments\appointment_detail.html:53
-#: .\templates\admin\index.html:364 .\templates\admin\index.html:484
 msgid "Pendiente"
 msgstr ""
 
-#: .\appointments\models.py:75 .\templates\admin\index.html:366
+#: .\appointments\models.py:75
 msgid "Confirmada"
 msgstr ""
 
-#: .\appointments\models.py:76 .\templates\admin\index.html:368
+#: .\appointments\models.py:76
 msgid "Completada"
 msgstr ""
 
-#: .\appointments\models.py:77 .\templates\admin\index.html:370
+#: .\appointments\models.py:77
 msgid "Cancelada"
 msgstr ""
 
-#: .\appointments\models.py:84
+#: .\appointments\models.py:84 .\clients\models.py:31
 msgid "Cliente"
 msgstr ""
 
@@ -1681,20 +1756,13 @@ msgstr ""
 msgid "Cita"
 msgstr ""
 
-#: .\appointments\models.py:129 .\templates\admin\index.html:301
+#: .\appointments\models.py:129
 msgid "Citas"
 msgstr ""
 
 #: .\appointments\models.py:152
 #, python-brace-format
 msgid "La fecha seleccionada ({date}) no es un día laborable."
-msgstr ""
-
-#: .\appointments\models.py:159
-#, python-brace-format
-msgid ""
-"La hora seleccionada ({time}) está fuera del horario laboral ({start}-{end}) "
-"para el día {date}."
 msgstr ""
 
 #: .\appointments\models.py:172
@@ -1819,30 +1887,72 @@ msgstr ""
 msgid "No tienes citas programadas por el momento."
 msgstr ""
 
-#: .\appointments\views.py:108
-msgid "Cita solicitada correctamente. Su estado es \"Pendiente\"."
+#: .\appointments\views.py:82
+msgid "Arrastra para ajustar la ubicación exacta"
 msgstr ""
 
-#: .\appointments\views.py:112
-msgid "Por favor corrige los errores en el formulario."
+#: .\appointments\views.py:83
+msgid "Geocodificación inversa falló:"
 msgstr ""
 
-#: .\appointments\views.py:171
+#: .\appointments\views.py:84
+msgid "Lugar de Autocomplete no tiene geometría:"
+msgstr ""
+
+#: .\appointments\views.py:85
+msgid "Error al buscar DNI:"
+msgstr ""
+
+#: .\appointments\views.py:86
+msgid "Error de configuración interna. Por favor, recarga la página."
+msgstr ""
+
+#: .\appointments\views.py:180
+msgid "Por favor corrige los siguientes errores: "
+msgstr ""
+
+#: .\appointments\views.py:241
 msgid "No tienes permiso para ver esta cita."
 msgstr ""
 
-#: .\appointments\views.py:247
+#: .\appointments\views.py:317
 msgid "No tienes permiso para cancelar esta cita."
 msgstr ""
 
-#: .\appointments\views.py:256
+#: .\appointments\views.py:326
 #, python-brace-format
 msgid "La cita #{id} ha sido cancelada."
 msgstr ""
 
-#: .\appointments\views.py:258
+#: .\appointments\views.py:328
 #, python-brace-format
 msgid "Esta cita ya no se puede cancelar (Estado: {status})."
+msgstr ""
+
+#: .\clients\apps.py:7 .\clients\models.py:32 .\templates\admin\index.html:79
+msgid "Clientes"
+msgstr ""
+
+#: .\clients\models.py:8
+msgid "Prospecto"
+msgstr ""
+
+#: .\clients\models.py:9 .\services\admin.py:122 .\services\admin.py:156
+msgid "Activo"
+msgstr ""
+
+#: .\clients\models.py:10
+#, fuzzy
+#| msgid "Is active"
+msgid "Inactivo"
+msgstr "Activo"
+
+#: .\clients\models.py:18
+msgid "Usuario"
+msgstr ""
+
+#: .\clients\models.py:23
+msgid "Tipo de cliente"
 msgstr ""
 
 #: .\quotations\admin.py:24
@@ -2002,10 +2112,6 @@ msgstr ""
 msgid "Precio base"
 msgstr ""
 
-#: .\services\admin.py:122 .\services\admin.py:156
-msgid "Activo"
-msgstr ""
-
 #: .\services\admin.py:124
 msgid "Fecha de creación"
 msgstr ""
@@ -2112,255 +2218,74 @@ msgstr "Unidad"
 msgid "Products"
 msgstr "Productos"
 
-#: .\templates\admin\index.html:240
-msgid "Panel de Control"
+#: .\templates\admin\index.html:66
+msgid "Dashboard"
 msgstr ""
 
-#: .\templates\admin\index.html:246
-msgid "Acciones Rápidas"
+#: .\templates\admin\index.html:71
+msgid "Citas Totales"
 msgstr ""
 
-#: .\templates\admin\index.html:250
-msgid "Nueva Cita"
-msgstr ""
-
-#: .\templates\admin\index.html:254
-msgid "Nueva Cotización"
-msgstr ""
-
-#: .\templates\admin\index.html:258
-msgid "Nuevo Usuario"
-msgstr ""
-
-#: .\templates\admin\index.html:262
-msgid "Nuevo Servicio"
-msgstr ""
-
-#: .\templates\admin\index.html:266
-#, fuzzy
-#| msgid "Product"
-msgid "Nuevo Producto"
-msgstr "Producto"
-
-#: .\templates\admin\index.html:272
-msgid "Resumen General"
-msgstr ""
-
-#: .\templates\admin\index.html:276
-msgid "Usuarios"
-msgstr ""
-
-#: .\templates\admin\index.html:280
-msgid "Usuarios Activos"
-msgstr ""
-
-#: .\templates\admin\index.html:284
+#: .\templates\admin\index.html:75
 #, fuzzy
 #| msgid "Services"
 msgid "Servicios"
 msgstr "Servicios"
 
-#: .\templates\admin\index.html:288
-#, fuzzy
-#| msgid "Products"
-msgid "Productos"
-msgstr "Productos"
-
-#: .\templates\admin\index.html:294
-msgid "Estadísticas de Citas"
+#: .\templates\admin\index.html:86
+msgid "Citas por Estado"
 msgstr ""
 
-#: .\templates\admin\index.html:305 .\templates\admin\index.html:577
-msgid "Pendientes"
+#: .\templates\admin\index.html:91
+msgid "Servicios Más Solicitados"
 msgstr ""
 
-#: .\templates\admin\index.html:309 .\templates\admin\index.html:568
-msgid "Confirmadas"
+#: .\templates\admin\index.html:96
+msgid "Citas por Mes"
 msgstr ""
 
-#: .\templates\admin\index.html:313
-msgid "Hoy"
+#: .\templates\admin\index.html:101
+msgid "Clientes por Tipo"
 msgstr ""
 
-#: .\templates\admin\index.html:317
-msgid "Mañana"
+#: .\templates\admin\index.html:106
+msgid "Citas Recientes (Últimos 30 días)"
 msgstr ""
 
-#: .\templates\admin\index.html:320
-msgid "Ver Todas las Citas"
+#: .\templates\admin\index.html:254
+msgid "Aplicaciones"
 msgstr ""
 
-#: .\templates\admin\index.html:324
-msgid "Cotizaciones"
-msgstr ""
-
-#: .\templates\admin\index.html:328 .\templates\admin\index.html:637
-msgid "Borradores"
-msgstr ""
-
-#: .\templates\admin\index.html:332 .\templates\admin\index.html:637
-msgid "Enviadas"
-msgstr ""
-
-#: .\templates\admin\index.html:336 .\templates\admin\index.html:637
-#, fuzzy
-#| msgid "Accepted"
-msgid "Aceptadas"
-msgstr "Aceptado"
-
-#: .\templates\admin\index.html:339
-msgid "Ver Todas las Cotizaciones"
-msgstr ""
-
-#: .\templates\admin\index.html:343
-msgid "Estadísticas de Cotizaciones"
-msgstr ""
-
-#: .\templates\admin\index.html:350
-msgid "Gestión"
-msgstr ""
-
-#: .\templates\admin\index.html:353
-msgid "Próximas Citas"
-msgstr ""
-
-#: .\templates\admin\index.html:376
-msgid "HOY"
-msgstr ""
-
-#: .\templates\admin\index.html:378
-msgid "MAÑANA"
-msgstr ""
-
-#: .\templates\admin\index.html:385
-msgid "No hay citas próximas programadas."
-msgstr ""
-
-#: .\templates\admin\index.html:389
-msgid "Ver todas las citas"
-msgstr ""
-
-#: .\templates\admin\index.html:394
-msgid "Cotizaciones que necesitan seguimiento"
-msgstr ""
-
-#: .\templates\admin\index.html:403 .\templates\admin\index.html:505
-msgid "Sin monto"
-msgstr ""
-
-#: .\templates\admin\index.html:405
-msgid "Enviada"
-msgstr ""
-
-#: .\templates\admin\index.html:409
+#: .\templates\admin\index.html:259
 #, python-format
-msgid "Enviada hace %(time_since)s"
+msgid "Models in the %(name)s application"
 msgstr ""
 
-#: .\templates\admin\index.html:414
-msgid "No hay cotizaciones que necesiten seguimiento."
+#: .\templates\admin\index.html:270
+#, fuzzy
+#| msgid "Address"
+msgid "Add"
+msgstr "Dirreción"
+
+#: .\templates\admin\index.html:277
+msgid "View"
 msgstr ""
 
-#: .\templates\admin\index.html:418
-msgid "Ver todas las cotizaciones enviadas"
+#: .\templates\admin\index.html:290
+msgid "You don't have permission to view or edit anything."
 msgstr ""
 
-#: .\templates\admin\index.html:423
-msgid "Servicios Populares"
-msgstr ""
+#, fuzzy
+#~| msgid "Product"
+#~ msgid "Nuevo Producto"
+#~ msgstr "Producto"
 
-#: .\templates\admin\index.html:431 .\templates\admin\index.html:455
-#, python-format
-msgid "%(counter)s cita"
-msgid_plural "%(counter)s citas"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+#, fuzzy
+#~| msgid "Products"
+#~ msgid "Productos"
+#~ msgstr "Productos"
 
-#: .\templates\admin\index.html:435
-msgid "No hay datos de servicios populares."
-msgstr ""
-
-#: .\templates\admin\index.html:439
-msgid "Ver todos los servicios"
-msgstr ""
-
-#: .\templates\admin\index.html:444
-msgid "Clientes Más Activos"
-msgstr ""
-
-#: .\templates\admin\index.html:459
-msgid "No hay datos de clientes activos."
-msgstr ""
-
-#: .\templates\admin\index.html:463
-msgid "Ver todos los usuarios"
-msgstr ""
-
-#: .\templates\admin\index.html:468
-msgid "Pendientes Recientes"
-msgstr ""
-
-#: .\templates\admin\index.html:471
-msgid "Citas Pendientes"
-msgstr ""
-
-#: .\templates\admin\index.html:487
-msgid "No hay citas pendientes recientes."
-msgstr ""
-
-#: .\templates\admin\index.html:491
-msgid "Ver todas las citas pendientes"
-msgstr ""
-
-#: .\templates\admin\index.html:496
-msgid "Cotizaciones (Borrador)"
-msgstr ""
-
-#: .\templates\admin\index.html:506
-msgid "Creado:"
-msgstr ""
-
-#: .\templates\admin\index.html:509
-msgid "Borrador"
-msgstr ""
-
-#: .\templates\admin\index.html:512
-msgid "No hay cotizaciones en borrador recientes."
-msgstr ""
-
-#: .\templates\admin\index.html:516
-msgid "Ver todas las cotizaciones en borrador"
-msgstr ""
-
-#: .\templates\admin\index.html:522
-msgid "Configuración Rápida"
-msgstr ""
-
-#: .\templates\admin\index.html:525
-msgid "Plantillas Semanales"
-msgstr ""
-
-#: .\templates\admin\index.html:528
-msgid "Días Programados"
-msgstr ""
-
-#: .\templates\admin\index.html:531
-msgid "Categorías Servicios"
-msgstr ""
-
-#: .\templates\admin\index.html:534
-msgid "Imágenes Servicios"
-msgstr ""
-
-#: .\templates\admin\index.html:586
-msgid "Completadas"
-msgstr ""
-
-#: .\templates\admin\index.html:601
-msgid "Citas de los últimos 30 días"
-msgstr ""
-
-#: .\templates\admin\index.html:658
-msgid "Cotizaciones por estado (últimos 30 días)"
-msgstr ""
+#, fuzzy
+#~| msgid "Accepted"
+#~ msgid "Aceptadas"
+#~ msgstr "Aceptado"

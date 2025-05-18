@@ -1,0 +1,72 @@
+<!-- templates/admin/invoices/register_payment.html -->
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='invoices' %}">{% trans 'Invoices' %}</a>
+  &rsaquo; <a href="{% url 'admin:invoices_invoice_changelist' %}">{% trans 'Invoices' %}</a>
+  &rsaquo; <a href="{% url 'admin:invoices_invoice_change' invoice.id %}">{{ invoice }}</a>
+  &rsaquo; {% trans 'Registrar pago' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{{ title }}</h1>
+    
+    <div class="module">
+        <h2>Información de la boleta</h2>
+        <p><strong>Cliente:</strong> {{ invoice.client.get_full_name }}</p>
+        <p><strong>Total:</strong> S/ {{ invoice.total|floatformat:2 }}</p>
+        <p><strong>Adelanto actual:</strong> S/ {{ invoice.advance_payment|floatformat:2 }}</p>
+        <p><strong>Saldo pendiente:</strong> S/ {{ invoice.pending_balance|floatformat:2 }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-row field-amount_paid">
+            <div>
+                <label for="id_amount_paid">Monto a pagar:</label>
+                <input type="number" name="amount_paid" id="id_amount_paid" step="0.01" min="0.01" 
+                       max="{{ invoice.pending_balance }}" value="{{ invoice.pending_balance }}" required>
+            </div>
+        </div>
+        
+        <!-- Nuevo campo: Método de pago -->
+        <div class="form-row field-payment_method">
+            <div>
+                <label for="id_payment_method">Método de Pago:</label>
+                <select name="payment_method" id="id_payment_method" required>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="yape">Yape</option>
+                    <option value="plin">Plin</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Nuevo campo: Referencia de pago -->
+        <div class="form-row field-payment_reference">
+            <div>
+                <label for="id_payment_reference">Referencia de Pago:</label>
+                <input type="text" name="payment_reference" id="id_payment_reference" 
+                       maxlength="50" placeholder="Número de operación, voucher, etc.">
+            </div>
+        </div>
+        
+        <div class="submit-row">
+            <input type="submit" value="Registrar pago" class="default">
+            <a href="{% url 'admin:invoices_invoice_change' invoice.id %}" class="button">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -20,7 +20,7 @@
                         <th scope="col">{% trans "Servicio" %}</th>
                         <th scope="col">{% trans "Fecha" %}</th>
                         <th scope="col">{% trans "Hora" %}</th>
-                        <th scope="col">{% trans "Profesional" %}</th>
+                        
                         <th scope="col">{% trans "Estado" %}</th>
                         <th scope="col">{% trans "Acciones" %}</th>
                     </tr>
@@ -44,13 +44,7 @@
                                 <span class="text-muted">--</span>
                             {% endif %}
                         </td>
-                         <td>
-                            {% if appointment.staff %}
-                                {{ appointment.staff.get_full_name|default:appointment.staff.username }}
-                            {% else %}
-                                <span class="text-muted">{% trans "N/A" %}</span>
-                            {% endif %}
-                        </td>
+                         
                         <td>
                             <span class="status-badge {% if appointment.status == 'pending' %}badge-warning{% elif appointment.status == 'confirmed' %}badge-success{% elif appointment.status == 'completed' %}badge-info{% elif appointment.status == 'cancelled' %}badge-danger{% endif %}">
                                 {{ appointment.get_status_display }}

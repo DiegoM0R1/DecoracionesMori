@@ -55,17 +55,7 @@
                                     {# Nota: Ya no mostramos hora de fin aquí porque no la tenemos directamente #}
                                 </td>
                             </tr>
-                            <tr>
-                                <th scope="row">{% trans "Profesional" %}:</th>
-                                <td>
-                                    {# CORREGIDO: Usar staff directo y verificar si existe #}
-                                    {% if appointment.staff %}
-                                        {{ appointment.staff.get_full_name|default:appointment.staff.username }}
-                                    {% else %}
-                                        <span class="text-muted">{% trans "No asignado" %}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                            
                             <tr>
                                 <th scope="row">{% trans "Fecha de Solicitud" %}:</th>
                                 <td>{{ appointment.created_at|date:"d/m/Y H:i" }}</td>

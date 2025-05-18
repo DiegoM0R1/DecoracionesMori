@@ -505,7 +505,6 @@
 {% endblock %}
 {% block content %}
 <!-- Hero Section -->
-<!-- Hero Section -->
 <section class="hero-section">
     <div class="hero-carousel carousel slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -518,7 +517,7 @@
                 <img src="https://diegom0r1.github.io/decomoriweb/img/Sala-Feng-Shui-pc.jpg" class="d-block w-100" alt="DecoracionesMori">
                 <div class="carousel-caption">
                     <h1>Bienvenido a Decoraciones Mori</h1>
-                    <p>Servicios de limpieza, instalación y decoración de primera calidad</p>
+                    <p>Transforma tu espacio con nuestros servicios de limpieza, instalación y decoración de primera calidad</p>
                     <a href="{% url 'services:service_list' %}" class="btn btn-primary btn-lg">Ver Servicios</a>
                 </div>
             </div>
@@ -592,7 +591,7 @@
                         {% if item.service %} {# Comprobación por si acaso item.service fuera None #}
                         <p class="card-text"><small class="text-muted">Servicio destacado: {{ item.service.name }}</small></p>
                         {% endif %}
-                        <a href="{% url 'services:category' item.category.id %}" class="btn btn-outline-primary">Ver categoría</a>
+                        <a href="{% url 'services:category' item.category.id %}" class="btn btn-outline-primary"><p style="color: #f8f9fa;">ver categoria</p></a>
                     </div>
                 </div>
             </div>
@@ -653,68 +652,13 @@
     </div>
 </section>
 
-<!-- Testimonials Section -->
-<section class="testimonials py-5">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-12">
-                <h2 class="section-title">Lo que dicen nuestros clientes</h2>
-                <p class="section-subtitle">Testimonios de clientes satisfechos</p>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-12">
-                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="testimonial-item text-center">
-                                <img src="/static/imagen/testimonial1.jpg" class="rounded-circle mb-3" alt="Cliente">
-                                <blockquote class="blockquote">
-                                    <p>"El servicio de limpieza de muebles superó mis expectativas. Quedaron como nuevos."</p>
-                                    <footer class="blockquote-footer">María Rodríguez</footer>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="testimonial-item text-center">
-                                <img src="/static/imagen/testimonial2.jpg" class="rounded-circle mb-3" alt="Cliente">
-                                <blockquote class="blockquote">
-                                    <p>"Instalaron mis cortinas de manera rápida y profesional. Excelente atención."</p>
-                                    <footer class="blockquote-footer">Juan Pérez</footer>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="testimonial-item text-center">
-                                <img src="/static/imagen/testimonial3.jpg" class="rounded-circle mb-3" alt="Cliente">
-                                <blockquote class="blockquote">
-                                    <p>"La limpieza de alfombras fue impecable. Un equipo muy profesional y puntual."</p>
-                                    <footer class="blockquote-footer">Carlos Guzmán</footer>
-                                </blockquote>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Anterior</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Siguiente</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- CTA Section -->
 <section class="cta-section py-5 bg-primary text-white text-center">
     <div class="container">
         <h2 class="mb-4">¿Listo para transformar tu espacio?</h2>
         <p class="mb-4">Contáctanos ahora y recibe una cotización personalizada para tus necesidades.</p>
-        <a href="" class="btn btn-light btn-lg">Contáctanos Ahora</a>
+        <a href="{% url 'services:contacto' %}" class="btn btn-light btn-lg">Contáctanos Ahora</a>
     </div>
 </section>
 

@@ -25,30 +25,7 @@ from django.contrib.auth import get_user_model
 # ... otras importaciones ...
 User = get_user_model() # En lugar de User = settings.AUTH_USER_MODEL
 
-# --- Vista de Calendario (Simplificada o requiere JS pesado) ---
-# Esta vista necesita una redefinición completa.
-# Podría mostrar los ScheduledWorkDay o necesitar JS para mostrar slots.
-# Por ahora, la dejamos comentada o muy básica.
-# class AppointmentCalendarView(LoginRequiredMixin, ListView):
-#     template_name = 'appointments/calendar.html'
-#     model = ScheduledWorkDay # Mostrar días laborables generales?
-#     context_object_name = 'work_days'
-#
-#     def get_queryset(self):
-#         # Mostrar días laborables futuros
-#         return ScheduledWorkDay.objects.filter(
-#             date__gte=timezone.now().date(),
-#             is_working=True
-#         ).order_by('date')
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['service_id'] = self.request.GET.get('service') # Pasar service_id si es relevante
-#         # Aquí necesitarías pasar datos para un calendario JS (FullCalendar, etc.)
-#         return context
 
-
-# --- Vista de Solicitud de Cita (Principal) ---
 class AppointmentRequestView(LoginRequiredMixin, CreateView):
     login_url = 'account_login' # Asegúrate que esta URL name exista en tu app accounts/urls.py
     model = Appointment

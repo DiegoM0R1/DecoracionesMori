@@ -1,11 +1,15 @@
 # services/admin.py
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import ServiceCategory, Service, ServiceImage, ServiceVideo, Product
+from .models import ServiceCategory, Service, ServiceImage, ServiceVideo, Product, ServiceComponent, ProductCategory, ProductImage
 from .forms import ServiceImageForm, ServiceVideoForm, ServiceForm, ServiceCategoryForm, ProductForm
 
 # Clase base para inlines de imágenes y videos de servicios
 
+
+class ServiceComponentInline(admin.TabularInline):
+    model = ServiceComponent
+    extra = 1
 @admin.register(ServiceImage)
 class ServiceImageAdmin(admin.ModelAdmin):
     # Quita 'alt_text' de aquí:
@@ -96,7 +100,7 @@ class ServiceAdmin(admin.ModelAdmin):
     list_filter = ('category', 'is_active')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ServiceImageInline, ServiceVideoInline]
+    inlines = [ServiceComponentInline,ServiceImageInline, ServiceVideoInline]
     fieldsets = (
         (_('Información básica'), {
             'fields': ('name', 'slug', 'category', 'description', 'base_price')
@@ -125,12 +129,76 @@ class ServiceAdmin(admin.ModelAdmin):
         return field
 
 # Productos
+
+@admin.register(ProductCategory)
+class ProductCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description')
+    search_fields = ('name',)
+    fieldsets = (
+        (_('Información de la categoría'), {
+            'fields': ('name', 'description')
+        }),
+    )
+    
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'name':
+            field.label = _('Nombre')
+        elif db_field.name == 'description':
+            field.label = _('Descripción')
+        return field
+
+# ProductImage Admin e Inline
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    verbose_name = _("Imagen del producto")
+    verbose_name_plural = _("Imágenes del producto")
+    fields = ('product', 'image', 'image_url', 'is_featured')
+    
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'image':
+            field.label = _('Imagen (archivo)')
+        elif db_field.name == 'image_url':
+            field.label = _('Imagen (URL)')
+        elif db_field.name == 'is_featured':
+            field.label = _('Destacada')
+        return field
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('product', 'is_featured', 'image')
+    list_filter = ('product', 'is_featured')
+    search_fields = ('product__name',)
+    list_per_page = 25
+    fields = ('product', 'image', 'image_url', 'is_featured')
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        field = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'image':
+            field.label = _('Imagen (archivo)')
+        elif db_field.name == 'image_url':
+            field.label = _('Imagen (URL)')
+        elif db_field.name == 'is_featured':
+            field.label = _('Destacada')
+        elif db_field.name == 'product':
+            field.label = _('Producto asociado')
+        return field
+    
+class ServiceComponentInlineForProduct(admin.TabularInline):
+    model = ServiceComponent
+    fk_name = 'product'  # Indicamos que el foreign key es 'product'
+    extra = 1
+    verbose_name = _("Servicio asociado")
+    verbose_name_plural = _("Servicios asociados")    
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     form = ProductForm
     list_display = ('name', 'category', 'price_per_unit', 'unit', 'is_active')
     list_filter = ('category', 'is_active')
     search_fields = ('name', 'description')
+    inlines = [ProductImageInline, ServiceComponentInlineForProduct]
     fieldsets = (
         (_('Información del producto'), {
             'fields': ('name', 'category', 'description', 'price_per_unit', 'unit')
@@ -155,6 +223,11 @@ class ProductAdmin(admin.ModelAdmin):
         elif db_field.name == 'is_active':
             field.label = _('Activo')
         return field
+# Clase base para inlines de componentes de servicios
+class ServiceComponentInline(admin.TabularInline):
+    model = ServiceComponent
+    extra = 1
+
 
 # Personalización de los nombres en la interfaz de administración global
 admin.site.site_header = _('Administración del Sitio')

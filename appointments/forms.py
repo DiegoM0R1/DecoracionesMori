@@ -53,20 +53,14 @@ class AppointmentRequestForm(forms.ModelForm):
         label=_("Hora Preferida"),
         widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'id': 'id_appointment_time_form'})
     )
-    staff = forms.ModelChoiceField(
-        label=_("Profesional Preferido (Opcional)"),
-        queryset=User.objects.filter(is_staff=True, is_active=True),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        empty_label=_("Cualquier profesional disponible")
-    )
+    
     nombres_hidden = forms.CharField(widget=forms.HiddenInput(), required=False)
     apellido_paterno_hidden = forms.CharField(widget=forms.HiddenInput(), required=False)
     apellido_materno_hidden = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Appointment
-        fields = ['service', 'staff', 'appointment_date', 'appointment_time', 'notes']
+        fields = ['service', 'appointment_date', 'appointment_time', 'notes']
         widgets = {
             'service': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={

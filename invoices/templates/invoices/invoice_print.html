@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleta {{ invoice.series }}-{{ invoice.number }} | Decoraciones Mori</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+            color: #122c3a;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4b90f0;
+        }
+        .company-logo {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            border: none; background: none;
+        }
+        .logo-placeholder {
+            font-size: 14px;
+            font-weight: bold;
+            color: #496596;
+            text-align: center;
+        }
+        .company-info {
+            flex-grow: 1;
+            padding-left: 20px;
+        }
+        .company-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #004ebb;
+            margin-bottom: 5px;
+        }
+        .company-details {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .invoice-box {
+            border: 2px solid #4b95f0;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fffcf0;
+            width: 220px;
+            text-align: center;
+        }
+        .invoice-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .invoice-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0052c4;
+        }
+        .invoice-date {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .client-info {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1c356e;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 5px;
+        }
+        .info-label {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4b7ff0;
+            color: #0f2376;
+            font-weight: bold;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .totals-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 15px;
+            background-color: #f9f9f9;
+        }
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 5px;
+            border: none;
+        }
+        .totals-table .total-row {
+            font-weight: bold;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+        }
+        .payment-info {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 15px 0;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            color: #1c5aa0;
+        }
+        .notes {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .print-button {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .print-button button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            background-color: #4ba0f0;
+            border: 1px solid #005fc4;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .print-button button:hover {
+            background-color: #69c8f7;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Botón para imprimir (solo visible en navegador) -->
+        <div class="print-button">
+            <button onclick="window.print()">Imprimir Boleta</button>
+            <button onclick="window.close()">Cerrar</button>
+        </div>
+        
+        <!-- Encabezado con logo y datos de la empresa -->
+        <div class="header">
+            <div class="company-logo">
+                
+    <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="Logo Decoraciones Mori" style="border-radius: 50%; width: 110px; height: 110px;">
+            </div>
+            <div class="company-info">
+                <div class="company-name">DECORACIONES MORI</div>
+                <div class="company-details">
+                    <p><strong>RUC:</strong> 10767644430</p>
+                    <p><strong>DIRECCIÓN:</strong> Urbanización Mariscal Cáceres Mz P6 Lt 23, San Juan Lurigancho, Lima</p>
+                    <p><strong>CORREO:</strong> lizandro.morih1@gmail.com</p>
+                </div>
+            </div>
+            <div class="invoice-box">
+                <div class="invoice-title">BOLETA DE VENTA</div>
+                <div class="invoice-number">{{ invoice.series }}-{{ invoice.number|default:"(borrador)" }}</div>
+                <div class="invoice-date">Fecha: {{ invoice.date_issued|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+        
+        <!-- Información del cliente -->
+        <div class="client-info">
+            <div class="section-title">DATOS DEL CLIENTE</div>
+            <div class="info-grid">
+                <div class="info-label">DNI/RUC:</div>
+                <div>{{ invoice.client.dni|default:"" }}</div>
+                
+                <div class="info-label">Cliente:</div>
+                <div>{{ invoice.client.get_full_name }}</div>
+                
+                <div class="info-label">Servicio:</div>
+                <div>
+                    {% if invoice.appointment and invoice.appointment.service %}
+                        {{ invoice.appointment.service.name }}
+                    {% else %}
+                        {% for item in items %}
+                            {% if forloop.first %}{{ item.description }}{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detalle de productos/servicios -->
+        <table>
+            <thead>
+                <tr>
+                    <th width="5%">Ítem</th>
+                    <th width="45%">Descripción</th>
+                    <th width="10%">Unidad</th>
+                    <th width="10%">Cantidad</th>
+                    <th width="15%">Precio Unit.</th>
+                    <th width="15%">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>
+                        {% if item.service %}
+                            servicio
+                        {% elif item.product %}
+                            {{ item.product.unit }}
+                        {% else %}
+                            unidad
+                        {% endif %}
+                    </td>
+                    <td class="text-right">{{ item.quantity }}</td>
+                    <td class="text-right">S/ {{ item.unit_price|floatformat:2 }}</td>
+                    <td class="text-right">S/ {{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Resumen totales -->
+        <div class="totals-section">
+            <table class="totals-table">
+                <tr>
+                    <td style="width: 70%"></td>
+                    <td style="width: 15%; font-weight: bold;">SUBTOTAL:</td>
+                    <td style="width: 15%; text-align: right;">S/ {{ invoice.subtotal|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="font-weight: bold;">IGV 18%:</td>
+                    <td style="text-align: right;">S/ {{ invoice.igv|floatformat:2 }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td></td>
+                    <td style="font-weight: bold;">TOTAL:</td>
+                    <td style="text-align: right; color: #0072c4;">S/ {{ invoice.total|floatformat:2 }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Información de pago -->
+        <div class="payment-info">
+            <div class="section-title">INFORMACIÓN DE PAGO</div>
+            <div class="info-grid">
+                <div class="info-label">Tipo de pago:</div>
+                <div>{{ invoice.get_payment_method_display }}</div>
+                
+                <div class="info-label">Adelanto recibido:</div>
+                <div>S/ {{ invoice.advance_payment|floatformat:2 }}</div>
+                
+                <div class="info-label">Saldo pendiente:</div>
+                <div>S/ {{ invoice.pending_balance|floatformat:2 }}</div>
+            </div>
+        </div>
+        
+        <!-- Observaciones -->
+        {% if invoice.notes %}
+        <div class="notes">
+            <div class="section-title">OBSERVACIONES:</div>
+            <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- Pie de página -->
+        <div class="footer">
+            <p><strong>¡Gracias por su preferencia!</strong></p>
+            <p>Documento generado el {{ today|date:"d/m/Y H:i:s" }}</p>
+        </div>
+    </div>
+</body>
+</html>
