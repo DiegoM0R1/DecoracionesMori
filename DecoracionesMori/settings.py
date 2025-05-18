@@ -32,9 +32,7 @@ MAPS_API_KEY = os.environ.get('MAPS_API_KEY', '')  # Get from environment or use
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    'decoracionesmori.onrender.com',
-    '127.0.0.1:8000',
+    
 ]
 
 
@@ -327,6 +325,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',  # Asegúrate de que BASE_DIR esté definido
     }
 }
+
 
 
 

@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.utils.text import slugify
+from django.core.exceptions import ValidationError
+
 timezone.now()
 class ServiceCategory(models.Model):
     name = models.CharField(_("Name"), max_length=100)
@@ -47,7 +50,6 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
-from django.core.exceptions import ValidationError
 
 class ServiceImage(models.Model):
     service = models.ForeignKey('Service', on_delete=models.CASCADE, related_name='images', verbose_name='Servicio')
@@ -170,6 +172,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 # Nuevo modelo para imágenes de productos
 class ProductImage(models.Model):
