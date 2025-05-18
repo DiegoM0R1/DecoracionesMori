@@ -31,7 +31,11 @@ MAPS_API_KEY = os.environ.get('MAPS_API_KEY', '')  # Get from environment or use
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'decoracionesmori.onrender.com',
+    '127.0.0.1:8000',
+]
 
 
 # Application definition
@@ -316,7 +320,6 @@ WSGI_APPLICATION = 'DecoracionesMori.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 
 DATABASES = {
     'default': {
