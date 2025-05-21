@@ -24,7 +24,7 @@
                         Todos
                     </a>
                     {% for categoria in categories %}
-                    <a href="{% url 'services:category' categoria.id %}" class="btn btn-outline-primary m-1 {% if categoria.id == categoria_actual.id %}active{% endif %}">
+                    <a href="{% url 'services:category' categoria.id %}" class="btn btn-outline-primary m-1 {% if categoria_actual and categoria.id == categoria_actual.id %}active{% endif %}">
                         {{ categoria.name }}
                     </a>
                     {% endfor %}

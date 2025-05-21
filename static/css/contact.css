@@ -1,0 +1,45 @@
+/* Estilos para las animaciones de entrada */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Retraso en las animaciones */
+.contact-info.reveal.active,
+.form-floating.reveal.active {
+    transition-delay: 0.2s;
+}
+
+/* Efecto de hover para los iconos sociales */
+.btn.btn-light.rounded-circle:hover {
+    background-color: #4299e1;
+    color: white;
+    transform: translateY(-3px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el fondo de la sección */
+.contact-section {
+    background-image: url('../img/contact-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Mejoras en responsive para dispositivos móviles */
+@media (max-width: 768px) {
+    .contact-section {
+        background-attachment: scroll;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+}

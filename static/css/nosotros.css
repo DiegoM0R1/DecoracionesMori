@@ -1,0 +1,496 @@
+/* Estilos para la sección "Quiénes Somos" */
+    /* Variables globales */
+    :root {
+        --primary-color: #007bff;
+        --primary-dark: #0056b3;
+        --primary-light: rgba(0, 123, 255, 0.1);
+        --secondary-color: #6c757d;
+        --text-dark: #343a40;
+        --bg-light: #f8f9fa;
+        --white: #ffffff;
+        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --box-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+        --transition-standard: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* Header con efecto parallax */
+    .about-us {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-us::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 350px;
+        background: linear-gradient(135deg, var(--primary-light) 0%, rgba(108, 99, 255, 0.1) 100%);
+        transform: skewY(-3deg);
+        transform-origin: top right;
+        z-index: -1;
+    }
+
+    /* Títulos animados */
+    .display-4 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(to right, var(--primary-color), #6c63ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleGlow {
+        0% {
+            text-shadow: 0 0 10px rgba(0, 123, 255, 0.1);
+        }
+        100% {
+            text-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+        }
+    }
+
+    .lead {
+        font-size: 1.25rem;
+        line-height: 1.8;
+    }
+
+    /* Divider mejorado */
+    .divider {
+        height: 4px;
+        width: 120px;
+        background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+        margin: 2rem auto;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: 25%;
+        right: 25%;
+        height: 10px;
+        background-color: var(--white);
+        border-radius: 50%;
+        animation: dividerPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes dividerPulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.5);
+            opacity: 0.2;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+    }
+
+    /* Sección Quiénes Somos */
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+
+    .bg-light {
+        background-color: var(--bg-light) !important;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition-standard);
+    }
+
+    .bg-light:hover {
+        box-shadow: var(--box-shadow-hover);
+        transform: translateY(-5px);
+    }
+
+    /* Efecto de imagen mejorado */
+    .position-relative {
+        box-shadow: var(--box-shadow);
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    .zoom-effect {
+        transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        width: 100%;
+        height: 100%;
+    }
+
+    .zoom-effect:hover {
+        transform: scale(1.05);
+    }
+
+    /* Efecto de overlay en la imagen */
+    .position-relative::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom right, rgba(0, 123, 255, 0.2), rgba(108, 99, 255, 0.2));
+        opacity: 0;
+        transition: var(--transition-standard);
+    }
+
+    .position-relative:hover::after {
+        opacity: 1;
+    }
+
+    /* Texto destacado */
+    .fw-bold {
+        font-weight: 700 !important;
+    }
+
+    .text-primary {
+        color: var(--primary-color) !important;
+    }
+
+    /* Tarjetas de estadísticas */
+    .stat-card {
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+        background: linear-gradient(145deg, #f9f9f9, #ffffff);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition-standard);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(45deg, var(--primary-light), rgba(108, 99, 255, 0.1));
+        z-index: -1;
+        border-radius: 1rem;
+        opacity: 0;
+        transition: var(--transition-standard);
+    }
+
+    .stat-card:hover::before {
+        opacity: 1;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: var(--box-shadow-hover);
+    }
+
+    .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(to right, var(--primary-color), #6c63ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stat-card p {
+        font-size: 1rem;
+        color: var(--secondary-color);
+        font-weight: 500;
+    }
+
+    /* Tarjeta de misión */
+    .mission-card {
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition-standard);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .mission-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23007bff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E") repeat;
+        z-index: -1;
+        animation: moveBackground 60s linear infinite;
+    }
+
+    .mission-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-hover);
+    }
+
+    .mission-card i {
+        font-size: 3.5rem;
+        color: var(--primary-color);
+        position: relative;
+        display: inline-block;
+    }
+
+    .mission-card i::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        height: 80px;
+        background-color: var(--primary-light);
+        border-radius: 50%;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.8;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.4;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.8;
+        }
+    }
+
+    .mission-card h3 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .mission-card h3::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background-color: var(--primary-color);
+    }
+
+    /* Tarjetas del equipo */
+    .team-card {
+        border-radius: 1rem;
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition-standard);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .team-card::before {
+        content: '';
+        position: absolute;
+        top: -100%;
+        left: -100%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transform: rotate(45deg);
+        transition: all 0.8s ease;
+        z-index: -1;
+    }
+
+    .team-card:hover::before {
+        top: 0;
+        left: 0;
+    }
+
+    .team-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--box-shadow-hover);
+    }
+
+    .img-container {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        margin: 0 auto 1.5rem;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .team-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        transition: var(--transition-standard);
+    }
+
+    .team-card:hover .team-img {
+        transform: scale(1.1);
+    }
+
+    .team-card h5 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .team-card .text-primary {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .social-links {
+        margin-top: 1.5rem;
+    }
+
+    .social-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--primary-color);
+        font-size: 1.25rem;
+        background-color: var(--primary-light);
+        transition: var(--transition-standard);
+        margin: 0 5px;
+    }
+
+    .social-links a:hover {
+        background-color: var(--primary-color);
+        color: var(--white);
+        transform: translateY(-3px);
+    }
+
+    /* CTA section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-light) 0%, rgba(108, 99, 255, 0.1) 100%);
+        box-shadow: var(--box-shadow);
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23007bff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E") repeat;
+        z-index: -1;
+        animation: moveBackground 60s linear infinite;
+    }
+
+    .cta-section h4 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .cta-section .btn-primary {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+        transition: var(--transition-standard);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .cta-section .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: var(--transition-standard);
+        z-index: -1;
+    }
+
+    .cta-section .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+    }
+
+    .cta-section .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    /* Animaciones adicionales */
+    @keyframes moveBackground {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 100% 100%;
+        }
+    }
+
+    /* Clases para animaciones de scroll */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .fade-in.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .fade-in-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .fade-in-left.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .fade-in-right {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .fade-in-right.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .zoom-in {
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 1s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .zoom-in.active {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Importación de Bootstrap Icons */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css");

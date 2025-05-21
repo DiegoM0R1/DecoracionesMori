@@ -1,4 +1,3 @@
-
 from django.urls import path
 from . import views
 
@@ -9,4 +8,8 @@ urlpatterns = [
     path('login/', views.user_login_view, name='login'),
     path('logout/', views.user_logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
+    
+    # Nuevas rutas para verificación de email
+    path('verification-sent/', views.verification_sent, name='verification_sent'),
+    path('verify-email/<str:email>/<str:token>/', views.verify_email, name='verify_email'),
 ]

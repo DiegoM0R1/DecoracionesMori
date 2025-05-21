@@ -1,149 +1,40 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Decoraciones Mori{% endblock %}</title>
+    
+    {% if site_settings and site_settings.favicon %}
+        <link rel="icon" href="{{ site_settings.favicon.url }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ site_settings.favicon.url }}" type="image/x-icon">
+    {% endif %}
+    
+    <title>{% block title %}{% if site_settings %}{{ site_settings.site_name }}{% else %}Decoraciones Mori{% endif %}{% endblock %}</title>
+    
+    <!-- CSS Externos -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/form_citas_extras.css">
-    <style>
-        /* Estilos adicionales y animaciones */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa; /* Gris claro de Bootstrap */
-            color: #343a40; /* Negro suave de Bootstrap */
-            line-height: 1.6;
-        }
-
-        /* Navbar Animado */
-        .navbar {
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-brand img {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .navbar-brand:hover img {
-            transform: scale(1.1);
-        }
-
-        .navbar-nav .nav-link {
-            color: white !important;
-            padding: 0.8rem 1.2rem;
-            position: relative;
-        }
-
-        .navbar-nav .nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0%;
-            height: 2px;
-            background-color: #f8f9fa; /* Blanco */
-            transition: width 0.3s ease-in-out;
-        }
-
-        .navbar-nav .nav-link:hover::before {
-            width: 100%;
-        }
-
-        .navbar-toggler:focus {
-            box-shadow: none;
-        }
-
-        /* Contenido Principal Animado */
-        main {
-            padding-top: 1rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .alert {
-            animation: slideInDown 0.4s ease-out;
-        }
-
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Footer Animado */
-        .footer {
-            background-color: #343a40 !important; /* Negro suave de Bootstrap */
-            color: #f8f9fa; /* Blanco de Bootstrap */
-            transition: all 0.3s ease-in-out;
-        }
-
-        .footer h5 {
-            color: #ffffff;
-            border-bottom: 2px solid #6c757d; /* Gris medio de Bootstrap */
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .footer a {
-            color: #adb5bd; /* Gris claro de Bootstrap */
-            text-decoration: none;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .footer a:hover {
-            color: #ffffff;
-        }
-
-        .social-icons a {
-            font-size: 1.2rem;
-            margin-right: 0.5rem;
-            opacity: 0.8;
-            transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
-        }
-
-        .social-icons a:hover {
-            opacity: 1;
-            transform: translateY(-2px);
-        }
-
-        .footer .text-center p {
-            animation: fadeInUp 0.5s ease-out 0.2s;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    
+    <!-- CSS Locales -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form_citas_extras.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
             <a class="navbar-brand animate__animated animate__bounceInLeft" href="{% url 'home' %}">
-                <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="DecoracionesMori" height="40" class="d-inline-block align-middle">
-                Decoraciones Mori
+                {% if site_settings and site_settings.logo %}
+                    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="40" class="d-inline-block align-middle">
+                {% else %}
+                    <img src="{% static 'imagen/logo.png' %}" alt="DecoracionesMori" height="40" class="d-inline-block align-middle">
+                {% endif %}
+                {% if site_settings %}{{ site_settings.site_name }}{% else %}Decoraciones Mori{% endif %}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -188,7 +79,8 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
                                 <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
-                            </a></li>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     {% endif %}
@@ -197,7 +89,7 @@
         </div>
     </nav>
 
-    <main class="mt-5 pt-5">
+    <main class="mt-5 pt-2">
         {% if messages %}
             <div class="container mt-3">
                 {% for message in messages %}
@@ -216,7 +108,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5>DecoracionesMori</h5>
+                    <h5>{% if site_settings %}{{ site_settings.site_name }}{% else %}DecoracionesMori{% endif %}</h5>
                     <p>Empresa dedicada a multiservicios de limpieza, desinfección, instalaciones y ventas de materiales.</p>
                 </div>
                 <div class="col-md-4">
@@ -231,20 +123,48 @@
                 <div class="col-md-4">
                     <h5>Contacto</h5>
                     <address>
-                        <i class="fas fa-map-marker-alt"></i> Urbanización Mariscal Cáceres Mz P6 Lt 23, San Juan Lurigancho, Lima<br>
-                        <i class="fas fa-phone"></i> +51 923 614 593<br>
-                        <i class="fas fa-envelope"></i> lizandro.morih1@gmail.com
+                        {% if site_settings and site_settings.address %}
+                            <i class="fas fa-map-marker-alt"></i> {{ site_settings.address }}<br>
+                        {% else %}
+                            <i class="fas fa-map-marker-alt"></i> Urbanización Mariscal Cáceres Mz P6 Lt 23, San Juan Lurigancho, Lima<br>
+                        {% endif %}
+                        
+                        {% if site_settings and site_settings.phone %}
+                            <i class="fas fa-phone"></i> {{ site_settings.phone }}<br>
+                        {% else %}
+                            <i class="fas fa-phone"></i> +51 923 614 593<br>
+                        {% endif %}
+                        
+                        {% if site_settings and site_settings.email %}
+                            <i class="fas fa-envelope"></i> {{ site_settings.email }}
+                        {% else %}
+                            <i class="fas fa-envelope"></i> lizandro.morih1@gmail.com
+                        {% endif %}
                     </address>
                     <div class="social-icons">
-                        <a href="https://www.facebook.com/decoracionesmori" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/decoracionesmori/" class="text-white me-2"><i class="fab fa-instagram"></i></a>
-                        <a href="https://wa.me/51923614593" class="text-white me-2"><i class="fab fa-whatsapp"></i></a>
+                        {% if site_settings and site_settings.facebook_url %}
+                            <a href="{{ site_settings.facebook_url }}" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        {% else %}
+                            <a href="https://www.facebook.com/decoracionesmori" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        {% endif %}
+                        
+                        {% if site_settings and site_settings.instagram_url %}
+                            <a href="{{ site_settings.instagram_url }}" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        {% else %}
+                            <a href="https://www.instagram.com/decoracionesmori/" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        {% endif %}
+                        
+                        {% if site_settings and site_settings.whatsapp_number %}
+                            <a href="https://wa.me/{{ site_settings.whatsapp_number }}" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+                        {% else %}
+                            <a href="https://wa.me/51923614593" class="text-white me-2" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-12 text-center">
-                    <p class="mb-0">&copy; {% now "Y" %} DecoracionesMori. Todos los derechos reservados.</p>
+                    <p class="mb-0">{% if site_settings and site_settings.footer_text %}{{ site_settings.footer_text|safe }}{% else %}&copy; {% now "Y" %} DecoracionesMori. Todos los derechos reservados.{% endif %}</p>
                 </div>
             </div>
         </div>
@@ -252,8 +172,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/services_list.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/services_list.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

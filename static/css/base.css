@@ -1,0 +1,123 @@
+/* Estilos adicionales y animaciones */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa; /* Gris claro de Bootstrap */
+    color: #343a40; /* Negro suave de Bootstrap */
+    line-height: 1.6;
+}
+
+/* Navbar Animado */
+.navbar {
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand img {
+    transition: transform 0.3s ease-in-out;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.1);
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+    padding: 0.8rem 1.2rem;
+    position: relative;
+}
+
+.navbar-nav .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #f8f9fa; /* Blanco */
+    transition: width 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover::before {
+    width: 100%;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* Contenido Principal Animado */
+main {
+    padding-top: 1rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.alert {
+    animation: slideInDown 0.4s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Footer Animado */
+.footer {
+    background-color: #343a40 !important; /* Negro suave de Bootstrap */
+    color: #f8f9fa; /* Blanco de Bootstrap */
+    transition: all 0.3s ease-in-out;
+}
+
+.footer h5 {
+    color: #ffffff;
+    border-bottom: 2px solid #6c757d; /* Gris medio de Bootstrap */
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer a {
+    color: #adb5bd; /* Gris claro de Bootstrap */
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+.footer a:hover {
+    color: #ffffff;
+}
+
+.social-icons a {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.social-icons a:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.footer .text-center p {
+    animation: fadeInUp 0.5s ease-out 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

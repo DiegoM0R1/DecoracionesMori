@@ -12,7 +12,7 @@ class User(AbstractUser):
     address = models.TextField(_("Address"), blank=True)
     dni = models.CharField(_("DNI"), max_length=20, blank=True)
     is_verified = models.BooleanField(_("Is verified"), default=False)
-    
+
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',
@@ -32,6 +32,10 @@ class User(AbstractUser):
         db_table = 'usuario'
         verbose_name = _("User")
         verbose_name_plural = _("Users")
+        constraints = [
+            models.UniqueConstraint(fields=['email'], name='unique_email')
+        ]
     
     def __str__(self):
         return f"{self.username} - {self.get_full_name()}"
+    
