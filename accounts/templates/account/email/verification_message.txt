@@ -1,0 +1,21 @@
+Verifica tu cuenta en {{ site_name }}
+
+Hola {{ user.first_name|default:user.email }},
+
+Gracias por registrarte en {{ site_name }}. Para completar tu registro, por favor utiliza el siguiente código de verificación:
+
+{{ verification_code }}
+
+Para verificar tu cuenta:
+1. Ingresa a tu cuenta en {{ site_name }} (https://{{ domain }})
+2. Ve a la sección de verificación
+3. Ingresa el código de 6 dígitos mostrado arriba
+
+Este código expirará en 24 horas por razones de seguridad.
+
+Si no solicitaste esta verificación, puedes ignorar este correo.
+
+Saludos cordiales,
+El equipo de {{ site_name }}
+
+© 2025 {{ site_name }}. Todos los derechos reservados.

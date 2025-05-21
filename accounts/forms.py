@@ -72,18 +72,26 @@ class UserRegistrationForm(UserCreationForm):
             })
         }
     
-    def save(self, commit=True):
-            """
-            Guardar usuario con email
-            """
-            user = super().save(commit=False)
-            user.email = self.cleaned_data['email']
-            
-            if commit:
-                user.save()
-            return user
+    def clean_email(self):
+        """
+        Validación para asegurar que el email sea único
+        """
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este correo electrónico ya está registrado. Por favor, utiliza otro correo o inicia sesión.')
+        return email
     
-    # Añade esto a forms.py
+    def save(self, commit=True):
+        """
+        Guardar usuario con email
+        """
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        
+        if commit:
+            user.save()
+        return user
+
 class UserUpdateForm(forms.ModelForm):
     """
     Formulario para actualizar información de perfil de usuario
@@ -126,3 +134,28 @@ class UserUpdateForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError('Este correo electrónico ya está en uso')
         return email
+
+# Nuevo formulario para la verificación de código
+class VerificationForm(forms.Form):
+    """
+    Formulario para verificar código de verificación
+    """
+    verification_code = forms.CharField(
+        label='Código de verificación',
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control text-center',
+            'placeholder': 'Ingresa el código de 6 dígitos',
+            'style': 'letter-spacing: 5px; font-size: 24px;'
+        })
+    )
+    
+    def clean_verification_code(self):
+        """
+        Validación para asegurar que el código sea solo números
+        """
+        code = self.cleaned_data.get('verification_code')
+        if not code.isdigit():
+            raise forms.ValidationError('El código de verificación debe contener solo números')
+        return code

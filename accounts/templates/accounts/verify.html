@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Verificar Cuenta</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-envelope-open-text fa-4x text-primary mb-3"></i>
+                        <h4>Se ha enviado un código a tu correo electrónico</h4>
+                        <p class="text-muted">Por favor, introduce el código de 6 dígitos que hemos enviado a <strong>{{ user.email }}</strong></p>
+                    </div>
+                    
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'accounts:verify' %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            {{ form.verification_code }}
+                            {% if form.verification_code.errors %}
+                            <div class="text-danger">
+                                {% for error in form.verification_code.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary w-100">Verificar Cuenta</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p>¿No recibiste el código? <a href="{% url 'accounts:resend_code' %}">Enviar de nuevo</a></p>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0 text-muted">El código expirará en 24 horas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

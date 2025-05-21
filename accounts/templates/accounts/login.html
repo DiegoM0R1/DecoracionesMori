@@ -15,13 +15,13 @@
                             <i class="fab fa-google me-2"></i>Continuar con Google
                         </a>
                     </div>
-
-                    <div class="text-center mb-3">      
+                    
+                    <div class="text-center mb-3">
                         <hr class="my-2">
                         <span class="px-2 text-muted bg-white">O</span>
                         <hr class="my-2">
                     </div>
-
+                    
                     <form method="post" action="{% url 'account_login' %}">
                         {% csrf_token %}
                         
@@ -38,12 +38,12 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
-
+                        
                         <div class="form-group mb-3">
-                            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                            <button type="submit" class="btn btn-primary w-100" id="login-submit">Iniciar Sesión</button>
                         </div>
                     </form>
-
+                    
                     <div class="text-center">
                         <a href="{% url 'account_reset_password' %}" class="text-muted">
                             ¿Olvidaste tu contraseña?
@@ -74,4 +74,18 @@
         color: white;
     }
 </style>
+
+{% comment %}
+<!-- Este script estaba redirigiendo todos los clics en el botón "Iniciar Sesión" a Google -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Redirigir el botón de inicio de sesión normal a Google
+        document.getElementById('login-submit').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{% provider_login_url 'google' %}";
+        });
+    });
+</script>
+{% endcomment %}
+
 {% endblock %}

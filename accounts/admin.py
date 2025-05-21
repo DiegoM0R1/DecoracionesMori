@@ -12,7 +12,7 @@ class CustomUserAdmin(UserAdmin):
         'username', 
         'email', 
         'first_name', 
-        'last_name', 
+        'last_name',    
         'is_staff', 
         'is_verified'
     )

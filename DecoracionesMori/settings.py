@@ -34,7 +34,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     'decoracionesmori.onrender.com',
-    '127.0.0.1:8000',
+    '127.0.0.1',
 ]
 
 
@@ -320,14 +320,24 @@ WSGI_APPLICATION = 'DecoracionesMori.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'decoraciones_mori',
+        'USER': 'root',
+        'PASSWORD': 'D1alZuM0',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',  # Asegúrate de que BASE_DIR esté definido
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 
 # Password validation

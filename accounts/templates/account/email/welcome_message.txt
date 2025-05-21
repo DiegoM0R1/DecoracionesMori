@@ -1,0 +1,19 @@
+¡Bienvenido a DECORACIONESMORI!
+
+Hola {{ user.first_name|default:user.email }},
+
+¡Gracias por registrarte en DECORACIONESMORI! Estamos emocionados de tenerte como parte de nuestra comunidad.
+
+Tu cuenta ha sido creada exitosamente. Ahora puedes disfrutar de todos nuestros servicios y productos para la decoración de tu hogar.
+
+Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.
+
+Puedes visitar nuestro sitio web: https://www.decoracionesmori.com
+
+¡Te deseamos una experiencia increíble!
+
+Saludos cordiales,
+El equipo de DECORACIONESMORI
+
+© 2025 DECORACIONESMORI. Todos los derechos reservados.
+Si no deseas recibir más correos, puedes cancelar la suscripción.
