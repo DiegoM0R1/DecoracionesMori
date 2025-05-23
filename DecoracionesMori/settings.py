@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-@5^lch0ee2hwx7fa8w%^67u*@ce1i%ci@+y@8x#wo&ar6_qs+0
 MAPS_API_KEY = os.environ.get('MAPS_API_KEY', '')  # Get from environment or use empty string
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
