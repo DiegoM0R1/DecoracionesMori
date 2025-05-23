@@ -167,7 +167,7 @@ def buscar_cliente_por_dni(request):
         if not dni:
             return JsonResponse({'error': 'DNI es requerido'}, status=400)
 
-        token = 'de3e5dc9486d29e79d5d497fa4082ba9f18472e6a1ec9686de1e35e6c0be81d7' # ¡Mover a settings!
+        token = '685c2d1a88c240a1482b75eed616a993e24e6bfb9b03739853046adf8dfb2863' # ¡Mover a settings!
 
         try:
             url = f'https://apiperu.dev/api/dni/{dni}?api_token={token}'

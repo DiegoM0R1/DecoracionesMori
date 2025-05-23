@@ -5,12 +5,9 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.contrib import messages
-from django.contrib import admin  # Añade esta importación
+from django.contrib import admin
 from decimal import Decimal
 from .models import Invoice
-
-# Eliminamos la importación de weasyprint
-# import weasyprint  
 
 @staff_member_required
 def print_invoice(request, invoice_id):
@@ -33,10 +30,32 @@ def register_pending_payment(request, invoice_id):
     """Vista para registrar el pago pendiente de una boleta"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
     
+    # Guardar el estado anterior para detectar cambios
+    previous_status = invoice.status
+    previous_balance = invoice.pending_balance
+    
     if request.method == 'POST':
         amount_paid = Decimal(request.POST.get('amount_paid', 0))
         payment_method = request.POST.get('payment_method', 'efectivo')
         payment_reference = request.POST.get('payment_reference', '')
+        
+        # Validar que el monto no sea mayor que el saldo pendiente
+        if amount_paid > invoice.pending_balance:
+            messages.error(
+                request,
+                f"El monto a pagar (S/ {amount_paid}) no puede ser mayor que el saldo pendiente (S/ {invoice.pending_balance})."
+            )
+            return render(request, 'admin/invoices/register_payment.html', {
+                'invoice': invoice,
+                'title': f'Registrar pago para boleta #{invoice.number or "(borrador)"}',
+                'site_header': 'Administración',
+                'has_permission': True,
+                'is_popup': False,
+                'is_nav_sidebar_enabled': True,
+                'available_apps': admin.site.get_app_list(request),
+                'opts': invoice._meta,
+                'error_message': f"El monto a pagar no puede ser mayor que el saldo pendiente."
+            })
         
         # Actualizar adelanto y saldo pendiente
         invoice.advance_payment += amount_paid
@@ -55,15 +74,22 @@ def register_pending_payment(request, invoice_id):
                 invoice.appointment.status = 'completed'
                 invoice.appointment.save(update_fields=['status'])
         
+        # Guardar la boleta (esto activará el proceso de inventario si cambia a 'pagada')
         invoice.save()
         
-        messages.success(
-            request, 
-            f"Pago de S/ {amount_paid} registrado correctamente mediante {dict(Invoice.PAYMENT_METHOD_CHOICES).get(payment_method, payment_method)}."
-        )
+        # Mensajes informativos
+        success_message = f"Pago de S/ {amount_paid} registrado correctamente mediante {dict(Invoice.PAYMENT_METHOD_CHOICES).get(payment_method, payment_method)}."
+        
+        # Si cambió a pagada y se procesó el inventario, agregar información adicional
+        if previous_status != 'pagada' and invoice.status == 'pagada':
+            product_items = invoice.invoiceitem_set.filter(item_type='product', product__isnull=False)
+            if product_items.exists():
+                products_affected = product_items.count()
+                success_message += f" Se actualizó el inventario para {products_affected} producto(s)."
+        
+        messages.success(request, success_message)
         return redirect('admin:invoices_invoice_change', invoice.id)
     
-    # Versión corregida - no intentamos acceder a request.admin_site
     return render(request, 'admin/invoices/register_payment.html', {
         'invoice': invoice,
         'title': f'Registrar pago para boleta #{invoice.number or "(borrador)"}',
@@ -71,7 +97,6 @@ def register_pending_payment(request, invoice_id):
         'has_permission': True,
         'is_popup': False,
         'is_nav_sidebar_enabled': True,
-        # No usamos request.admin_site sino admin.site
         'available_apps': admin.site.get_app_list(request),
         'opts': invoice._meta,
     })

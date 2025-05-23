@@ -94,6 +94,13 @@ class Invoice(models.Model):
         default=0
     )
     
+    # Campo para controlar si ya se afectó el inventario
+    inventory_processed = models.BooleanField(
+        _('Inventario procesado'), 
+        default=False,
+        help_text=_('Indica si los productos de esta boleta ya afectaron el inventario')
+    )
+    
     class Meta:
         db_table = 'boleta_venta'
         verbose_name = _('Boleta de Venta')
@@ -106,29 +113,60 @@ class Invoice(models.Model):
         return f"{self.series}-{self.number or '(borrador)'} - {self.client.get_full_name() or self.client.username}"
     
     def save(self, *args, **kwargs):
-    # Asignar automáticamente el siguiente número en la serie si está en borrador y se cambia a emitida
+        # Detectar si el estado cambió a 'pagada'
+        old_status = None
+        if self.pk:
+            try:
+                old_status = Invoice.objects.get(pk=self.pk).status
+            except Invoice.DoesNotExist:
+                old_status = None
+        
+        # Asignar automáticamente el siguiente número en la serie si está en borrador y se cambia a emitida
         if self.status == 'emitida' and not self.number:
             last_invoice = Invoice.objects.filter(series=self.series).order_by('-number').first()
             self.number = 1 if not last_invoice or not last_invoice.number else last_invoice.number + 1
-    
-    # Calcular totales SOLO si la instancia ya tiene un ID
+        
+        # Calcular totales SOLO si la instancia ya tiene un ID
         if self.pk is not None and self.invoiceitem_set.exists():
             self.subtotal = self.invoiceitem_set.aggregate(Sum('subtotal'))['subtotal__sum'] or Decimal('0.00')
             self.igv = self.subtotal * Decimal('0.18')
             self.total = self.subtotal + self.igv
-    
+        
         self.pending_balance = self.total - self.advance_payment
-    
-    # Si es una boleta asociada a una cita y hay un adelanto de al menos 50 soles,
-    # cambiar el estado de la cita a confirmada
+        
+        # Si es una boleta asociada a una cita y hay un adelanto de al menos 50 soles,
+        # cambiar el estado de la cita a confirmada
         if self.appointment and self.appointment.status == 'pending' and self.advance_payment >= 50:
             self.appointment.status = 'confirmed'
             self.appointment.save(update_fields=['status'])
-    
+        
         super().save(*args, **kwargs)
         
-
+        # NUEVO: Procesar inventario solo cuando se marca como pagada
+        if (old_status != 'pagada' and self.status == 'pagada' and not self.inventory_processed):
+            self.process_inventory()
     
+    def process_inventory(self):
+        """Procesa el inventario cuando la boleta se marca como pagada"""
+        from inventory.models import InventoryMovement
+        
+        # Procesar cada item de producto en la boleta
+        for item in self.invoiceitem_set.filter(item_type='product', product__isnull=False):
+            # Crear movimiento de salida de inventario
+            InventoryMovement.objects.create(
+                product=item.product,
+                quantity=item.quantity,
+                movement_type='salida',
+                document_reference=f"{self.series}-{self.number or '(borrador)'}",
+                invoice_item=item,
+                notes=f"Venta de producto en {self.invoice_type} - Boleta pagada",
+                draft=False  # Movimiento confirmado
+            )
+        
+        # Marcar como procesado para evitar duplicados
+        self.inventory_processed = True
+        self.save(update_fields=['inventory_processed'])
+
 
 class InvoiceItem(models.Model):
     """
@@ -157,13 +195,13 @@ class InvoiceItem(models.Model):
     subtotal = models.DecimalField(_('Subtotal'), max_digits=10, decimal_places=2)
 
     appointment = models.ForeignKey(
-    Appointment,
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    related_name='related_invoice_items',  # Cambia 'invoices' a 'related_invoice_items' (o cualquier otro nombre único)
-    verbose_name=_('Cita relacionada')
-)
+        Appointment,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='related_invoice_items',
+        verbose_name=_('Cita relacionada')
+    )
     
     # Nuevos campos para manejo de pagos parciales
     advance_payment = models.DecimalField(
@@ -190,52 +228,52 @@ class InvoiceItem(models.Model):
     def clean(self):
         """Validaciones personalizadas"""
         super().clean()
-    
-    # Verificar que se seleccione un producto o servicio según el tipo de ítem
+        
+        # Verificar que se seleccione un producto o servicio según el tipo de ítem
         if self.item_type == 'service' and not self.service:
             raise ValidationError({'service': _('Debe seleccionar un servicio.')})
         if self.item_type == 'product' and not self.product:
             raise ValidationError({'product': _('Debe seleccionar un producto.')})
-    
-    # Autocompletar precio unitario si no está establecido o es cero
+        
+        # Autocompletar precio unitario si no está establecido o es cero
         if not self.unit_price or self.unit_price == 0:
             if self.item_type == 'product' and self.product:
                 self.unit_price = self.product.price_per_unit
             elif self.item_type == 'service' and self.service:
                 self.unit_price = self.service.base_price
-    
-    # Si no hay descripción manual, tomar del producto/servicio
+        
+        # Si no hay descripción manual, tomar del producto/servicio
         if not self.description:
             if self.service:
                 self.description = self.service.name
             elif self.product:
                 self.description = self.product.name
-    
-    # Asegurar valores para cálculos
+        
+        # Asegurar valores para cálculos
         if self.unit_price is None:
             self.unit_price = Decimal('0.00')
         if self.quantity is None:
             self.quantity = Decimal('1.00')
         if self.discount is None:
             self.discount = Decimal('0.00')
-    
-    # Auto-calcular el subtotal
+        
+        # Auto-calcular el subtotal
         self.subtotal = (self.unit_price * self.quantity) - self.discount
     
     def save(self, *args, **kwargs):
-
         if (self.unit_price is None or self.unit_price == 0) and self.product:
             self.unit_price = self.product.price_per_unit
         elif (self.unit_price is None or self.unit_price == 0) and self.service:
             self.unit_price = self.service.base_price
-    # Calcular subtotal primero
+        
+        # Calcular subtotal primero
         self.subtotal = (self.unit_price * self.quantity) - self.discount
         self.pending_balance = self.subtotal - self.advance_payment
-    
-    # Asegurar que los cálculos están actualizados
+        
+        # Asegurar que los cálculos están actualizados
         if not self.pending_balance or self.pending_balance == 0:
             self.pending_balance = self.subtotal - self.advance_payment
-    
+        
         if not self.description:
             if self.service:
                 self.description = self.service.name
@@ -243,56 +281,43 @@ class InvoiceItem(models.Model):
                 self.description = self.product.name
             else:
                 self.description = 'Item sin descripción'
-    
+        
         if self.appointment and self.appointment.status == 'pending' and self.advance_payment >= 50:
             self.appointment.status = 'confirmed'
             self.appointment.save(update_fields=['status'])
-    
-    # Guardar el item actual primero
+        
+        # Guardar el item actual primero
         super().save(*args, **kwargs)
-    
-    # Si es un servicio, agregar los productos relacionados automáticamente
+        
+        # Si es un servicio, agregar los productos relacionados automáticamente
         if self.item_type == 'service' and self.service:
-            from services.models import ServiceComponent  # Importación local para evitar circular imports
-        
-        # Buscar todos los componentes (productos) asociados a este servicio
+            from services.models import ServiceComponent
+            
+            # Buscar todos los componentes (productos) asociados a este servicio
             components = ServiceComponent.objects.filter(service=self.service)
-        
-        # Para cada componente, crear un nuevo InvoiceItem de tipo producto
+            
+            # Para cada componente, crear un nuevo InvoiceItem de tipo producto
             for component in components:
-            # Verificar si ya existe un ítem para este componente en la misma factura
+                # Verificar si ya existe un ítem para este componente en la misma factura
                 product_item_exists = InvoiceItem.objects.filter(
                     invoice=self.invoice,
                     item_type='product',
                     product=component.product,
                     description__contains=f"Usado en {self.service.name}"
                 ).exists()
-            
-            # Si no existe, crearlo
+                
+                # Si no existe, crearlo
                 if not product_item_exists:
                     InvoiceItem.objects.create(
                         invoice=self.invoice,
                         item_type='product',
                         product=component.product,
                         description=f"{component.product.name} - Usado en {self.service.name}",
-                        quantity=component.quantity * self.quantity,  # Multiplicar por la cantidad del servicio
+                        quantity=component.quantity * self.quantity,
                         unit_price=component.product.price_per_unit,
                         subtotal=component.product.price_per_unit * component.quantity * self.quantity,
-                    # Opcional: relacionar con la misma cita si existe
                         appointment=self.appointment
                     )
-        # Añadir al final del método save() de InvoiceItem
-        if self.item_type == 'product' and self.product:
-    # Registrar movimiento de inventario
-            from inventory.models import InventoryMovement  # Importar donde corresponda
-    
-            InventoryMovement.objects.create(
-                product=self.product,
-                quantity=self.quantity,
-                movement_type='salida',
-                document_reference=f"{self.invoice.series}-{self.invoice.number or '(borrador)'}",
-                invoice_item=self,
-                notes=f"Venta de producto en {self.invoice.invoice_type}"
-            )            
-    
-
+        
+        # REMOVIDO: Ya no creamos movimientos de inventario aquí
+        # El inventario se procesa solo cuando la boleta se marca como pagada

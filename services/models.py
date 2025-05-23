@@ -28,19 +28,10 @@ class Service(models.Model):
     slug = models.SlugField(_("Slug"), max_length=100, unique=True, blank=True)
 
     def get_featured_image(self):
-        """
-        Devuelve la imagen destacada para este servicio.
-        Prioriza las imágenes marcadas con is_featured=True.
-        Si ninguna está marcada, devuelve la primera imagen asociada.
-        Devuelve None si el servicio no tiene imágenes.
-        """
-        # Usamos 'images' porque es el related_name en ServiceImage
         featured = self.images.filter(is_featured=True).first()
         if featured:
             return featured
         else:
-            # Si no hay destacada, devuelve la primera imagen que encuentre
-            # o None si no hay ninguna imagen asociada.
             return self.images.first()
     class Meta:
         db_table = 'servicio'  # Nombre de la tabla en español

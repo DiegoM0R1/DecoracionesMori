@@ -5,52 +5,129 @@
 {{ block.super }}
 <style>
   /* Estilos para el dashboard */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.dashboard-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.dashboard-card h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.plotly-graph {
+  width: 100%;
+  height: 280px;
+  flex-grow: 1;
+}
+
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.summary-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  background-color: #f1f3f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #3498db;
+  margin: 10px 0;
+}
+
+.summary-label {
+  color: #7f8c8d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dashboard-section {
+  margin-bottom: 35px;
+}
+
+.dashboard-section h2 {
+  color: #34495e;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-danger {
+  color: #e74c3c;
+}
+
+/* Media queries para mejor adaptabilidad */
+@media (max-width: 768px) {
   .dashboard-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-    margin-bottom: 30px;
+    grid-template-columns: 1fr;
   }
-  .dashboard-card {
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 15px;
-    overflow: hidden;
-  }
-  .dashboard-card h2 {
-    margin-top: 0;
-    color: #2c3e50;
-    font-size: 18px;
-  }
-  .plotly-graph {
-    width: 100%;
-    height: 300px;
-  }
+  
   .dashboard-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
-  .summary-card {
-    background-color: #f8f9fa;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 15px;
-    text-align: center;
-  }
+  
   .summary-value {
     font-size: 24px;
-    font-weight: bold;
-    color: #3498db;
-    margin: 10px 0;
   }
-  .summary-label {
-    color: #7f8c8d;
-    font-size: 14px;
+}
+
+@media (min-width: 1600px) {
+  .dashboard-container {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   }
+}
+
+/* Mejora del contenedor principal */
+#content-main {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 15px;
+}
 </style>
 {% endblock %}
 
@@ -65,229 +142,636 @@
   <!-- Sección de Dashboard -->
   <h1>{% trans 'Dashboard' %}</h1>
   
-  <!-- Resumen de estadísticas -->
+  <!-- Resumen de estadísticas -->  
   <div class="dashboard-summary">
-    <div class="summary-card">
-      <div class="summary-label">{% trans 'Citas Totales' %}</div>
-      <div class="summary-value" id="total-appointments">--</div>
+    <div class="summary-card" style="background-color: rgb(106, 213, 255);">
+      <div class="summary-label" style="color: blue;">{% trans 'Citas Totales' %}</div>
+      <div class="summary-value" id="total-appointments" style="color: blue;">--</div>
     </div>
-    <div class="summary-card">
-      <div class="summary-label">{% trans 'Servicios' %}</div>
-      <div class="summary-value" id="total-services">--</div>
+    <div class="summary-card" style="background-color: rgb(255, 85, 210);">
+      <div class="summary-label"style="color: blue;">{% trans 'Servicios' %}</div>
+      <div class="summary-value" id="total-services" style="color: blue;">--</div>
     </div>
-    <div class="summary-card">
-      <div class="summary-label">{% trans 'Clientes' %}</div>
-      <div class="summary-value" id="total-clients">--</div>
+    <div class="summary-card" style="background-color: rgb(129, 255, 192);">
+      <div class="summary-label"style="color: blue;">{% trans 'Clientes' %}</div>
+      <div class="summary-value" id="total-clients" style="color: blue;">--</div>
     </div>
   </div>
   
-  <div class="dashboard-container">
-    <div class="dashboard-card">
-      <h2>{% trans 'Citas por Estado' %}</h2>
-      <div id="appointments-by-status" class="plotly-graph"></div>
-    </div>
-    
-    <div class="dashboard-card">
-      <h2>{% trans 'Servicios Más Solicitados' %}</h2>
-      <div id="top-services" class="plotly-graph"></div>
-    </div>
-    
-    <div class="dashboard-card">
-      <h2>{% trans 'Citas por Mes' %}</h2>
-      <div id="appointments-by-month" class="plotly-graph"></div>
-    </div>
-    
-    <div class="dashboard-card">
-      <h2>{% trans 'Clientes por Tipo' %}</h2>
-      <div id="clients-by-type" class="plotly-graph"></div>
-    </div>
-    
-    <div class="dashboard-card">
-      <h2>{% trans 'Citas Recientes (Últimos 30 días)' %}</h2>
-      <div id="recent-appointments" class="plotly-graph"></div>
+  <!-- SECCIÓN CITAS -->
+  <div class="dashboard-section">
+    <h2>{% trans 'Análisis de Citas' %}</h2>
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <h2>{% trans 'Citas por Estado' %}</h2>
+        <div id="appointments-by-status" class="plotly-graph"></div>
+      </div>
+      
+      <div class="dashboard-card">
+        <h2>{% trans 'Citas por Mes' %}</h2>
+        <div id="appointments-by-month" class="plotly-graph"></div>
+      </div>
+      
+      <div class="dashboard-card">
+        <h2>{% trans 'Citas Recientes (Últimos 30 días)' %}</h2>
+        <div id="recent-appointments" class="plotly-graph"></div>
+      </div>
     </div>
   </div>
+  
+  <!-- SECCIÓN SERVICIOS -->
+  <div class="dashboard-section">
+    <h2>{% trans 'Análisis de Servicios' %}</h2>
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <h2>{% trans 'Servicios Más Solicitados' %}</h2>
+        <div id="top-services" class="plotly-graph"></div>
+      </div>
+      
+      <div class="dashboard-card">
+        <h2>{% trans 'Ingresos por Servicio' %}</h2>
+        <div id="revenue-by-service" class="plotly-graph"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SECCIÓN CLIENTES -->
+  <div class="dashboard-section">
+    <h2>{% trans 'Análisis de Clientes' %}</h2>
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <h2>{% trans 'Clientes por Tipo' %}</h2>
+        <div id="clients-by-type" class="plotly-graph"></div>
+      </div>
+      
+      <div class="dashboard-card">
+        <h2>{% trans 'Nuevos Clientes por Mes' %}</h2>
+        <div id="new-clients-by-month" class="plotly-graph"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SECCIÓN FACTURACIÓN -->
+  <div class="dashboard-section">
+    <h2>{% trans 'Análisis de Facturación' %}</h2>
+    <div class="dashboard-container">
+      <div class="dashboard-card">
+        <h2>{% trans 'Ingresos por Mes' %}</h2>
+        <div id="revenue-by-month" class="plotly-graph"></div>
+      </div>
+      
+      <div class="dashboard-card">
+        <h2>{% trans 'Productos Más Vendidos' %}</h2>
+        <div id="top-products" class="plotly-graph"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
   
   <!-- Inicialización de los gráficos con Plotly -->
   <script>
-    // Función para cargar los datos y crear los gráficos
-    function loadDashboardData() {
-      fetch('/admin/dashboard-data/')  // URL directa, sin usar template tag
-        .then(response => response.json())
-        .then(data => {
-          // Actualizar contadores de resumen
-          const totalAppointments = data.appointments_by_status.reduce((sum, item) => sum + item.count, 0);
-          document.getElementById('total-appointments').textContent = totalAppointments;
-          
-          const totalServices = data.top_services.reduce((sum, item) => sum + item.count, 0);
-          document.getElementById('total-services').textContent = data.top_services.length; 
-          
-          const totalClients = data.clients_by_type.reduce((sum, item) => sum + item.count, 0);
-          document.getElementById('total-clients').textContent = totalClients;
-          
-          // Mapear los estados a nombres más legibles (si es necesario)
-          const statusMap = {
-            'PENDING': 'Pendiente',
-            'CONFIRMED': 'Confirmada',
-            'COMPLETED': 'Completada',
-            'CANCELLED': 'Cancelada',
-            // Añadir más mapeos según sea necesario
-          };
-          
-          // Gráfico de citas por estado
-          Plotly.newPlot('appointments-by-status', [{
-            type: 'pie',
-            labels: data.appointments_by_status.map(item => statusMap[item.status] || item.status),
-            values: data.appointments_by_status.map(item => item.count),
-            hole: 0.4,
-            marker: {
-              colors: ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12']
-            }
-          }], {
-            margin: {t: 10, b: 10, l: 10, r: 10},
-            showlegend: true,
-            legend: {orientation: 'h', y: -0.1}
-          });
-          
-          // Gráfico de servicios más solicitados
-          Plotly.newPlot('top-services', [{
-            type: 'bar',
-            x: data.top_services.map(item => item.service__name),
-            y: data.top_services.map(item => item.count),
-            marker: {
-              color: '#3498db',
-              line: {
-                color: '#2980b9',
-                width: 1.5
-              }
-            }
-          }], {
-            margin: {t: 10, b: 80, l: 50, r: 10},
-            xaxis: {
-              tickangle: -45,
-              automargin: true
-            }
-          });
-          
-          // Gráfico de citas por mes
-          const months = data.appointments_by_month.map(item => {
-            const date = new Date(item.month);
-            return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-          });
-          
-          Plotly.newPlot('appointments-by-month', [{
-            type: 'scatter',
-            mode: 'lines+markers',
-            x: months,
-            y: data.appointments_by_month.map(item => item.count),
-            line: {color: '#2ecc71', width: 3},
-            marker: {
-              size: 8,
-              color: '#27ae60'
-            }
-          }], {
-            margin: {t: 10, b: 50, l: 50, r: 10},
-            xaxis: {
-              tickangle: -45,
-              automargin: true
-            }
-          });
-          
-          // Gráfico de clientes por tipo
-          const clientTypeMap = {
-            'REGULAR': 'Regular',
-            'VIP': 'VIP',
-            'CORPORATE': 'Corporativo',
-            'NEW': 'Nuevo',
-            // Añadir más mapeos según sea necesario
-          };
-          
-          Plotly.newPlot('clients-by-type', [{
-            type: 'bar',
-            x: data.clients_by_type.map(item => clientTypeMap[item.client_type] || item.client_type),
-            y: data.clients_by_type.map(item => item.count),
-            marker: {
-              color: '#9b59b6',
-              line: {
-                color: '#8e44ad',
-                width: 1.5
-              }
-            }
-          }], {
-            margin: {t: 10, b: 50, l: 50, r: 10}
-          });
-          
-          // Gráfico de citas recientes
-          const recentDates = data.recent_appointments.map(item => {
-            const date = new Date(item.date);
-            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-          });
-          
-          Plotly.newPlot('recent-appointments', [{
-            type: 'bar',
-            x: recentDates,
-            y: data.recent_appointments.map(item => item.count),
-            marker: {
-              color: '#f39c12',
-              line: {
-                color: '#e67e22',
-                width: 1.5
-              }
-            }
-          }], {
-            margin: {t: 10, b: 50, l: 50, r: 10},
-            xaxis: {
-              tickangle: -45,
-              automargin: true
-            }
-          });
-        })
-        .catch(error => console.error('Error loading dashboard data:', error));
-    }
+ // Función para cargar los datos y crear los gráficos
+function loadDashboardData() {
+  // Mostrar indicador de carga en los contadores
+  document.getElementById('total-appointments').textContent = 'Cargando...';
+  document.getElementById('total-services').textContent = 'Cargando...';
+  document.getElementById('total-clients').textContent = 'Cargando...';
+  
+  // URL absoluta para evitar problemas con rutas relativas
+  const dashboardUrl = '/admin/dashboard-data/';
+  console.log('Solicitando datos de:', dashboardUrl);
+  
+  fetch(dashboardUrl)
+    .then(response => {
+      console.log('Respuesta recibida:', response.status);
+      if (!response.ok) {
+        throw new Error('Error de servidor: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Datos recibidos:', data);
+      
+      // === ACTUALIZAR CONTADORES RESUMEN ===
+      updateSummaryCounters(data);
+      
+      // === GRÁFICOS DE CITAS ===
+      createAppointmentsStatusChart(data);
+      createAppointmentsByMonthChart(data);
+      createRecentAppointmentsChart(data);
+      
+      // === GRÁFICOS DE SERVICIOS ===
+      createTopServicesChart(data);
+      createRevenueByServiceChart(data);
+      
+      // === GRÁFICOS DE CLIENTES ===
+      createClientsByTypeChart(data);
+      createNewClientsByMonthChart(data);
+      
+      // === GRÁFICOS DE FACTURACIÓN ===
+      createRevenueByMonthChart(data);
+      
+      // === GRÁFICOS DE PRODUCTOS ===
+      createTopProductsChart(data);
+    })
+    .catch(error => {
+      console.error('Error cargando datos del dashboard:', error);
+      handleLoadingError(error);
+    });
+}
+
+// === FUNCIONES AUXILIARES ===
+
+// Actualizar contadores de resumen
+function updateSummaryCounters(data) {
+  // Contador de citas
+  if (data.appointments_by_status && data.appointments_by_status.length > 0) {
+    const totalAppointments = data.appointments_by_status.reduce((sum, item) => sum + item.count, 0);
+    document.getElementById('total-appointments').textContent = totalAppointments;
+  } else {
+    document.getElementById('total-appointments').textContent = '0';
+  }
+  
+  // Contador de servicios
+  if (data.top_services) {
+    document.getElementById('total-services').textContent = data.top_services.length;
+  } else {
+    document.getElementById('total-services').textContent = '0';
+  }
+  
+  // Contador de clientes
+  if (data.clients_by_type && data.clients_by_type.length > 0) {
+    const totalClients = data.clients_by_type.reduce((sum, item) => sum + item.count, 0);
+    document.getElementById('total-clients').textContent = totalClients;
+  } else {
+    document.getElementById('total-clients').textContent = '0';
+  }
+}
+
+// Manejo de errores
+function handleLoadingError(error) {
+  document.getElementById('total-appointments').textContent = 'Error';
+  document.getElementById('total-services').textContent = 'Error';
+  document.getElementById('total-clients').textContent = 'Error';
+  
+  // Mostrar mensaje de error en todos los contenedores de gráficos
+  document.querySelectorAll('.plotly-graph').forEach(container => {
+    container.innerHTML = '<p class="text-center text-danger">Error al cargar datos: ' + error.message + '</p>';
+  });
+}
+
+// === GRÁFICOS DE CITAS ===
+
+// Gráfico de citas por estado
+function createAppointmentsStatusChart(data) {
+  const container = document.getElementById('appointments-by-status');
+  if (!container) return;
+  
+  if (data.appointments_by_status && data.appointments_by_status.length > 0) {
+    // Mapear los estados a nombres más legibles
+    const statusMap = {
+      'PENDING': 'Pendiente',
+      'CONFIRMED': 'Confirmada',
+      'COMPLETED': 'Completada',
+      'CANCELLED': 'Cancelada',
+    };
     
-    // Cargar los datos cuando la página está lista
-    document.addEventListener('DOMContentLoaded', loadDashboardData);
+    Plotly.newPlot('appointments-by-status', [{
+      type: 'pie',
+      labels: data.appointments_by_status.map(item => statusMap[item.status] || item.status),
+      values: data.appointments_by_status.map(item => item.count),
+      hole: 0.4,
+      marker: {
+        colors: ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12']
+      }
+    }], {
+      margin: {t: 10, b: 10, l: 10, r: 10},
+      showlegend: true,
+      legend: {orientation: 'h', y: -0.1}
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos disponibles</p>';
+  }
+}
+
+// Gráfico de citas por mes
+function createAppointmentsByMonthChart(data) {
+  const container = document.getElementById('appointments-by-month');
+  if (!container) return;
+  
+  if (data.appointments_by_month && data.appointments_by_month.length > 0) {
+    const months = data.appointments_by_month.map(item => {
+      const date = new Date(item.month);
+      return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    });
+    
+    Plotly.newPlot('appointments-by-month', [{
+      type: 'scatter',
+      mode: 'lines+markers',
+      x: months,
+      y: data.appointments_by_month.map(item => item.count),
+      line: {color: '#2ecc71', width: 3},
+      marker: {
+        size: 8,
+        color: '#27ae60'
+      }
+    }], {
+      margin: {t: 10, b: 50, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos disponibles</p>';
+  }
+}
+
+// Gráfico de citas recientes
+function createRecentAppointmentsChart(data) {
+  const container = document.getElementById('recent-appointments');
+  if (!container) return;
+  
+  if (data.recent_appointments && data.recent_appointments.length > 0) {
+    const recentDates = data.recent_appointments.map(item => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    });
+    
+    Plotly.newPlot('recent-appointments', [{
+      type: 'bar',
+      x: recentDates,
+      y: data.recent_appointments.map(item => item.count),
+      marker: {
+        color: '#f39c12',
+        line: {
+          color: '#e67e22',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 50, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos disponibles</p>';
+  }
+}
+
+// === GRÁFICOS DE SERVICIOS ===
+
+// Gráfico de servicios más solicitados
+function createTopServicesChart(data) {
+  const container = document.getElementById('top-services');
+  if (!container) return;
+  
+  if (data.top_services && data.top_services.length > 0) {
+    Plotly.newPlot('top-services', [{
+      type: 'bar',
+      x: data.top_services.map(item => item.service__name),
+      y: data.top_services.map(item => item.count),
+      marker: {
+        color: '#3498db',
+        line: {
+          color: '#2980b9',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 80, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay servicios disponibles</p>';
+  }
+}
+
+// Gráfico de ingresos por servicio
+function createRevenueByServiceChart(data) {
+  const container = document.getElementById('revenue-by-service');
+  if (!container) return;
+  
+  if (data.revenue_by_service && data.revenue_by_service.length > 0) {
+    Plotly.newPlot('revenue-by-service', [{
+      type: 'bar',
+      x: data.revenue_by_service.map(item => item.service__name),
+      y: data.revenue_by_service.map(item => item.total),
+      marker: {
+        color: '#9b59b6',
+        line: {
+          color: '#8e44ad',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 80, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      },
+      yaxis: {
+        title: 'Ingresos (S/.)'
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos de ingresos disponibles</p>';
+  }
+}
+
+// === GRÁFICOS DE CLIENTES ===
+
+// Gráfico de clientes por tipo
+function createClientsByTypeChart(data) {
+  const container = document.getElementById('clients-by-type');
+  if (!container) return;
+  
+  if (data.clients_by_type && data.clients_by_type.length > 0) {
+    const clientTypeMap = {
+      'REGULAR': 'Regular',
+      'VIP': 'VIP',
+      'CORPORATE': 'Corporativo',
+      'NEW': 'Nuevo',
+    };
+    
+    Plotly.newPlot('clients-by-type', [{
+      type: 'bar',
+      x: data.clients_by_type.map(item => clientTypeMap[item.client_type] || item.client_type),
+      y: data.clients_by_type.map(item => item.count),
+      marker: {
+        color: '#9b59b6',
+        line: {
+          color: '#8e44ad',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 50, l: 50, r: 10}
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos de clientes disponibles</p>';
+  }
+}
+
+// Gráfico de nuevos clientes por mes
+function createNewClientsByMonthChart(data) {
+  const container = document.getElementById('new-clients-by-month');
+  if (!container) return;
+  
+  if (data.new_clients_by_month && data.new_clients_by_month.length > 0) {
+    const months = data.new_clients_by_month.map(item => {
+      const date = new Date(item.month);
+      return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    });
+    
+    Plotly.newPlot('new-clients-by-month', [{
+      type: 'scatter',
+      mode: 'lines+markers',
+      x: months,
+      y: data.new_clients_by_month.map(item => item.count),
+      line: {color: '#e74c3c', width: 3},
+      marker: {
+        size: 8,
+        color: '#c0392b'
+      }
+    }], {
+      margin: {t: 10, b: 50, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos de nuevos clientes disponibles</p>';
+  }
+}
+
+// === GRÁFICOS DE FACTURACIÓN ===
+
+// Gráfico de ingresos por mes
+function createRevenueByMonthChart(data) {
+  const container = document.getElementById('revenue-by-month');
+  if (!container) return;
+  
+  if (data.revenue_by_month && data.revenue_by_month.length > 0) {
+    const months = data.revenue_by_month.map(item => {
+      const date = new Date(item.month);
+      return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    });
+    
+    Plotly.newPlot('revenue-by-month', [{
+      type: 'bar',
+      x: months,
+      y: data.revenue_by_month.map(item => item.total),
+      marker: {
+        color: '#2ecc71',
+        line: {
+          color: '#27ae60',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 50, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      },
+      yaxis: {
+        title: 'Ingresos (S/.)'
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos de ingresos disponibles</p>';
+  }
+}
+
+// === GRÁFICOS DE PRODUCTOS ===
+
+// Gráfico de productos más vendidos
+function createTopProductsChart(data) {
+  const container = document.getElementById('top-products');
+  if (!container) return;
+  
+  if (data.top_products && data.top_products.length > 0) {
+    Plotly.newPlot('top-products', [{
+      type: 'bar',
+      x: data.top_products.map(item => item.name),
+      y: data.top_products.map(item => item.count),
+      marker: {
+        color: '#1abc9c',
+        line: {
+          color: '#16a085',
+          width: 1.5
+        }
+      }
+    }], {
+      margin: {t: 10, b: 80, l: 50, r: 10},
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      }
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos de productos disponibles</p>';
+  }
+}
+
+// Cargar los datos cuando la página está lista
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+// Configuración base para todos los gráficos
+const plotlyConfig = {
+  responsive: true,
+  displayModeBar: false,
+  displaylogo: false
+};
+
+// Opciones base para un mejor layout responsivo
+const getBaseLayout = () => {
+  return {
+    autosize: true,
+    margin: {t: 10, b: 50, l: 50, r: 10},
+    font: {
+      family: 'Arial, sans-serif',
+      size: 11
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)'
+  };
+};
+
+// Ejemplo: Gráfico de citas por estado
+function createAppointmentsStatusChart(data) {
+  const container = document.getElementById('appointments-by-status');
+  if (!container) return;
+  
+  if (data.appointments_by_status && data.appointments_by_status.length > 0) {
+    const statusMap = {
+      'PENDING': 'Pendiente',
+      'CONFIRMED': 'Confirmada',
+      'COMPLETED': 'Completada',
+      'CANCELLED': 'Cancelada',
+    };
+    
+    const layout = {
+      ...getBaseLayout(),
+      showlegend: true,
+      legend: {orientation: 'h', y: -0.2}
+    };
+    
+    Plotly.newPlot('appointments-by-status', [{
+      type: 'pie',
+      labels: data.appointments_by_status.map(item => statusMap[item.status] || item.status),
+      values: data.appointments_by_status.map(item => item.count),
+      hole: 0.4,
+      textinfo: 'percent',
+      hoverinfo: 'label+percent+value',
+      marker: {
+        colors: ['#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12']
+      }
+    }], layout, plotlyConfig);
+    
+    // Redimensionar el gráfico cuando cambia el tamaño de la ventana
+    window.addEventListener('resize', function() {
+      Plotly.relayout('appointments-by-status', {
+        'width': container.offsetWidth,
+        'height': container.offsetHeight
+      });
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos disponibles</p>';
+  }
+}
+
+// Ejemplo: Gráfico de citas por mes
+function createAppointmentsByMonthChart(data) {
+  const container = document.getElementById('appointments-by-month');
+  if (!container) return;
+  
+  if (data.appointments_by_month && data.appointments_by_month.length > 0) {
+    const months = data.appointments_by_month.map(item => {
+      const date = new Date(item.month);
+      return date.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+    });
+    
+    const layout = {
+      ...getBaseLayout(),
+      xaxis: {
+        tickangle: -45,
+        automargin: true
+      },
+      yaxis: {
+        automargin: true
+      }
+    };
+    
+    Plotly.newPlot('appointments-by-month', [{
+      type: 'scatter',
+      mode: 'lines+markers',
+      x: months,
+      y: data.appointments_by_month.map(item => item.count),
+      line: {color: '#2ecc71', width: 3},
+      marker: {
+        size: 8,
+        color: '#27ae60'
+      }
+    }], layout, plotlyConfig);
+    
+    // Redimensionar cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', function() {
+      Plotly.relayout('appointments-by-month', {
+        'width': container.offsetWidth,
+        'height': container.offsetHeight
+      });
+    });
+  } else {
+    container.innerHTML = '<p class="text-center">No hay datos disponibles</p>';
+  }
+}
+
+// Función para redimensionar todos los gráficos
+function resizeAllCharts() {
+  document.querySelectorAll('.plotly-graph').forEach(container => {
+    const graphId = container.id;
+    if (graphId && container.querySelector('.js-plotly-plot')) {
+      Plotly.relayout(graphId, {
+        'width': container.offsetWidth,
+        'height': container.offsetHeight
+      });
+    }
+  });
+}
+
+// Observador para detectar cambios en los elementos del DOM
+const resizeObserver = new ResizeObserver(entries => {
+  for (let entry of entries) {
+    if (entry.target.classList.contains('plotly-graph')) {
+      const graphId = entry.target.id;
+      if (graphId && entry.target.querySelector('.js-plotly-plot')) {
+        Plotly.relayout(graphId, {
+          'width': entry.target.offsetWidth,
+          'height': entry.target.offsetHeight
+        });
+      }
+    }
+  }
+});
+
+// Aplicar el observador a todos los contenedores de gráficos
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.plotly-graph').forEach(container => {
+    resizeObserver.observe(container);
+  });
+  
+  // También detectar cuando cambia el tamaño de la ventana
+  window.addEventListener('resize', resizeAllCharts);
+});
   </script>
   
-  <!-- Contenido original del index -->
-  {% if app_list %}
-    <h2>{% trans 'Aplicaciones' %}</h2>
-    {% for app in app_list %}
-      <div class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
-        <table>
-        <caption>
-            <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
-        </caption>
-        {% for model in app.models %}
-            <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
-            {% if model.admin_url %}
-                <th scope="row"><a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a></th>
-            {% else %}
-                <th scope="row">{{ model.name }}</th>
-            {% endif %}
-
-            {% if model.add_url %}
-                <td><a href="{{ model.add_url }}" class="addlink">{% translate "Add" %}</a></td>
-            {% else %}
-                <td></td>
-            {% endif %}
-
-            {% if model.admin_url and show_changelinks %}
-                {% if model.view_only %}
-                <td><a href="{{ model.admin_url }}" class="viewlink">{% translate "View" %}</a></td>
-                {% else %}
-                <td><a href="{{ model.admin_url }}" class="changelink">{% translate "Change" %}</a></td>
-                {% endif %}
-            {% elif show_changelinks %}
-                <td></td>
-            {% endif %}
-            </tr>
-        {% endfor %}
-        </table>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>{% blocktranslate %}You don't have permission to view or edit anything.{% endblocktranslate %}</p>
-  {% endif %}
-</div>
-{% endblock %}
+ {% endblock %}

@@ -19,8 +19,6 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-@5^lch0ee2hwx7fa8w%^67u*@ce1i%ci@+y@8x#wo&ar6_qs+0'
 
@@ -29,7 +27,7 @@ SECRET_KEY = 'django-insecure-@5^lch0ee2hwx7fa8w%^67u*@ce1i%ci@+y@8x#wo&ar6_qs+0
 MAPS_API_KEY = os.environ.get('MAPS_API_KEY', '')  # Get from environment or use empty string
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -220,8 +218,6 @@ JAZZMIN_SETTINGS = {
             
         },
     ],
-
-    #login panel admin
     
 
 }
@@ -370,7 +366,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # --- Rutas para buscar archivos de traducción (.po, .mo) ---
 # ¡Esta es la línea clave que necesitas añadir/asegurar!

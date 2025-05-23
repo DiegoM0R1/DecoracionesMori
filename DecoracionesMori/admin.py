@@ -74,7 +74,14 @@ def custom_get_urls(self):
 # Aplicar el método personalizado
 AdminSite.get_urls = custom_get_urls
 
+
+from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
+
 # Personalización del sitio admin
 admin.site.site_header = _('Administración DecoracionesMori')
 admin.site.site_title = _('Panel de Control')
 admin.site.index_title = _('Dashboard DecoracionesMori')
+
+# No es necesario modificar el método get_urls de AdminSite
+# Las URLs ya se manejan en dashboard.py que se debe incluir en urls.py
