@@ -3,19 +3,17 @@
 {% block title %}Servicios - DecoracionesMori{% endblock %}
 
 {% block content %}
-<section class="services-header py-5 bg-light">
+<section class="py-4 services-categories services-header bg bg-light">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center">
                 <h1 class="display-4">Nuestros Servicios</h1>
-                <p class="lead">Conoce nuestra amplia gama de servicios de calidad</p>
+                <h1 class="lead">Conoce nuestra amplia gama de servicios de calidad</h1>
             </div>
         </div>
     </div>
-</section>
 
-<section class="services-categories py-5">
-    <div class="container">
+    <div class="container py-5">
         <div class="row mb-4">
             <div class="col-12">
                 <h2 class="section-title">Categorías</h2>
@@ -36,7 +34,7 @@
             {% if categoria_actual %}
             <div class="col-12 mb-4">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body lead">
                         <h3>{{ categoria_actual.name }}</h3>
                         <p>{{ categoria_actual.description }}</p>
                     </div>
@@ -45,7 +43,7 @@
             {% endif %}
             
             {% for service in services %}
-            <div class="col-md-6 col-lg-4 mb-4">
+            <div class="col-md-6 col-lg-4 mb-4 lead">
                 <div class="card service-card h-100">
                     {% with featured_image=service.get_featured_image %}
                     <div class="card-img-top-container" style="height: 220px; overflow: hidden; background-color: #eee; border-top-left-radius: 0.8rem; border-top-right-radius: 0.8rem;">

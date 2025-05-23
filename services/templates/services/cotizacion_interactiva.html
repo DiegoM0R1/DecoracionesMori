@@ -58,102 +58,337 @@
         background-color: #fff;
     }
     
+    /* CSS mejorado para el sistema dinámico de unidades */
+
+.product-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.product-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 6px 20px rgba(0,123,255,0.15);
+    transform: translateY(-2px);
+}
+
+.product-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-info {
+    flex-grow: 1;
+    margin-right: 20px;
+}
+
+.product-info h5 {
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.product-price {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.unit-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.unit-info i {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.unit-info small {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.quantity-control button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.quantity-control button:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+    transform: scale(1.05);
+}
+
+.quantity-control button:active {
+    transform: scale(0.95);
+}
+
+.quantity-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.quantity-input {
+    width: 90px;
+    text-align: center;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 8px 6px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quantity-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.unit-label {
+    font-size: 11px;
+    color: #6c757d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    min-width: 45px;
+    text-align: center;
+}
+
+/* Sección de ayuda */
+.help-section {
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+.help-section .alert {
+    border-left: 4px solid #17a2b8;
+    background-color: #f8f9fa;
+}
+
+.help-section h6 {
+    color: #17a2b8;
+    font-weight: 600;
+}
+
+.help-section ul {
+    padding-left: 20px;
+}
+
+.help-section li {
+    margin-bottom: 5px;
+}
+
+/* Mejorar el resumen */
+.summary-container .card {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 12px;
+}
+
+.summary-container .card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 15px 20px;
+}
+
+.summary-container .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 18px 20px;
+    transition: background-color 0.2s ease;
+}
+
+.summary-container .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.summary-container .list-group-item:first-child {
+    border-top: none;
+}
+
+.summary-container .list-group-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.summary-container .badge {
+    font-size: 1rem;
+    padding: 10px 15px;
+    font-weight: 600;
+}
+
+.summary-container .btn-lg {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Animaciones */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-item {
+    animation: slideInUp 0.4s ease-out;
+}
+
+.summary-container {
+    animation: slideInUp 0.5s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
     .product-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #eee;
-        transition: all 0.3s;
-    }
-    
-    .product-item:hover {
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .product-image {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 5px;
-        margin-right: 15px;
-    }
-    
-    .product-info {
-        flex-grow: 1;
-    }
-    
-    .product-price {
-        font-weight: bold;
-        color: #4CAF50;
-    }
-    
-    .quantity-control {
-        display: flex;
-        align-items: center;
-    }
-    
-    .quantity-control button {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .quantity-control button:hover {
-        background-color: #e9ecef;
-    }
-    
-    .quantity-control input {
-        width: 60px;
+        flex-direction: column;
         text-align: center;
-        margin: 0 10px;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 5px;
-    }
-    
-    .summary-container {
-        margin-top: 20px;
-        background-color: #f8f9fa;
-        border-radius: 10px;
         padding: 15px;
     }
     
-    .loading-dots {
-        display: inline-block;
+    .product-image {
+        margin-right: 0;
+        margin-bottom: 15px;
+        width: 70px;
+        height: 70px;
     }
     
-    .loading-dots::after {
-        content: '.';
-        animation: dots 1.5s steps(5, end) infinite;
+    .product-info {
+        margin-right: 0;
+        margin-bottom: 15px;
     }
     
-    @keyframes dots {
-        0%, 20% { content: '.'; }
-        40% { content: '..'; }
-        60% { content: '...'; }
-        80%, 100% { content: ''; }
+    .quantity-control {
+        justify-content: center;
+        min-width: auto;
+        gap: 8px;
     }
     
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+    .quantity-input {
+        width: 70px;
+        font-size: 14px;
     }
     
-    .back-to-service {
-        position: absolute;
-        top: 20px;
-        left: 20px;
+    .quantity-control button {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
     }
+}
+
+@media (max-width: 480px) {
+    .chat-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .product-item {
+        padding: 12px;
+    }
+    
+    .summary-container .card-body {
+        padding: 15px;
+    }
+    
+    .summary-container .list-group-item {
+        padding: 12px 15px;
+    }
+}
+
+/* Estados de loading y éxito */
+.processing-state {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.success-state {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+/* Mejoras en accesibilidad */
+.quantity-control button:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.quantity-input:invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Tooltips personalizados */
+.custom-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.custom-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s;
+    z-index: 1000;
+}
+
+.custom-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
 </style>
 {% endblock %}
 
@@ -212,342 +447,482 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elementos del DOM
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const productSelector = document.getElementById('product-selector');
-        const summaryContainer = document.getElementById('summary-container');
-        
-        // Datos preparados por Django como JSON
-const service = {{ service_json|safe }};
-const componentes = {{ componentes_json|safe }};
+   // Agrega esta función que falta en tu JavaScript
+function formatQuantity(quantity) {
+    // Si es un número entero, no mostrar decimales
+    if (quantity % 1 === 0) {
+        return quantity.toString();
+    }
+    // Si tiene decimales, mostrar máximo 2 decimales y remover ceros innecesarios
+    return quantity.toFixed(2).replace(/\.?0+$/, '');
+}
 
+// Función auxiliar para obtener decimales apropiados
+function getDecimalPlaces(step) {
+    if (step >= 1) return 0;
+    if (step >= 0.1) return 1;
+    return 2;
+}
+
+// VERSIÓN CORREGIDA Y COMPLETA DEL JAVASCRIPT
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const productSelector = document.getElementById('product-selector');
+    const summaryContainer = document.getElementById('summary-container');
+    
+    // Datos preparados por Django como JSON
+    const service = {{ service_json|safe }};
+    const componentes = {{ componentes_json|safe }};
+    
+    // Estado de la conversación
+    let conversationState = {
+        step: 'welcome',
+        metrosCuadrados: 0,
+        seleccionados: {}
+    };
+    
+    // Iniciar la conversación
+    startConversation();
+    
+    // Función principal para iniciar la conversación
+    function startConversation() {
+        addBotMessage(`¡Hola! Voy a ayudarte a crear una cotización personalizada para <strong>${service.name}</strong>.`);
         
-        // Estado de la conversación
-        let conversationState = {
-            step: 'welcome',
-            metrosCuadrados: 0,
-            seleccionados: {}
-        };
-        
-        // Iniciar la conversación
-        startConversation();
-        
-        // Función principal para iniciar la conversación
-        function startConversation() {
-            // Mensaje de bienvenida
-            addBotMessage(`¡Hola! Voy a ayudarte a crear una cotización personalizada para <strong>${service.name}</strong>.`);
+        setTimeout(() => {
+            addBotMessage("Te voy a ayudar a seleccionar exactamente lo que necesitas para tu proyecto.");
             
             setTimeout(() => {
-                addBotMessage("Primero necesito algunos datos para darte un precio más preciso.");
-                
-                setTimeout(() => {
-                    askForMetrosCuadrados();
-                }, 1000);
+                askForProductSelection();
             }, 1000);
+        }, 1000);
+    }
+    
+    // Función inteligente para determinar el paso según cualquier unidad
+    function getStepForUnit(unit) {
+        const unitLower = unit.toLowerCase().trim();
+        
+        // Unidades discretas (números enteros)
+        const discreteUnits = [
+            'pieza', 'piezas', 'unidad', 'unidades', 'und',
+            'paño', 'paños', 'panel', 'paneles',
+            'rollo', 'rollos', 'bobina', 'bobinas',
+            'galón', 'galones', 'galon', 'galones',
+            'lata', 'latas', 'balde', 'baldes',
+            'saco', 'sacos', 'bolsa', 'bolsas',
+            'caja', 'cajas', 'paquete', 'paquetes',
+            'tubo', 'tubos', 'barra', 'barras',
+            'hoja', 'hojas', 'plancha', 'planchas'
+        ];
+        
+        // Verificar si es una unidad discreta
+        const isDiscrete = discreteUnits.some(discrete => 
+            unitLower.includes(discrete) || unitLower === discrete
+        );
+        
+        if (isDiscrete) {
+            return 1; // Incremento de 1 en 1 para unidades discretas
         }
         
-        // Preguntar por metros cuadrados
-        function askForMetrosCuadrados() {
-            conversationState.step = 'metros';
-            
-            addBotMessage("¿Para cuántos metros cuadrados necesitas este servicio?");
-            
-            // Crear input para metros cuadrados
-            userInput.innerHTML = `
-                <div class="input-group mb-3">
-                    <input type="number" id="metros-input" class="form-control" min="1" step="1" placeholder="Ingresa los metros cuadrados">
-                    <span class="input-group-text">m²</span>
-                    <button class="btn btn-primary" id="metros-btn">Continuar</button>
+        // Para cualquier otra unidad (continuas), usar incremento decimal
+        return 0.1;
+    }
+    
+    // Función auxiliar para formatear valores de input
+    function formatInputValue(value, step) {
+        if (step >= 1) {
+            // Para unidades discretas, redondear a entero
+            return Math.round(value).toString();
+        } else {
+            // Para unidades continuas, mantener decimales apropiados
+            return value.toFixed(1).replace(/\.0$/, '');
+        }
+    }
+    
+    // Función mejorada para selección de productos que maneja cualquier unidad
+    function askForProductSelection() {
+        conversationState.step = 'products';
+        
+        addBotMessage("Selecciona los productos que necesitas e indica la cantidad específica de cada uno:");
+        
+        // Mostrar información sobre las unidades disponibles
+        const unidadesUnicas = [...new Set(componentes.map(c => c.unit))];
+        if (unidadesUnicas.length === 1) {
+            addBotMessage(`Todos los productos de este servicio se miden en <strong>${unidadesUnicas[0]}</strong>.`);
+        } else {
+            addBotMessage(`Este servicio incluye productos con diferentes unidades de medida: <strong>${unidadesUnicas.join(', ')}</strong>.`);
+        }
+        
+        // Mostrar selector de productos
+        productSelector.style.display = 'block';
+        productSelector.innerHTML = '';
+        
+        // Generar elementos de productos
+        componentes.forEach(producto => {
+            const productHTML = `
+                <div class="product-item" data-product-id="${producto.id}">
+                    <img src="${producto.imageUrl}" alt="${producto.name}" class="product-image">
+                    <div class="product-info">
+                        <h5>${producto.name}</h5>
+                        <p class="product-price">S/. ${producto.price} por ${producto.unit}</p>
+                        <div class="unit-info">
+                            <i class="fas fa-ruler-combined"></i>
+                            <small class="text-muted">Unidad: <strong>${producto.unit}</strong></small>
+                        </div>
+                    </div>
+                    <div class="quantity-control">
+                        <button type="button" class="btn-decrease" title="Disminuir cantidad">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <div class="quantity-input-container">
+                            <input type="number" 
+                                   min="0" 
+                                   step="${getStepForUnit(producto.unit)}" 
+                                   value="0" 
+                                   class="quantity-input" 
+                                   data-product-id="${producto.id}" 
+                                   placeholder="Cantidad">
+                            <label class="unit-label">${producto.unit}</label>
+                        </div>
+                        <button type="button" class="btn-increase" title="Aumentar cantidad">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="form-text">Si no estás seguro, ingresa un valor aproximado. Podemos ajustarlo después.</div>
             `;
             
-            // Evento para el botón
-            document.getElementById('metros-btn').addEventListener('click', function() {
-                const metrosInput = document.getElementById('metros-input');
-                const metros = parseInt(metrosInput.value, 10);
-                
-                if (isNaN(metros) || metros <= 0) {
-                    alert("Por favor ingresa un valor válido mayor a 0");
-                    return;
-                }
-                
-                // Guardar metros cuadrados
-                conversationState.metrosCuadrados = metros;
-                
-                // Mostrar mensaje del usuario
-                addUserMessage(`Necesito el servicio para ${metros} metros cuadrados.`);
-                
-                // Continuar con la selección de productos
-                setTimeout(() => {
-                    askForProductSelection();
-                }, 1000);
-            });
-            
-            // También permitir continuar con Enter
-            document.getElementById('metros-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('metros-btn').click();
-                }
-            });
-        }
+            productSelector.innerHTML += productHTML;
+        });
         
-        // Preguntar por selección de productos
-        function askForProductSelection() {
-            conversationState.step = 'products';
-            
-            addBotMessage("Ahora, selecciona los productos que te interesan para este servicio:");
-            
-            // Mostrar selector de productos
-            productSelector.style.display = 'block';
-            productSelector.innerHTML = '';
-            
-            // Generar elementos de productos
-            componentes.forEach(producto => {
-                const productHTML = `
-                    <div class="product-item" data-product-id="${producto.id}">
-                        <img src="${producto.imageUrl}" alt="${producto.name}" class="product-image">
-                        <div class="product-info">
-                            <h5>${producto.name}</h5>
-                            <p class="product-price">S/. ${producto.price} por ${producto.unit}</p>
-                        </div>
-                        <div class="quantity-control">
-                            <button type="button" class="btn-decrease">-</button>
-                            <input type="number" min="0" value="0" class="quantity-input" data-product-id="${producto.id}">
-                            <button type="button" class="btn-increase">+</button>
-                        </div>
-                    </div>
-                `;
-                
-                productSelector.innerHTML += productHTML;
-            });
-            
-            // Añadir botón para continuar
-            productSelector.innerHTML += `
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                    <button id="continue-selection" class="btn btn-primary">
-                        <i class="fas fa-check me-2"></i>Continuar con esta selección
-                    </button>
-                </div>
-            `;
-            
-            // Eventos para los botones de cantidad
-            document.querySelectorAll('.btn-decrease').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.parentNode.querySelector('.quantity-input');
-                    let value = parseInt(input.value, 10);
-                    if (value > 0) input.value = value - 1;
-                });
-            });
-            
-            document.querySelectorAll('.btn-increase').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.parentNode.querySelector('.quantity-input');
-                    let value = parseInt(input.value, 10);
-                    input.value = value + 1;
-                });
-            });
-            
-            // Evento para continuar después de la selección
-            document.getElementById('continue-selection').addEventListener('click', function() {
-                // Recopilar productos seleccionados
-                const seleccionados = {};
-                let haySeleccionados = false;
-                
-                document.querySelectorAll('.quantity-input').forEach(input => {
-                    const productId = input.getAttribute('data-product-id');
-                    const quantity = parseInt(input.value, 10);
-                    
-                    if (quantity > 0) {
-                        seleccionados[productId] = quantity;
-                        haySeleccionados = true;
-                    }
-                });
-                
-                if (!haySeleccionados) {
-                    alert("Por favor selecciona al menos un producto");
-                    return;
-                }
-                
-                // Guardar selección
-                conversationState.seleccionados = seleccionados;
-                
-                // Ocultar selector
-                productSelector.style.display = 'none';
-                
-                // Mostrar mensaje de selección
-                const productosTexto = Object.entries(seleccionados).map(([id, cantidad]) => {
-                    const producto = componentes.find(p => p.id == id);
-                    return `${cantidad} ${producto.unit} de ${producto.name}`;
-                }).join(', ');
-                
-                addUserMessage(`He seleccionado: ${productosTexto}`);
-                
-                // Continuar con el resumen
-                setTimeout(() => {
-                    showSummary();
-                }, 1000);
-            });
-        }
+        // Agregar sección de ayuda dinámica
+        const ayudaUnidades = componentes.map(producto => {
+            return `<li><strong>${producto.name}</strong>: Especifica la cantidad en <em>${producto.unit}</em></li>`;
+        }).join('');
         
-        // Mostrar resumen de cotización
-        function showSummary() {
-            conversationState.step = 'summary';
-            
-            addBotMessage("¡Excelente! Basado en tu selección, aquí está el resumen de tu cotización:");
-            
-            let subtotal = 0;
-            const seleccionResumen = [];
-            
-            // Calcular subtotal y preparar resumen
-            Object.entries(conversationState.seleccionados).forEach(([id, cantidad]) => {
-                const producto = componentes.find(p => p.id == id);
-                const precioTotal = producto.price * cantidad;
-                subtotal += precioTotal;
-                
-                seleccionResumen.push({
-                    nombre: producto.name,
-                    cantidad: cantidad,
-                    unidad: producto.unit,
-                    precioUnitario: producto.price,
-                    precioTotal: precioTotal
-                });
-            });
-            
-            // Calcular totales
-            const igv = subtotal * 0.18;
-            const total = subtotal + igv;
-            
-            // Mostrar resumen
-            summaryContainer.style.display = 'block';
-            summaryContainer.innerHTML = `
-                <h4 class="mb-4">Resumen de Cotización</h4>
-                
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Servicio</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Servicio:</strong> ${service.name}</p>
-                        <p><strong>Área total:</strong> ${conversationState.metrosCuadrados} m²</p>
-                    </div>
-                </div>
-                
-                <div class="card mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Productos Seleccionados</h5>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        ${seleccionResumen.map(item => `
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">${item.nombre}</h6>
-                                    <small class="text-muted">${item.cantidad} ${item.unidad} x S/. ${item.precioUnitario.toFixed(2)}</small>
-                                </div>
-                                <span class="badge bg-primary rounded-pill">S/. ${item.precioTotal.toFixed(2)}</span>
-                            </li>
-                        `).join('')}
+        productSelector.innerHTML += `
+            <div class="help-section mt-4 mb-3">
+                <div class="alert alert-light">
+                    <h6><i class="fas fa-question-circle me-2"></i>¿Cómo especificar las cantidades?</h6>
+                    <ul class="mb-0 small">
+                        ${ayudaUnidades}
                     </ul>
                 </div>
+            </div>
+        `;
+        
+        // Añadir botón para continuar
+        productSelector.innerHTML += `
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button id="continue-selection" class="btn btn-primary">
+                    <i class="fas fa-check me-2"></i>Continuar con esta selección
+                </button>
+            </div>
+            <div class="form-text text-center mt-2">
+                <i class="fas fa-info-circle me-1"></i>
+                Indica la cantidad exacta que necesitas de cada producto
+            </div>
+        `;
+        
+        setupProductSelectionEvents();
+    }
+    
+    // Función para configurar eventos de selección de productos
+    function setupProductSelectionEvents() {
+        // Eventos para los botones de cantidad
+        document.querySelectorAll('.btn-decrease').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const container = this.parentNode;
+                const input = container.querySelector('.quantity-input');
+                let value = parseFloat(input.value) || 0;
                 
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Totales</h5>
+                if (value > 0) {
+                    const productId = input.getAttribute('data-product-id');
+                    const producto = componentes.find(p => p.id == productId);
+                    const step = getStepForUnit(producto.unit);
+                    const newValue = Math.max(0, value - step);
+                    input.value = formatInputValue(newValue, step);
+                }
+            });
+        });
+        
+        document.querySelectorAll('.btn-increase').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const container = this.parentNode;
+                const input = container.querySelector('.quantity-input');
+                let value = parseFloat(input.value) || 0;
+                
+                const productId = input.getAttribute('data-product-id');
+                const producto = componentes.find(p => p.id == productId);
+                const step = getStepForUnit(producto.unit);
+                const newValue = value + step;
+                input.value = formatInputValue(newValue, step);
+            });
+        });
+        
+        // Validación en tiempo real para los inputs
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('blur', function() {
+                const productId = this.getAttribute('data-product-id');
+                const producto = componentes.find(p => p.id == productId);
+                const step = getStepForUnit(producto.unit);
+                const value = parseFloat(this.value) || 0;
+                
+                if (value < 0) {
+                    this.value = 0;
+                } else {
+                    this.value = formatInputValue(value, step);
+                }
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                // Permitir Enter para continuar rápidamente
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Enfocar el siguiente input o el botón continuar
+                    const nextInput = this.closest('.product-item').nextElementSibling?.querySelector('.quantity-input');
+                    if (nextInput) {
+                        nextInput.focus();
+                    } else {
+                        document.getElementById('continue-selection').focus();
+                    }
+                }
+            });
+        });
+        
+        // Evento para continuar después de la selección
+        document.getElementById('continue-selection').addEventListener('click', function() {
+            // Recopilar productos seleccionados
+            const seleccionados = {};
+            let haySeleccionados = false;
+            const productosSeleccionados = [];
+            
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                const productId = input.getAttribute('data-product-id');
+                const quantity = parseFloat(input.value) || 0;
+                
+                if (quantity > 0) {
+                    seleccionados[productId] = quantity;
+                    haySeleccionados = true;
+                    
+                    // Preparar texto descriptivo
+                    const producto = componentes.find(p => p.id == productId);
+                    productosSeleccionados.push({
+                        nombre: producto.name,
+                        cantidad: quantity,
+                        unidad: producto.unit
+                    });
+                }
+            });
+            
+            if (!haySeleccionados) {
+                // Mostrar mensaje más específico
+                const productNames = componentes.map(p => p.name).join(', ');
+                alert(`Por favor selecciona al menos un producto:\n${productNames}`);
+                return;
+            }
+            
+            // Guardar selección
+            conversationState.seleccionados = seleccionados;
+            
+            // Ocultar selector
+            productSelector.style.display = 'none';
+            
+            // Mostrar mensaje de selección con unidades correctas
+            const productosTexto = productosSeleccionados.map(item => 
+                `${formatQuantity(item.cantidad)} ${item.unidad} de ${item.nombre}`
+            ).join(', ');
+            
+            addUserMessage(`He seleccionado: ${productosTexto}`);
+            
+            // Continuar con el resumen
+            setTimeout(() => {
+                showSummary();
+            }, 1000);
+        });
+    }
+    
+    // Función mejorada para mostrar resumen
+    function showSummary() {
+        conversationState.step = 'summary';
+        
+        addBotMessage("¡Perfecto! Aquí está el resumen de tu cotización personalizada:");
+        
+        let subtotal = 0;
+        const seleccionResumen = [];
+        
+        // Calcular subtotal y preparar resumen
+        Object.entries(conversationState.seleccionados).forEach(([id, cantidad]) => {
+            const producto = componentes.find(p => p.id == id);
+            const precioTotal = producto.price * cantidad;
+            subtotal += precioTotal;
+            
+            seleccionResumen.push({
+                nombre: producto.name,
+                cantidad: cantidad,
+                unidad: producto.unit,
+                precioUnitario: producto.price,
+                precioTotal: precioTotal
+            });
+        });
+        
+        // Calcular totales
+        const igv = subtotal * 0.18;
+        const total = subtotal + igv;
+        
+        // Mostrar resumen
+        summaryContainer.style.display = 'block';
+        summaryContainer.innerHTML = `
+            <h4 class="mb-4">
+                <i class="fas fa-file-invoice-dollar me-2"></i>
+                Resumen de Cotización
+            </h4>
+            
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Servicio Solicitado
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0"><strong>${service.name}</strong></p>
+                    <small class="text-muted">Cotización basada en cantidades específicas seleccionadas</small>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Productos Seleccionados
+                    </h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    ${seleccionResumen.map(item => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${item.nombre}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-calculator me-1"></i>
+                                    ${formatQuantity(item.cantidad)} ${item.unidad} × S/. ${item.precioUnitario.toFixed(2)}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary rounded-pill fs-6">
+                                    S/. ${item.precioTotal.toFixed(2)}
+                                </span>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>
+                        Totales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong>S/. ${subtotal.toFixed(2)}</strong>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <strong>S/. ${subtotal.toFixed(2)}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>IGV (18%):</span>
-                            <strong>S/. ${igv.toFixed(2)}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="fs-5">TOTAL:</span>
-                            <strong class="fs-5">S/. ${total.toFixed(2)}</strong>
-                        </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>IGV (18%):</span>
+                        <strong>S/. ${igv.toFixed(2)}</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="fs-5"><strong>TOTAL:</strong></span>
+                        <strong class="fs-4 text-success">S/. ${total.toFixed(2)}</strong>
                     </div>
                 </div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Nota importante:</strong> Esta es una cotización referencial. El precio final puede variar, cuando solicite el servicio se le hará una llamada donde 
-                    podremos concretar más a detalle.
-                </div>
-                
-                <div class="d-grid gap-2">
-                    <button id="generar-pdf" class="btn btn-primary">
-                        <i class="fas fa-file-pdf me-2"></i>Generar PDF de Cotización
-                    </button>
-                    <button id="solicitar-cita" class="btn btn-success">
-                        <i class="fas fa-calendar-check me-2"></i>Solicitar cita con esta cotización
-                    </button>
-                    <button id="modificar-seleccion" class="btn btn-outline-secondary">
-                        <i class="fas fa-edit me-2"></i>Modificar mi selección
-                    </button>
-                </div>
-            `;
+            </div>
             
-            // Evento para generar PDF
-            document.getElementById('generar-pdf').addEventListener('click', function() {
-                // Mostrar modal de procesamiento
-                new bootstrap.Modal(document.getElementById('processingModal')).show();
-                
-                // Preparar datos para enviar
-                document.getElementById('selecciones-input').value = JSON.stringify(conversationState.seleccionados);
-                document.getElementById('metros-totales-input').value = conversationState.metrosCuadrados;
-                
-                // Enviar formulario
-                document.getElementById('pdf-form').submit();
-            });
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Importante:</strong> Esta cotización se basa en las cantidades exactas que especificaste. 
+                El precio final se confirma tras la evaluación técnica en sitio.
+            </div>
             
-            // Evento para solicitar cita
-            document.getElementById('solicitar-cita').addEventListener('click', function() {
-                // Guardar datos en localStorage para autocompletar el formulario de cita
-                localStorage.setItem('cotizacion_servicio_id', service.id);
-                localStorage.setItem('cotizacion_metros', conversationState.metrosCuadrados);
-                localStorage.setItem('cotizacion_productos', JSON.stringify(conversationState.seleccionados));
-                
-                // Redirigir al formulario de cita
-                window.location.href = '{% url "appointments:request" service.id %}';
-            });
-            
-            // Evento para modificar selección
-            document.getElementById('modificar-seleccion').addEventListener('click', function() {
-                summaryContainer.style.display = 'none';
-                askForProductSelection();
-            });
-        }
+            <div class="d-grid gap-2">
+                <button id="generar-pdf" class="btn btn-primary btn-lg">
+                    <i class="fas fa-file-pdf me-2"></i>Descargar Cotización en PDF
+                </button>
+                <button id="solicitar-cita" class="btn btn-success btn-lg">
+                    <i class="fas fa-calendar-check me-2"></i>Solicitar Cita para Este Servicio
+                </button>
+                <button id="modificar-seleccion" class="btn btn-outline-secondary">
+                    <i class="fas fa-edit me-2"></i>Modificar Productos Seleccionados
+                </button>
+            </div>
+        `;
         
-        // Función para añadir mensaje del bot
-        function addBotMessage(message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message bot-message';
-            messageDiv.innerHTML = message;
-            chatMessages.appendChild(messageDiv);
-            scrollToBottom();
-        }
-        
-        // Función para añadir mensaje del usuario
-        function addUserMessage(message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message user-message';
-            messageDiv.textContent = message;
-            chatMessages.appendChild(messageDiv);
+        setupSummaryEvents();
+    }
+    
+    // Función para configurar eventos del resumen
+    function setupSummaryEvents() {
+        // Evento para generar PDF
+        document.getElementById('generar-pdf').addEventListener('click', function() {
+            // Mostrar modal de procesamiento
+            const modal = new bootstrap.Modal(document.getElementById('processingModal'));
+            modal.show();
             
-            // Limpiar entrada de usuario
-            userInput.innerHTML = '';
-            scrollToBottom();
-        }
+            // Preparar datos para enviar (sin área específica)
+            document.getElementById('selecciones-input').value = JSON.stringify(conversationState.seleccionados);
+            document.getElementById('metros-totales-input').value = 0; // Valor simbólico
+            
+            // Enviar formulario
+            document.getElementById('pdf-form').submit();
+        });
         
-        // Función para scroll al final del chat
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-    });
+        // Evento para solicitar cita
+        document.getElementById('solicitar-cita').addEventListener('click', function() {
+            // Guardar datos en localStorage para autocompletar el formulario de cita
+            localStorage.setItem('cotizacion_servicio_id', service.id);
+            localStorage.setItem('cotizacion_productos', JSON.stringify(conversationState.seleccionados));
+            
+            // Redirigir al formulario de cita
+            window.location.href = `{% url "appointments:request" service.id %}`;
+        });
+        
+        // Evento para modificar selección
+        document.getElementById('modificar-seleccion').addEventListener('click', function() {
+            summaryContainer.style.display = 'none';
+            askForProductSelection();
+        });
+    }
+    
+    // Función para añadir mensaje del bot
+    function addBotMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message bot-message';
+        messageDiv.innerHTML = message;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+    
+    // Función para añadir mensaje del usuario
+    function addUserMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message user-message';
+        messageDiv.textContent = message;
+        chatMessages.appendChild(messageDiv);
+        
+        // Limpiar entrada de usuario
+        userInput.innerHTML = '';
+        scrollToBottom();
+    }
+    
+    // Función para scroll al final del chat
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
 </script>
 
 <!-- Script para autocompletar el formulario de cita después de redirigir -->

@@ -166,12 +166,12 @@ def vista_cotizacion(request, service_id):
 
 @login_required
 def generar_pdf_cotizacion(request, service_id):
-    """Genera PDF basado en selecciones del usuario"""
+    """Genera PDF basado en selecciones del usuario - VERSIÓN COMPLETAMENTE DINÁMICA"""
     service = get_object_or_404(Service, pk=service_id)
     
     # Obtener datos de la solicitud POST
     selecciones = json.loads(request.POST.get('selecciones', '{}'))
-    metros_totales = Decimal(request.POST.get('metros_totales', '0'))
+    # Ya no necesitamos metros_totales como campo obligatorio
     
     # Crear buffer para el PDF
     buffer = io.BytesIO()
@@ -195,25 +195,25 @@ def generar_pdf_cotizacion(request, service_id):
     
     # Número de cotización
     num_cotizacion = f"COT-{service_id}-{datetime.datetime.now().strftime('%Y%m%d%H%M')}"
-    elements.append(Paragraph(f"Cotización Nº: {num_cotizacion}", styles['Normal']))
-    elements.append(Paragraph(f"Fecha: {datetime.datetime.now().strftime('%d/%m/%Y')}", styles['Normal']))
-    elements.append(Paragraph(f"Válido hasta: {(datetime.datetime.now() + datetime.timedelta(days=15)).strftime('%d/%m/%Y')}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Cotización Nº:</b> {num_cotizacion}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Fecha:</b> {datetime.datetime.now().strftime('%d/%m/%Y')}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Válido hasta:</b> {(datetime.datetime.now() + datetime.timedelta(days=15)).strftime('%d/%m/%Y')}", styles['Normal']))
     elements.append(Spacer(1, 12))
     
     # Información del cliente
-    elements.append(Paragraph("Información del Cliente:", styles['Heading3']))
-    elements.append(Paragraph(f"Nombre: {request.user.get_full_name() or request.user.username}", styles['Normal']))
-    elements.append(Paragraph(f"Email: {request.user.email}", styles['Normal']))
+    elements.append(Paragraph("INFORMACIÓN DEL CLIENTE", styles['Heading3']))
+    elements.append(Paragraph(f"<b>Nombre:</b> {request.user.get_full_name() or request.user.username}", styles['Normal']))
+    elements.append(Paragraph(f"<b>Email:</b> {request.user.email}", styles['Normal']))
     elements.append(Spacer(1, 24))
     
     # Detalles del servicio
-    elements.append(Paragraph("Detalle de su cotización personalizada:", styles['Heading3']))
+    elements.append(Paragraph("DETALLE DEL SERVICIO SOLICITADO", styles['Heading3']))
     elements.append(Spacer(1, 12))
     
     # Servicio base
     service_data = [
-        ["Servicio Base", "Precio Referencial"],
-        [service.name, f"S/. {service.base_price}"]
+        ["Servicio", "Precio Base Referencial"],
+        [service.name, f"S/. {service.base_price}" if service.base_price else "Consultar"]
     ]
     
     service_table = Table(service_data, colWidths=[4*inch, 1.5*inch])
@@ -228,94 +228,117 @@ def generar_pdf_cotizacion(request, service_id):
     ]))
     
     elements.append(service_table)
-    
-    # Área total
-    elements.append(Spacer(1, 12))
-    elements.append(Paragraph(f"Área total: {metros_totales} m²", styles['Normal']))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
     
     # Productos seleccionados
-    product_data = [
-        ["Producto", "Cantidad", "Precio Unit.", "Subtotal"]
-    ]
-    
-    subtotal = Decimal('0.00')
-    
-    # Añadir productos seleccionados
-    for producto_id, cantidad in selecciones.items():
-        try:
-            producto_id = int(producto_id)
-            cantidad = Decimal(str(cantidad))
-            
-            # Obtener el componente relacionado
-            componente = service.components.filter(product_id=producto_id).first()
-            if componente and cantidad > 0:
-                precio_unitario = componente.product.price_per_unit
-                producto_subtotal = precio_unitario * cantidad
-                subtotal += producto_subtotal
-                
-                product_data.append([
-                    componente.product.name,
-                    f"{cantidad} {componente.product.unit}",
-                    f"S/. {precio_unitario}",
-                    f"S/. {producto_subtotal}"
-                ])
-        except (ValueError, TypeError):
-            continue
-    
-    if len(product_data) > 1:  # Si hay productos seleccionados
-        elements.append(Paragraph("Productos seleccionados:", styles['Heading3']))
+    if selecciones:
+        elements.append(Paragraph("PRODUCTOS SELECCIONADOS", styles['Heading3']))
         elements.append(Spacer(1, 12))
         
-        prod_table = Table(product_data, colWidths=[2*inch, 1.2*inch, 1.2*inch, 1.2*inch])
-        prod_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
+        product_data = [
+            ["Producto", "Cantidad", "Unidad", "Precio Unit.", "Subtotal"]
+        ]
         
-        elements.append(prod_table)
+        subtotal = Decimal('0.00')
+        
+        # Añadir productos seleccionados
+        for producto_id, cantidad in selecciones.items():
+            try:
+                producto_id = int(producto_id)
+                cantidad = Decimal(str(cantidad))
+                
+                # Obtener el componente relacionado
+                componente = service.components.filter(product_id=producto_id).first()
+                if componente and cantidad > 0:
+                    precio_unitario = componente.product.price_per_unit
+                    producto_subtotal = precio_unitario * cantidad
+                    subtotal += producto_subtotal
+                    
+                    # Formatear cantidad según el tipo de unidad
+                    cantidad_formateada = format_quantity_for_pdf(cantidad, componente.product.unit)
+                    
+                    product_data.append([
+                        componente.product.name,
+                        cantidad_formateada,
+                        componente.product.unit,
+                        f"S/. {precio_unitario:.2f}",
+                        f"S/. {producto_subtotal:.2f}"
+                    ])
+            except (ValueError, TypeError):
+                continue
+        
+        if len(product_data) > 1:  # Si hay productos seleccionados
+            prod_table = Table(product_data, colWidths=[2.2*inch, 0.8*inch, 0.8*inch, 1*inch, 1*inch])
+            prod_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            
+            elements.append(prod_table)
+            elements.append(Spacer(1, 20))
+            
+            # Calcular totales
+            igv = subtotal * Decimal('0.18')
+            total = subtotal + igv
+            
+            # Tabla de totales
+            totales_data = [
+                ["", ""],
+                ["Subtotal:", f"S/. {subtotal:.2f}"],
+                ["IGV (18%):", f"S/. {igv:.2f}"],
+                ["", ""],
+                ["TOTAL:", f"S/. {total:.2f}"]
+            ]
+            
+            totales_table = Table(totales_data, colWidths=[3*inch, 1.5*inch])
+            totales_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 1), (-1, 3), 'Helvetica'),
+                ('FONTSIZE', (0, -1), (-1, -1), 14),
+                ('LINEABOVE', (0, -1), (-1, -1), 2, colors.black),
+                ('LINEBELOW', (0, -1), (-1, -1), 2, colors.black),
+                ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+            ]))
+            
+            elements.append(totales_table)
+        else:
+            elements.append(Paragraph("No se seleccionaron productos específicos.", styles['Normal']))
+    else:
+        elements.append(Paragraph("Esta cotización se basa en el servicio base. Los productos específicos se definirán en la evaluación técnica.", styles['Normal']))
     
-    # Calcular totales
-    igv = subtotal * Decimal('0.18')
-    total = subtotal + igv
+    elements.append(Spacer(1, 30))
     
-    elements.append(Spacer(1, 24))
+    # Notas importantes
+    elements.append(Paragraph("INFORMACIÓN IMPORTANTE", styles['Heading3']))
     
-    # Tabla de totales
-    totales_data = [
-        ["Subtotal:", f"S/. {subtotal:.2f}"],
-        ["IGV (18%):", f"S/. {igv:.2f}"],
-        ["TOTAL:", f"S/. {total:.2f}"]
+    notas = [
+        "Esta cotización se basa en las cantidades específicas que usted seleccionó para cada producto.",
+        "El precio final puede variar según la evaluación técnica realizada en sitio.",
+        "Esta cotización es válida por 15 días calendario desde la fecha de emisión.",
+        "Los precios mostrados incluyen IGV (18%).",
+        "Para proceder con el servicio, es necesaria una evaluación técnica previa.",
+        "Cualquier modificación en cantidades o especificaciones puede alterar el precio final."
     ]
     
-    totales_table = Table(totales_data, colWidths=[2*inch, 1.5*inch])
-    totales_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-        ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-    ]))
+    for i, nota in enumerate(notas, 1):
+        elements.append(Paragraph(f"{i}. {nota}", styles['Normal']))
+        elements.append(Spacer(1, 6))
     
-    elements.append(totales_table)
+    elements.append(Spacer(1, 20))
     
-    # Notas sobre precio estimado
-    elements.append(Spacer(1, 24))
-    elements.append(Paragraph("IMPORTANTE:", styles['Heading4']))
-    elements.append(Paragraph("Esta es una cotización de referencia basada en sus selecciones. El precio final puede variar según la evaluación técnica en sitio.", 
-                             styles['Normal']))
-    
-    # Notas al pie
-    elements.append(Spacer(1, 24))
-    elements.append(Paragraph("Notas:", styles['Heading4']))
-    elements.append(Paragraph("1. Esta cotización es válida por 15 días calendario.", styles['Normal']))
-    elements.append(Paragraph("2. Los precios incluyen IGV.", styles['Normal']))
-    elements.append(Paragraph("3. Para consultas adicionales, contáctenos al: +51 999 999 999", styles['Normal']))
-    elements.append(Paragraph("4. Correo electrónico: info@decoracionesmori.com", styles['Normal']))
+    # Información de contacto
+    elements.append(Paragraph("CONTACTO", styles['Heading3']))
+    elements.append(Paragraph("<b>Teléfono:</b> +51 999 999 999", styles['Normal']))
+    elements.append(Paragraph("<b>Email:</b> info@decoracionesmori.com", styles['Normal']))
+    elements.append(Paragraph("<b>Horario de atención:</b> Lunes a Viernes de 8:00 AM a 6:00 PM", styles['Normal']))
     
     # Construir PDF
     doc.build(elements)
@@ -326,7 +349,72 @@ def generar_pdf_cotizacion(request, service_id):
     
     # Crear respuesta HTTP
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="cotizacion_personalizada_{service.name.replace(" ", "_")}_{datetime.datetime.now().strftime("%Y%m%d")}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="cotizacion_{service.name.replace(" ", "_")}_{datetime.datetime.now().strftime("%Y%m%d")}.pdf"'
     response.write(pdf)
     
     return response
+
+def format_quantity_for_pdf(cantidad, unit):
+    """Formatea la cantidad para mostrar en el PDF según el tipo de unidad"""
+    unit_lower = unit.lower().strip()
+    
+    # Unidades discretas - mostrar como entero si es posible
+    discrete_units = [
+        'pieza', 'piezas', 'unidad', 'unidades', 'und',
+        'paño', 'paños', 'panel', 'paneles',
+        'rollo', 'rollos', 'bobina', 'bobinas',
+        'galón', 'galones', 'galon', 'galones',
+        'lata', 'latas', 'balde', 'baldes',
+        'saco', 'sacos', 'bolsa', 'bolsas',
+        'caja', 'cajas', 'paquete', 'paquetes'
+    ]
+    
+    is_discrete = any(discrete in unit_lower for discrete in discrete_units)
+    
+    if is_discrete:
+        # Para unidades discretas, mostrar como entero si no tiene decimales significativos
+        if cantidad % 1 == 0:
+            return str(int(cantidad))
+        else:
+            return f"{cantidad:.1f}"
+    else:
+        # Para unidades continuas, mostrar con hasta 2 decimales, removiendo ceros innecesarios
+        return f"{cantidad:.2f}".rstrip('0').rstrip('.')
+
+# Vista auxiliar para obtener información del servicio (útil para AJAX)
+def get_service_components(request, service_id):
+    """API endpoint para obtener componentes de un servicio"""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    try:
+        service = Service.objects.get(pk=service_id)
+        components = []
+        
+        for component in service.components.all():
+            featured_image = component.product.get_featured_image()
+            image_url = '/static/imagen/default-product.jpg'
+            
+            if featured_image and featured_image.image:
+                image_url = featured_image.image.url
+            
+            components.append({
+                'id': component.product.id,
+                'name': component.product.name,
+                'price': float(component.product.price_per_unit),
+                'unit': component.product.unit,
+                'imageUrl': image_url,
+                'defaultQuantity': float(component.quantity)
+            })
+        
+        return JsonResponse({
+            'service': {
+                'id': service.id,
+                'name': service.name,
+                'basePrice': float(service.base_price) if service.base_price else 0
+            },
+            'components': components
+        })
+    
+    except Service.DoesNotExist:
+        return JsonResponse({'error': 'Servicio no encontrado'}, status=404)

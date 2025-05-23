@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'services',  # Ensure this line is present
     'appointments', 
     'invoices',
+    'site_config',
     'inventory',
 
     #plottly dash
@@ -130,6 +131,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Decoraciones Mori",
     "welcome_sign": "Bienvenido al Panel de Administración",
     "site_logo": "imagen/logo.png",
+    "site_icon": "imagen/logo.png", 
     
     "show_sidebar": True,
     "navigation_expanded": True,
@@ -286,6 +288,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'site_config.context_processors.site_settings',
             ],
         },
     },
@@ -389,6 +392,15 @@ LOCALE_PATHS = [
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 
+
+
+
+
+# Asegúrate de que esta ruta sea correcta para tu proyecto.
+# Por ejemplo, si tienes una carpeta 'static' en la raíz de tu proyecto:
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 # Ruta absoluta en el sistema de archivos donde se guardarán los archivos subidos
 # Asegúrate de que esta carpeta exista y tenga permisos de escritura para el servidor web
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

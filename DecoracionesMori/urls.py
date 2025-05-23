@@ -108,7 +108,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('invoices/', include('invoices.urls', namespace='invoices')),
     path('inventory/', include('inventory.urls')),
-    
+    path('', include('site_config.urls')),
     # Redirección para accesos directos a secciones de inventario desde el panel lateral
     path('admin/inventory/inventorystatus/', 
          RedirectView.as_view(url='/admin/inventory/inventorystatus/', permanent=False)),

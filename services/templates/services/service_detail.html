@@ -190,18 +190,18 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h1 class="display-4">{{ service.name }}</h1>
+                <h1 class="display-4 lead">{{ service.name }}</h1>
                 <p class="lead">{{ service.short_description }}</p>
 
-                <div class="service-meta">
+                <div class="service-meta lead">
                     <p><i class="fas fa-tag me-2"></i> <strong>Categoría:</strong> {{ service.category.name }}</p>
                     {% if service.base_price %}
                     <p><i class="fas fa-dollar-sign me-2"></i> <strong>Precio desde:</strong> S/. {{ service.base_price }}</p>
                     {% endif %}
                 </div>
                 <div class="card-body">
-                        <h2 class="mb-4"><i class="fas fa-info-circle me-2"></i>Acerca de este servicio</h2>
-                        <div class="service-content">
+                        <h2 class="mb-4 lead"><i class="fas fa-file-alt me-2"></i>Acerca de este servicio</h2>
+                        <div class="service-content lead">
                             {{ service.description|linebreaks }}
                         </div>
                     </div>
@@ -263,11 +263,11 @@
                 {% for componente in componentes %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
                     <div class="row justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <div class="card h-100 product-card shadow">
                                 <div class="row g-0">
-                                    <div class="col-md-6">
-                                        <div class="position-relative" style="height: 200px; overflow: hidden;">
+                                    <div class="col-md-8">
+                                        <div class="position-relative" style="height: 300px; overflow: hidden;">
                                             {% with featured_image=componente.product.get_featured_image %}
                                                 {% if featured_image %}
                                                     {% if featured_image.image %}
@@ -285,7 +285,7 @@
                                             {% endwith %}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-8">
                                         <div class="card-body">
                                             <h5 class="card-title">{{ componente.product.name }}</h5>
                                             <p class="card-text">
@@ -509,7 +509,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-center"><i class="fas fa-exclamation-triangle me-2"></i> Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.</p>
+<h3 class="text-center" style="color: #0070d1;">
+    <i class="fas fa-exclamation-triangle me-5" style="color: #0055ff;"></i>
+    Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.
+</h3>
 
                 <hr>
 
