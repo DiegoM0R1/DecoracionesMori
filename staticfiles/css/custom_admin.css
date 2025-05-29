@@ -1,0 +1,4 @@
+.login-logo img {
+    max-width: 100px !important;  /* Ajusta este valor según sea necesario */
+    height: auto !important;      /* Mantiene la proporción del logo */
+}

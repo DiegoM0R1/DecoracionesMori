@@ -35,6 +35,11 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
+STATICFILES_FINDERS = [
+         'django.contrib.staticfiles.finders.FileSystemFinder',
+         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+     ]
+    
 
 # Application definition
 
@@ -174,18 +179,7 @@ JAZZMIN_SETTINGS = {
         "quotations", 
         "appointments"
     ],
-    "custom_links": {
-        "services": [{
-            "name": "Reporte de Servicios", 
-            "url": "admin:service_report", 
-            "icon": "fas fa-chart-bar"
-        }],
-        "quotations": [{
-            "name": "Exportar Cotizaciones", 
-            "url": "admin:export_quotations", 
-            "icon": "fas fa-file-export"
-        }]
-    },
+   
     "menu": [
         {"app": "auth", "label": "Autenticación", "icon": "fas fa-users-cog"},
         {"app": "accounts", "label": "Cuentas", "icon": "fas fa-users"},
@@ -210,12 +204,12 @@ JAZZMIN_SETTINGS = {
         {"app": "appointments", "label": "Citas", "icon": "fas fa-calendar-alt"},
         {"app": "quotations", "label": "Cotizaciones", "icon": "fas fa-file-invoice-dollar"},
         {
-            "label": "Reportes",
-            "icon": "fas fa-chart-line",
+            "label": "Configuración del Sitio",
+            "icon": "fas fa-cogs",
             "models": [
-                {"url": "admin:service_report", "label": "Reporte de Servicios"},
-                {"url": "admin:quotation_report", "label": "Reporte de Cotizaciones"},
-                {"url": "admin:appointment_report", "label": "Reporte de Citas"}
+                {"model": "site_config.SiteSettings", "label": "Ajustes del Sitio"},
+                {"model": "site_config.ContactInfo", "label": "Información de Contacto"},
+                {"model": "site_config.SocialMediaLinks", "label": "Enlaces de Redes Sociales"},
             ]
             
         },

@@ -34,6 +34,8 @@ from appointments.models import Appointment
 from services.models import Service
 from clients.models import ClientProfile
 from django.views.generic import RedirectView
+from appointments import admin_views as appointments_api_views # Alias para claridad
+from inventory import admin_views as inventory_api_views # ¡Importa las vistas API de inventory!
 
 # Vista para el dashboard directamente en urls.py
 @staff_member_required
@@ -118,7 +120,14 @@ urlpatterns = [
     path('admin/inventory/inventory_report/',
          RedirectView.as_view(url='/admin/inventory/inventory_report/', permanent=False)),
 
-    
+    path('admin_api/calendar-events/', appointments_api_views.calendar_events_api, name='admin_calendar_events_api'),
+    path('admin_api/update-appointment/', appointments_api_views.update_appointment_api, name='admin_update_appointment_api'),
+    path('admin_api/appointment-stats/', appointments_api_views.appointment_stats_api, name='admin_appointment_stats_api'),
+    path('admin_api/workday-schedule/', appointments_api_views.workday_schedule_api, name='admin_workday_schedule_api'),
+    path('admin_api/inventory-movement-events/', inventory_api_views.inventory_movement_events_api, name='admin_inventory_movement_events_api'),
+    path('admin_api/export-inventory-report-pdf/', inventory_api_views.export_inventory_report_pdf, name='admin_export_inventory_report_pdf'),
+
+
 ]
     
 

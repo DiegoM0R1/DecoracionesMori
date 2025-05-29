@@ -1,0 +1,18 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {# Mantenemos los botones estándar del admin #}
+  {{ block.super }} 
+
+  {# Añadimos nuestro botón personalizado si la URL está disponible #}
+  {% if report_button and report_button.url != '#' %}
+    <li>
+      
+      <a href="{{ report_button.url }}" class="addlink">
+        {# <i class="fas fa-chart-bar"></i> Descomenta si usas Font Awesome #}
+        {{ report_button.label|default:_("Ver Reporte de Inventario") }}
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}

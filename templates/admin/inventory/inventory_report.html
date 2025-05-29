@@ -128,7 +128,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+ 
                         <div>
                             <label for="status">{% trans "Estado:" %}</label>
                             <select name="status" id="status">
@@ -144,13 +144,49 @@
                         
                         <div>
                             <button type="submit" class="button">{% trans "Filtrar" %}</button>
-                            <a href="{% url 'admin:inventory_report' %}" class="button">{% trans "Limpiar" %}</a>
-                        </div>
-                    </div>
+<a href="{% url 'admin:inventory_inventorystatus_view_report' %}" class="button">{% trans "Limpiar" %}</a>                    </div>
                 </form>
             </div>
         </div>
-        
+                               {# templates/admin/inventory/inventory_report.html #}
+{# ... dentro del bloque de filtros o donde quieras el botón ... #}
+<div class="filters-container">
+    <form method="get" id="filter-form"> {# Dale un ID al form si aún no lo tiene #}
+        {# ... tus filtros existentes ... #}
+        <div>
+            <button type="submit" class="button">{% trans "Filtrar" %}</button>
+            <a href="{% url 'admin:inventory_inventorystatus_view_report' %}" class="button">{% trans "Limpiar" %}</a>
+
+            {# --- NUEVO BOTÓN EXPORTAR PDF --- #}
+            <button type="button" id="export-pdf-btn" class="button" style="background-color: #fd7e14; color:white;">
+                <i class="fas fa-file-pdf"></i> {% trans "Exportar a PDF" %}
+            </button>
+            {# --- FIN NUEVO BOTÓN --- #}
+        </div>
+    </form>
+</div>
+{# ... resto de tu plantilla ... #}
+
+{# Añade este script al final de tu bloque de contenido o en un bloque de JS #}
+<script>
+// Script en inventory_report.html
+document.addEventListener('DOMContentLoaded', function() {
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', function() {
+            const form = document.getElementById('filter-form'); // <-- Aquí es donde puede estar el problema
+            if (!form) { // Añadimos una comprobación
+                console.error("Error: No se encontró el elemento de formulario con ID 'filter-form'.");
+                alert("Error al preparar la exportación: formulario de filtros no encontrado.");
+                return; 
+            }
+            const formData = new FormData(form); // Esta línea da error si 'form' es null
+            const params = new URLSearchParams(formData).toString();
+            window.open("{% url 'admin_export_inventory_report_pdf' %}?" + params, '_blank');
+        });
+    }
+});
+</script>
         <!-- Estado Actual de Inventario -->
         <div class="module">
             <h2>{% trans "Estado Actual de Inventario" %}</h2>
@@ -189,9 +225,9 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'admin:inventory_product_history' item.product.id %}" class="button">
-                                {% trans "Ver historial" %}
-                            </a>
+                            <a href="{% url 'admin:inventory_inventorystatus_product_kardex' item.product.id %}" class="button">
+    {% trans "Ver historial" %}
+</a>
                             <a href="{% url 'admin:inventory_inventorymovement_add' %}?product={{ item.product.id }}&movement_type=entrada" class="button">
                                 {% trans "Registrar entrada" %}
                             </a>

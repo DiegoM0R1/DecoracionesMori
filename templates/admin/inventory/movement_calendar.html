@@ -1,0 +1,214 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title|default:_('Calendario de Movimientos de Inventario') }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    .calendar-container { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .calendar-controls { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-group label { font-weight: 600; color: #333; }
+    .filter-group select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .btn-primary { background-color: var(--admin-button-bg, #007bff); color: white; }
+    .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; }
+    .modal-content { background-color: #fefefe; margin: 10% auto; padding: 0; border-radius: 8px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .modal-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { margin: 0; color: #333; font-size: 1.25rem; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 15px 20px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; border-radius: 0 0 8px 8px; text-align: right; }
+    .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+    .detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .detail-label { font-weight: 600; color: #666; padding-right: 10px; }
+    .detail-value { color: #333; text-align: right; }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--admin-link-color, #3498db); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .legend { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; font-size: 0.9em;}
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-color { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales-all.global.min.js'></script>
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ title|default:_('Calendario de Movimientos de Inventario') }}</h1>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="calendar-container">
+        <div class="calendar-controls">
+            <div class="filter-group">
+                <label for="product-filter">Producto:</label>
+                <select id="product-filter">
+                    <option value="all">Todos los Productos</option>
+                    {% for product in products_for_filter %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button id="refresh-inventory-calendar" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><span class="legend-color" style="background-color: #28a745;"></span>Entrada</div>
+            <div class="legend-item"><span class="legend-color" style="background-color: #dc3545;"></span>Salida</div>
+            <div class="legend-item"><span class="legend-color" style="background-color: #ffc107;"></span>Borrador</div>
+        </div>
+
+        <div id="inventory-calendar-spinner" class="spinner" style="display: block;"></div>
+        <div id="inventory-calendar"></div>
+    </div>
+
+    <div id="movementDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Detalles del Movimiento</h3><span class="close" data-modal-id="movementDetailModal">&times;</span></div>
+            <div class="modal-body">
+                <div id="movement-detail-spinner" class="spinner"></div>
+                <div id="movement-details-content">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal-btn" data-modal-id="movementDetailModal">Cerrar</button>
+                <button class="btn btn-primary" id="edit-movement-btn">Editar Movimiento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('inventory-calendar');
+    const calendarSpinner = document.getElementById('inventory-calendar-spinner');
+    let inventoryCalendar;
+    let currentMovementId = null;
+
+    const movementEventsUrl = "{% url 'admin_inventory_movement_events_api' %}"; // ¡URL para la nueva API!
+
+    function getCookie(name) { /* ... (tu función getCookie existente) ... */ 
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    // const csrftoken = getCookie('csrftoken'); // No se usa si solo es GET
+
+    const modals = {
+        movementDetailModal: document.getElementById('movementDetailModal')
+    };
+    function openModal(modalId) { if (modals[modalId]) modals[modalId].style.display = 'block'; }
+    function closeModal(modalId) { if (modals[modalId]) modals[modalId].style.display = 'none'; }
+    document.querySelectorAll('.close, .close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', function() { closeModal(this.dataset.modalId); });
+    });
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) closeModal(event.target.id);
+    });
+
+    function initInventoryCalendar() {
+        if (inventoryCalendar) inventoryCalendar.destroy();
+        calendarSpinner.style.display = 'block';
+        calendarEl.style.display = 'none';
+
+        const productFilter = document.getElementById('product-filter').value;
+
+        inventoryCalendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek' // Añadida vista de lista
+            },
+            height: 'auto',
+            eventSources: [{
+                url: movementEventsUrl,
+                method: 'GET',
+                extraParams: () => ({ // Parámetros para filtrar
+                    product_id: document.getElementById('product-filter').value
+                }),
+                failure: (error) => {
+                    console.error('Error al cargar movimientos:', error);
+                    alert('Error al cargar los movimientos de inventario.');
+                    calendarSpinner.style.display = 'none';
+                },
+                success: () => {
+                    calendarSpinner.style.display = 'none';
+                    calendarEl.style.display = 'block';
+                }
+            }],
+            eventClick: (info) => {
+                showMovementDetails(info.event);
+            },
+            // No se pueden editar movimientos arrastrando, son registros históricos
+            editable: false, 
+            selectable: false, // No tiene sentido seleccionar fechas para crear aquí
+            dayMaxEvents: true,
+            moreLinkClick: 'popover', // 'popover' puede ser mejor para movimientos
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false },
+            loading: (isLoading) => {
+                calendarSpinner.style.display = isLoading ? 'block' : 'none';
+                calendarEl.style.display = isLoading ? 'none' : 'block';
+            }
+        });
+        inventoryCalendar.render();
+    }
+
+    function showMovementDetails(event) {
+        const detailsDiv = document.getElementById('movement-details-content');
+        const spinner = document.getElementById('movement-detail-spinner');
+        detailsDiv.innerHTML = '';
+        spinner.style.display = 'block';
+
+        const props = event.extendedProps;
+        currentMovementId = props.movement_id;
+
+        let detailsHtml = `
+            <div class="detail-item"><span class="detail-label">Producto:</span> <span class="detail-value">${props.product_name}</span></div>
+            <div class="detail-item"><span class="detail-label">Tipo:</span> <span class="detail-value">${props.movement_type} ${props.is_draft ? '(Borrador)' : ''}</span></div>
+            <div class="detail-item"><span class="detail-label">Cantidad:</span> <span class="detail-value">${props.quantity}</span></div>
+            <div class="detail-item"><span class="detail-label">Fecha:</span> <span class="detail-value">${props.created_at_display}</span></div>
+            <div class="detail-item"><span class="detail-label">Referencia:</span> <span class="detail-value">${props.document_reference || 'N/A'}</span></div>
+            <div class="detail-item"><span class="detail-label">Notas:</span> <span class="detail-value" style="white-space: pre-wrap;">${props.notes || 'Ninguna'}</span></div>
+        `;
+        detailsDiv.innerHTML = detailsHtml;
+        spinner.style.display = 'none';
+        openModal('movementDetailModal');
+    }
+
+    document.getElementById('edit-movement-btn').addEventListener('click', () => {
+        if (currentMovementId) {
+            // Redirige a la página de edición del admin de Django para ese movimiento
+            window.open(`/admin/inventory/inventorymovement/${currentMovementId}/change/`, '_blank');
+        } else {
+            alert("No se ha seleccionado ningún movimiento para editar.");
+        }
+        closeModal('movementDetailModal');
+    });
+
+    document.getElementById('product-filter').addEventListener('change', () => inventoryCalendar.refetchEvents());
+    document.getElementById('refresh-inventory-calendar').addEventListener('click', () => {
+        inventoryCalendar.refetchEvents();
+    });
+
+    initInventoryCalendar();
+});
+</script>
+{% endblock %}  

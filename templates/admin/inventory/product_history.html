@@ -82,7 +82,7 @@
 <div class="breadcrumbs">
   <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
   &rsaquo; <a href="{% url 'admin:app_list' app_label='inventory' %}">{% trans 'Inventario' %}</a>
-  &rsaquo; <a href="{% url 'admin:inventory_report' %}">{% trans 'Reporte de Inventario' %}</a>
+&rsaquo; <a href="{% url 'admin:inventory_inventorystatus_view_report' %}">{% trans 'Reporte de Inventario' %}</a>
   &rsaquo; {% trans 'Historial de Producto' %}
 </div>
 {% endblock %}
@@ -125,9 +125,9 @@
         <a href="{% url 'admin:services_product_change' product.id %}" class="button">
             {% trans "Editar producto" %}
         </a>
-        <a href="{% url 'admin:inventory_report' %}" class="button">
-            {% trans "Volver al reporte" %}
-        </a>
+        <a href="{% url 'admin:inventory_inventorystatus_view_report' %}" class="button">
+    {% trans "Volver al reporte" %}
+</a>
     </div>
 
     <!-- Historial de movimientos -->

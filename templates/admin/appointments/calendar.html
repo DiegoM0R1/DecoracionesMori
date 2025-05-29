@@ -1,0 +1,688 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title|default:_('Calendario') }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.min.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+.calendar-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #333;
+}
+
+.filter-group select {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stat-card.today { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-card.week { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.stat-card.month { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050; /* Mayor que el z-index del admin de Django si es necesario */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 { margin: 0; color: #333; font-size: 1.25rem; }
+.modal-body { padding: 20px; }
+.modal-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 8px 8px;
+    text-align: right;
+}
+
+.close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+.close:hover, .close:focus { color: #000; }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+.form-group input[type="text"],
+.form-group input[type="time"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc; /* Borde estándar del admin */
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #fff; /* Fondo estándar del admin */
+}
+.form-group input[type="checkbox"] { width: auto; margin-right: 8px; }
+.form-group input:read-only, .form-group input:disabled { background-color: #f0f0f0; }
+
+
+.btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+.btn-primary { background-color: var(--admin-button-bg, #007bff); color: white; }
+.btn-primary:hover { background-color: var(--admin-button-hover-bg, #0056b3); }
+.btn-secondary { background-color: #6c757d; color: white; margin-right: 10px; }
+.btn-secondary:hover { background-color: #545b62; }
+.btn-danger { background-color: #dc3545; color: white; }
+.btn-danger:hover { background-color: #c82333; }
+
+.appointment-details { display: grid; gap: 10px; }
+.detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+.detail-item:last-child { border-bottom: none; }
+.detail-label { font-weight: 600; color: #666; padding-right: 10px; }
+.detail-value { color: #333; text-align: right; }
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--admin-link-color, #3498db);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Asegurar que el contenido del admin no se solape */
+#content { padding-bottom: 50px; } /* Añadir padding si el calendario es muy alto */
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/locales/es.min.js'></script> {# Este podría necesitar también una versión global o ser cargado después del principal #}
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ title|default:_('Calendario') }}</h1>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="calendar-wrapper">
+        <div class="stats-grid">
+            <div class="stat-card today"><div class="stat-number" id="today-total">-</div><div class="stat-label">Citas Hoy</div></div>
+            <div class="stat-card week"><div class="stat-number" id="week-total">-</div><div class="stat-label">Citas Semana</div></div>
+            <div class="stat-card month"><div class="stat-number" id="month-total">-</div><div class="stat-label">Citas Mes</div></div>
+        </div>
+
+        <div class="calendar-container">
+            <div class="calendar-controls">
+                <div class="filter-group">
+                    <label for="service-filter">Servicio:</label>
+                    <select id="service-filter">
+                        <option value="all">Todos</option>
+                        {% for service in services %}<option value="{{ service.id }}">{{ service.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="staff-filter">Personal:</label>
+                    <select id="staff-filter">
+                        <option value="all">Todos</option>
+                        {% for staff in staff_members %}<option value="{{ staff.id }}">{{ staff.get_full_name|default:staff.username }}</option>{% endfor %}
+                    </select>
+                </div>
+                <button id="refresh-calendar" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Actualizar</button>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background-color: #ffc107;"></div><span>Pendiente</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #28a745;"></div><span>Confirmada</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #6c757d;"></div><span>Completada</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #dc3545;"></div><span>Cancelada</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #e8f5e8; border: 1px solid #4caf50;"></div><span>Día laborable</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #ffebee; border: 1px solid #f44336;"></div><span>No laborable</span></div>
+                <div class="legend-item"><div class="legend-color" style="background-color: #fff3e0; border: 1px solid #ff9800;"></div><span>Plantilla</span></div>
+            </div>
+
+            <div id="calendar-spinner" class="spinner" style="display: block;"></div>
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Detalles de la Cita</h3><span class="close" data-modal-id="appointmentModal">&times;</span></div>
+            <div class="modal-body">
+                <div id="appointment-spinner" class="spinner"></div>
+                <div class="appointment-details" id="appointment-details"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal-btn" data-modal-id="appointmentModal">Cerrar</button>
+                <button class="btn btn-primary" id="edit-appointment-btn">Editar Cita (Admin)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="schedule-modal-title">Configurar Horario</h3><span class="close" data-modal-id="scheduleModal">&times;</span></div>
+            <div class="modal-body">
+                <div id="schedule-spinner" class="spinner"></div>
+                <form id="schedule-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="schedule-form-date-original">
+                    <div class="form-group">
+                        <label for="schedule-date-display">Fecha:</label>
+                        <input type="text" id="schedule-date-display" readonly disabled style="background: #eee;">
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="is-working"> Es día laborable</label>
+                    </div>
+                    <div class="form-group schedule-times">
+                        <label for="start-time">Hora de inicio:</label><input type="time" id="start-time">
+                    </div>
+                    <div class="form-group schedule-times">
+                        <label for="end-time">Hora de fin:</label><input type="time" id="end-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="schedule-notes">Notas:</label><textarea id="schedule-notes" rows="3"></textarea>
+                    </div>
+                    <small id="schedule-source-info" style="display: block; margin-bottom: 10px; color: #555;"></small>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-modal-btn" data-modal-id="scheduleModal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="save-schedule">Guardar</button>
+                <button type="button" class="btn btn-danger" id="reset-schedule-to-template" style="display:none;">Rest. Plantilla</button>
+            </div>
+        </div>
+    </div>
+</div>{# Cierre de content-main #}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendarSpinner = document.getElementById('calendar-spinner');
+    let calendar;
+    let currentAppointmentId = null; // Para saber qué cita editar/ver
+
+    // --- URLs de las APIs ---
+    // Asegúrate que estos nombres coincidan con los 'name' en tu urls.py
+    
+    const eventsUrl = "{% url 'admin_calendar_events_api' %}";
+    const updateAppointmentUrl = "{% url 'admin_update_appointment_api' %}";
+    const statsUrl = "{% url 'admin_appointment_stats_api' %}";
+    const workdayScheduleUrl = "{% url 'admin_workday_schedule_api' %}";
+
+    // --- Helper para CSRF token ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // --- Manejo de Modales ---
+    const modals = {
+        appointmentModal: document.getElementById('appointmentModal'),
+        scheduleModal: document.getElementById('scheduleModal')
+    };
+
+    function openModal(modalId) {
+        if (modals[modalId]) {
+            modals[modalId].style.display = 'block';
+        }
+    }
+
+    function closeModal(modalId) {
+        if (modals[modalId]) {
+            modals[modalId].style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.close, .close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            closeModal(this.dataset.modalId);
+        });
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target.id);
+        }
+    });
+    
+    // --- Cargar Estadísticas ---
+    function loadStats() {
+        fetch(statsUrl)
+            .then(response => {
+                if (!response.ok) throw new Error(`Error HTTP ${response.status} en statsUrl`);
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('today-total').textContent = data.today?.total || 0;
+                document.getElementById('week-total').textContent = data.week?.total || 0;
+                document.getElementById('month-total').textContent = data.month?.total || 0;
+            })
+            .catch(error => console.error('Error cargando estadísticas:', error));
+    }
+
+    // --- Inicialización de FullCalendar ---
+    function initCalendar() {
+        if (calendar) {
+            calendar.destroy();
+        }
+        calendarSpinner.style.display = 'block';
+        calendarEl.style.display = 'none';
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es', // Para idioma español
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay' // Vistas disponibles
+            },
+            height: 'auto', // Ajusta la altura automáticamente
+            eventSources: [{
+                url: eventsUrl,
+                method: 'GET',
+                extraParams: () => ({ // Parámetros para filtrar (opcional)
+                    service: document.getElementById('service-filter').value,
+                    staff: document.getElementById('staff-filter').value
+                }),
+                failure: (error) => {
+                    console.error('Error al cargar eventos del calendario:', error);
+                    alert('Hubo un error al cargar los eventos del calendario. Revise la consola para más detalles.');
+                    calendarSpinner.style.display = 'none';
+                },
+                success: () => { // Se llama cuando los eventos se cargan exitosamente
+                    calendarSpinner.style.display = 'none';
+                    calendarEl.style.display = 'block';
+                }
+            }],
+            eventClick: (info) => { // Al hacer clic en un evento
+                if (info.event.extendedProps && info.event.extendedProps.type === 'appointment') {
+                    showAppointmentDetails(info.event);
+                } else if (info.event.display === 'background') {
+                    // Para eventos de fondo (días laborables/plantillas), abrir modal de horario
+                    showScheduleModal(info.event.startStr.substring(0,10)); // Formato YYYY-MM-DD
+                }
+            },
+            dateClick: (info) => { // Al hacer clic en una fecha vacía
+                 // Evitar abrir el modal de horario si se hace clic sobre un evento de fondo existente
+                if (!info.dayEl.classList.contains('fc-event')) {
+                     showScheduleModal(info.dateStr); // Formato YYYY-MM-DD
+                }
+            },
+            eventDrop: (info) => { // Al arrastrar y soltar un evento (cita)
+                if (info.event.extendedProps.type === 'appointment') {
+                    updateAppointmentDateTime(info.event);
+                } else {
+                    info.revert(); // Revertir si no es una cita
+                    alert("Solo las citas pueden ser arrastradas y soltadas.");
+                }
+            },
+            eventResize: (info) => { // Al cambiar la duración de un evento (cita)
+                 if (info.event.extendedProps.type === 'appointment') {
+                    updateAppointmentDateTime(info.event); // Asume que tu API puede manejar cambios de 'end' también o recalcula duración
+                } else {
+                    info.revert();
+                    alert("Solo la duración de las citas puede ser modificada.");
+                }
+            },
+            loading: (isLoading) => { // Muestra u oculta el spinner
+                calendarSpinner.style.display = isLoading ? 'block' : 'none';
+                calendarEl.style.display = isLoading ? 'none' : 'block';
+            },
+            editable: true, // Permite arrastrar y cambiar tamaño de eventos
+            selectable: true, // Permite hacer clic en fechas
+            dayMaxEvents: true, // Muestra "+n más" si hay muchos eventos en un día
+            moreLinkClick: 'day', // Al hacer clic en "+n más", va a la vista de día
+            eventTimeFormat: { // Formato de hora en eventos
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: false, // Formato 24h
+                hour12: false
+            },
+            slotLabelFormat: { // Formato de hora en las ranuras de las vistas semanales/diarias
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: false,
+                hour12: false
+            }
+        });
+        calendar.render();
+    }
+
+    // --- Modal de Detalles de Cita ---
+    function showAppointmentDetails(event) {
+        const detailsDiv = document.getElementById('appointment-details');
+        const spinner = document.getElementById('appointment-spinner');
+        detailsDiv.innerHTML = ''; // Limpiar detalles previos
+        spinner.style.display = 'block';
+
+        const props = event.extendedProps;
+        currentAppointmentId = props.appointmentId; // Guardar ID para el botón de editar
+
+        let detailsHtml = `
+            <div class="detail-item"><span class="detail-label">Cliente:</span> <span class="detail-value">${props.clientName || 'N/A'}</span></div>
+            <div class="detail-item"><span class="detail-label">Servicio:</span> <span class="detail-value">${props.serviceName || 'N/A'}</span></div>
+            <div class="detail-item"><span class="detail-label">Personal:</span> <span class="detail-value">${props.staffName || 'Sin asignar'}</span></div>
+            <div class="detail-item"><span class="detail-label">Fecha:</span> <span class="detail-value">${new Date(event.start).toLocaleDateString('es-ES')}</span></div>
+            <div class="detail-item"><span class="detail-label">Hora:</span> <span class="detail-value">${new Date(event.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</span></div>
+            <div class="detail-item"><span class="detail-label">Estado:</span> <span class="detail-value">${props.statusDisplay || props.status}</span></div>
+            <div class="detail-item"><span class="detail-label">Teléfono:</span> <span class="detail-value">${props.phone || 'N/A'}</span></div>
+            <div class="detail-item"><span class="detail-label">Notas:</span> <span class="detail-value">${props.notes || 'Ninguna'}</span></div>
+        `;
+        detailsDiv.innerHTML = detailsHtml;
+        spinner.style.display = 'none';
+        openModal('appointmentModal');
+    }
+
+    document.getElementById('edit-appointment-btn').addEventListener('click', function() {
+        if (currentAppointmentId) {
+            // Redirige a la página de edición del admin de Django para esa cita
+            window.open(`/admin/appointments/appointment/${currentAppointmentId}/change/`, '_blank');
+        } else {
+            alert("No se ha seleccionado ninguna cita para editar.");
+        }
+        closeModal('appointmentModal');
+    });
+
+    // --- Actualizar Cita (Arrastrar, Cambiar Tamaño) ---
+    function updateAppointmentDateTime(event) {
+        const appointmentId = event.id.replace('appointment-', '');
+        const newStart = event.start.toISOString();
+        // Tu API `update_appointment_api` debe estar preparada para recibir 'start'
+        // y opcionalmente 'end' si la duración cambia. Por ahora, solo enviamos 'start'.
+        const data = {
+            id: appointmentId,
+            start: newStart,
+            // end: event.end ? event.end.toISOString() : null, // Descomenta si tu API maneja 'end'
+        };
+
+        fetch(updateAppointmentUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                calendar.refetchEvents(); // Refrescar calendario para ver cambios
+                loadStats(); // Actualizar estadísticas
+            } else {
+                alert('Error al actualizar la cita: ' + (result.error || 'Error desconocido'));
+                event.revert(); // Revertir el cambio en el calendario si falla la API
+            }
+        })
+        .catch(error => {
+            console.error('Error en la petición de actualización:', error);
+            alert('Error de red al actualizar la cita.');
+            event.revert();
+        });
+    }
+
+    // --- Modal de Horario del Día (ScheduledWorkDay) ---
+    const scheduleForm = document.getElementById('schedule-form');
+    const scheduleDateDisplay = document.getElementById('schedule-date-display');
+    const scheduleDateOriginalInput = document.getElementById('schedule-form-date-original');
+    const isWorkingCheckbox = document.getElementById('is-working');
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const scheduleNotesInput = document.getElementById('schedule-notes');
+    const scheduleSpinnerModal = document.getElementById('schedule-spinner');
+    const scheduleSourceInfo = document.getElementById('schedule-source-info');
+    const scheduleTimesDivs = document.querySelectorAll('.schedule-times');
+    const resetToTemplateButton = document.getElementById('reset-schedule-to-template');
+
+    isWorkingCheckbox.addEventListener('change', function() {
+        scheduleTimesDivs.forEach(div => {
+            div.style.display = this.checked ? 'block' : 'none';
+        });
+        if (!this.checked) { // Si no es día laborable, limpiar horas
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+        }
+    });
+
+    function showScheduleModal(dateStr) {
+        scheduleForm.reset();
+        scheduleSpinnerModal.style.display = 'block';
+        scheduleForm.style.display = 'none'; // Ocultar form mientras carga
+        scheduleSourceInfo.textContent = '';
+        resetToTemplateButton.style.display = 'none';
+
+        const dateObj = new Date(dateStr + 'T00:00:00'); // Asegurar que se parsea como fecha local
+        scheduleDateDisplay.value = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        scheduleDateOriginalInput.value = dateStr; // Guardar YYYY-MM-DD
+
+        document.getElementById('schedule-modal-title').textContent = `Configurar Horario para ${dateObj.toLocaleDateString('es-ES')}`;
+
+        fetch(`${workdayScheduleUrl}?date=${dateStr}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    scheduleSpinnerModal.style.display = 'none';
+                    return;
+                }
+                isWorkingCheckbox.checked = data.is_working;
+                startTimeInput.value = data.start_time || '';
+                endTimeInput.value = data.end_time || '';
+                scheduleNotesInput.value = data.notes || '';
+
+                if (data.from_template) {
+                    scheduleSourceInfo.textContent = 'Info: Configuración actual basada en la plantilla semanal. Cualquier cambio guardado creará una regla específica para este día.';
+                } else if (data.not_configured) {
+                    scheduleSourceInfo.textContent = 'Info: Este día no tiene configuración específica ni plantilla. Por defecto se considera laborable.';
+                     isWorkingCheckbox.checked = true; // Default a laborable si no está configurado
+                } else { // Configuración específica para este día
+                    scheduleSourceInfo.textContent = 'Info: Este día tiene una configuración de horario específica.';
+                    resetToTemplateButton.style.display = 'block'; // Mostrar botón para restaurar
+                }
+                
+                isWorkingCheckbox.dispatchEvent(new Event('change')); // Actualizar visibilidad de campos de hora
+
+                scheduleSpinnerModal.style.display = 'none';
+                scheduleForm.style.display = 'block'; // Mostrar form
+                openModal('scheduleModal');
+            })
+            .catch(error => {
+                console.error('Error al obtener horario del día:', error);
+                alert('Error al cargar la configuración del día.');
+                scheduleSpinnerModal.style.display = 'none';
+            });
+    }
+    
+    resetToTemplateButton.addEventListener('click', function() {
+        // Esta funcionalidad requiere que tu API workday_schedule_api maneje una petición DELETE
+        // o una forma de "resetear" el ScheduledWorkDay para que se use la plantilla.
+        // Por ahora, solo es un placeholder.
+        if (!confirm('¿Está seguro de que desea eliminar la configuración específica de este día y volver a la plantilla semanal (si existe)? Esta acción no se puede implementar completamente sin una API de eliminación.')) {
+            return;
+        }
+        alert("Funcionalidad de 'Restaurar Plantilla' requiere una API de eliminación específica o que el guardado actualice de acuerdo a la plantilla si los campos se vacían. Por ahora, puede desmarcar 'Es día laborable' o ajustar manualmente.");
+        // Ejemplo de cómo sería la llamada si tuvieras un método DELETE en la API:
+        // const date = scheduleDateOriginalInput.value;
+        // fetch(`${workdayScheduleUrl}?date=${date}`, { method: 'DELETE', headers: {'X-CSRFToken': csrftoken } })
+        // .then(response => response.json())
+        // .then(data => {
+        //     if(data.success) {
+        //         alert(data.message || "Horario restaurado a plantilla.");
+        //         closeModal('scheduleModal');
+        //         calendar.refetchEvents();
+        //     } else {
+        //         alert("Error al restaurar: " + (data.error || "Desconocido"));
+        //     }
+        // })
+        // .catch(err => { console.error(err); alert("Error de red al restaurar.")})
+    });
+
+
+    document.getElementById('save-schedule').addEventListener('click', function() {
+        const date = scheduleDateOriginalInput.value;
+        const payload = {
+            date: date,
+            is_working: isWorkingCheckbox.checked,
+            start_time: startTimeInput.value || null, // Enviar null si está vacío
+            end_time: endTimeInput.value || null,   // Enviar null si está vacío
+            notes: scheduleNotesInput.value
+        };
+
+        if (payload.is_working && (!payload.start_time || !payload.end_time)) {
+            alert("Si es un día laborable, debe especificar hora de inicio y fin.");
+            return;
+        }
+        if (payload.is_working && payload.start_time && payload.end_time && payload.start_time >= payload.end_time) {
+            alert("La hora de inicio debe ser anterior a la hora de fin.");
+            return;
+        }
+
+        fetch(workdayScheduleUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                closeModal('scheduleModal');
+                calendar.refetchEvents();
+                loadStats();
+            } else {
+                alert('Error al guardar horario: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error en la petición de guardar horario:', error);
+            alert('Error de red al guardar el horario.');
+        });
+    });
+
+    // --- Filtros y Botón de Actualizar ---
+    document.getElementById('service-filter').addEventListener('change', () => calendar.refetchEvents());
+    document.getElementById('staff-filter').addEventListener('change', () => calendar.refetchEvents());
+    document.getElementById('refresh-calendar').addEventListener('click', () => {
+        calendar.refetchEvents();
+        loadStats(); // También actualiza estadísticas
+    });
+
+    // --- Carga Inicial ---
+    initCalendar();
+    loadStats();
+});
+</script>
+
+{% endblock %}

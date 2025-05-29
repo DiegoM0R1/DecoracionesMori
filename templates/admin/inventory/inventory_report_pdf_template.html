@@ -1,0 +1,68 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10pt; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .low-stock { color: orange; }
+        .out-of-stock { color: red; font-weight: bold; }
+        .text-right { text-align: right; }
+        .footer { text-align: center; font-size: 8pt; color: #777; position: fixed; bottom: 0; width:100%; }
+        @page { size: A4 landscape; margin: 1cm; }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <p>Fecha del reporte: {{ report_date|date:"d/m/Y H:i" }}</p>
+    {% if selected_category_name or selected_status %}
+        <p>
+            <strong>Filtros aplicados:</strong>
+            {% if selected_category_name %}Categoría: {{ selected_category_name }}. {% endif %}
+            {% if selected_status == "low" %}Estado: Bajo mínimo. {% endif %}
+            {% if selected_status == "out" %}Estado: Sin stock. {% endif %}
+        </p>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans "Producto" %}</th>
+                <th>{% trans "Categoría" %}</th>
+                <th class="text-right">{% trans "Stock Actual" %}</th>
+                <th class="text-right">{% trans "Stock Mínimo" %}</th>
+                <th>{% trans "Estado" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.product.category.name|default:"-" }}</td>
+                <td class="text-right">{{ item.current_stock|floatformat:2 }} {{ item.product.unit }}</td>
+                <td class="text-right">{{ item.product.stock_min|floatformat:2 }} {{ item.product.unit }}</td>
+                <td>
+                    {% if item.current_stock <= 0 %}
+                    <span class="out-of-stock">{% trans "Sin stock" %}</span>
+                    {% elif item.current_stock < item.product.stock_min %}
+                    <span class="low-stock">{% trans "Bajo mínimo" %}</span>
+                    {% else %}
+                    <span>{% trans "Normal" %}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">{% trans "No hay productos que coincidan con los filtros." %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="footer">Reporte generado por Decoraciones Mori - Página <pdf:pagenumber /> de <pdf:pagecount /></div>
+</body>
+</html>

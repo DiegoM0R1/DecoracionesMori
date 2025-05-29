@@ -91,15 +91,16 @@
                                 <p>{% trans "El servicio ha sido realizado exitosamente." %}</p>
                             </div>
                         </div>
-                         {% if appointment.status == 'cancelled' %}
-                         <div class="timeline-item active"> {# Marcar como activo si está cancelado #}
-                            <div class="timeline-marker bg-danger border-danger"></div> {# Estilo diferente para cancelado #}
-                            <div class="timeline-content">
-                                <h4 class="text-danger">{% trans "Cita Cancelada" %}</h4>
-                                <p>{% trans "La cita ha sido cancelada." %}</p>
-                            </div>
-                        </div>
-                        {% endif %}
+                            {% if appointment.status == 'cancelled' %}
+       <div class="timeline-item active">
+           <div class="timeline-marker bg-danger border-danger"></div>
+           <div class="timeline-content">
+               <h4 class="text-danger">{% trans "Cita Cancelada" %}</h4>
+               <p>{% trans "La cita ha sido cancelada." %}</p>
+           </div>
+       </div>
+   {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -119,11 +120,6 @@
         <div class="card-footer text-muted">
              {# Asegúrate que la URL 'appointments:appointment_list' exista en tus urls.py #}
             <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary">{% trans "Volver a Mis Citas" %}</a>
-
-             {# Asegúrate que la URL 'cancel_appointment' exista y funcione #}
-            {% if appointment.status == 'pending' or appointment.status == 'confirmed' %} {# Permitir cancelar si está pendiente o confirmada? Ajusta según tu lógica #}
-            <button class="btn btn-danger float-right" data-toggle="modal" data-target="#cancelModal">{% trans "Cancelar Cita" %}</button>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -143,10 +139,11 @@
                 <p class="text-danger"><strong>{% trans "Esta acción no se puede deshacer." %}</strong></p>
             </div>
             <div class="modal-footer">
-                 <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}" style="display: inline;">
-                     {% csrf_token %}
-                     <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar Cita" %}</button>
-                 </form>
+                    <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}" style="display: inline;">
+       {% csrf_token %}
+       <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar Cita" %}</button>
+   </form>
+
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No, Mantener Cita" %}</button>
             </div>
         </div>
