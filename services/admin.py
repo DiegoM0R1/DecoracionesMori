@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from .models import ServiceCategory, Service, ServiceImage, ServiceVideo, Product, ServiceComponent, ProductCategory, ProductImage
 from .forms import ServiceImageForm, ServiceVideoForm, ServiceForm, ServiceCategoryForm, ProductForm
-
+from django.utils.html import format_html
 # Clase base para inlines de imágenes y videos de servicios
 
 
@@ -13,14 +13,34 @@ class ServiceComponentInline(admin.TabularInline):
 @admin.register(ServiceImage)
 class ServiceImageAdmin(admin.ModelAdmin):
     # Quita 'alt_text' de aquí:
-    list_display = ('service', 'is_featured', 'image')
+    list_display = ('service', 'is_featured', 'image_preview')
     list_filter = ('service', 'is_featured')
     # Adapta search_fields si usaba alt_text
     search_fields = ('service__name',)
     list_per_page = 25
+    readonly_fields = ('image_preview',)
 
     # Quita 'alt_text' de aquí también si lo tienes:
-    fields = ('service', 'image', 'image_url', 'is_featured')
+    fields = ('service', 'image', 'image_url', 'image_preview', 'is_featured')
+
+    def image_preview(self, obj):
+        url = ''
+        if obj.image and hasattr(obj.image, 'url'):
+            url = obj.image.url
+        elif obj.image_url:
+            url = obj.image_url
+        
+        # Siempre retornamos una etiqueta <img> con la clase para que JS la encuentre
+        return format_html(
+            '<img src="{}" width="150" height="150" style="object-fit: cover;" class="image-preview-widget" />',
+            url if url else ''
+        )
+    image_preview.short_description = _('Vista Previa')
+
+    class Media:
+        js = ('services/js/image_preview.js',)
+
+
 
     # ... (resto de la clase, incluyendo formfield_for_dbfield si es necesario, quitando la parte de alt_text)
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -42,8 +62,30 @@ class ServiceImageInline(admin.TabularInline):
     extra = 1
     verbose_name = _("Imagen del servicio")
     verbose_name_plural = _("Imágenes del servicio")
-    fields = ('service', 'image', 'image_url', 'is_featured')
+    fields = ('image', 'image_url', 'image_preview', 'is_featured')
+    readonly_fields = ('image_preview',)
+
     
+    # <--- AÑADIR el mismo método de vista previa aquí
+    def image_preview(self, obj):
+        # Primero, obtenemos la URL de la imagen si ya existe
+        url = ''
+        if obj.image and hasattr(obj.image, 'url'):
+            url = obj.image.url
+        elif obj.image_url:
+            url = obj.image_url
+        
+        # Creamos la etiqueta img. Si no hay URL, el src estará vacío,
+        # pero le añadimos una clase para que nuestro JS la encuentre.
+        return format_html(
+            '<img src="{}" width="150" height="150" style="object-fit: cover;" class="image-preview-widget" />',
+            url if url else ''
+        )
+    image_preview.short_description = _('Vista Previa')
+
+    class Media:
+        js = ('services/js/image_preview.js',)
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         field = super().formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'image':
@@ -154,8 +196,25 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
     verbose_name = _("Imagen del producto")
     verbose_name_plural = _("Imágenes del producto")
-    fields = ('product', 'image', 'image_url', 'is_featured')
+    fields = ('image', 'image_url', 'image_preview', 'is_featured')
+    readonly_fields = ('image_preview',)
     
+    def image_preview(self, obj):
+        url = ''
+        if obj.image and hasattr(obj.image, 'url'):
+            url = obj.image.url
+        elif obj.image_url:
+            url = obj.image_url
+        
+        return format_html(
+            '<img src="{}" width="150" height="150" style="object-fit: cover;" class="image-preview-widget" />',
+            url if url else ''
+        )
+    image_preview.short_description = _('Vista Previa')
+
+    class Media:
+        js = ('services/js/image_preview.js',)
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         field = super().formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'image':
@@ -168,11 +227,31 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ('product', 'is_featured', 'image')
+    list_display = ('product', 'is_featured', 'image_preview')
     list_filter = ('product', 'is_featured')
     search_fields = ('product__name',)
     list_per_page = 25
-    fields = ('product', 'image', 'image_url', 'is_featured')
+    fields = ('product', 'image', 'image_url', 'image_preview', 'is_featured')
+    readonly_fields = ('image_preview',)
+
+
+    def image_preview(self, obj):
+        url = ''
+        if obj.image and hasattr(obj.image, 'url'):
+            url = obj.image.url
+        elif obj.image_url:
+            url = obj.image_url
+        
+        return format_html(
+            '<img src="{}" width="150" height="150" style="object-fit: cover;" class="image-preview-widget" />',
+            url if url else ''
+        )
+    image_preview.short_description = _('Vista Previa')
+
+    class Media:
+        js = ('services/js/image_preview.js',)
+
+
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         field = super().formfield_for_dbfield(db_field, **kwargs)

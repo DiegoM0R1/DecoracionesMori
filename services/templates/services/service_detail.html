@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load socialaccount %}
-{% comment %}{% load service_tags %}{% endcomment %}
 
 {% block title %}{{ service.name }} - DecoracionesMori{% endblock %}
 
@@ -8,534 +7,428 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    /* Estilos existentes (mantener) */
+    /* === Paleta de Colores y Variables === */
+    :root {
+        --primary-color: #007bff;
+        --primary-hover: #0056b3;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --light-bg: #f8f9fa;
+        --dark-text: #343a40;
+        --body-text: #495057;
+        --border-color: #dee2e6;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+        color: var(--body-text);
+    }
+
+    /* === Estilos Generales de Botones === */
+    .btn {
+        transition: all 0.3s ease;
+        border-radius: 0.3rem;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+    .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+    .btn-primary:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-success { background-color: var(--success-color); border-color: var(--success-color); }
+    .btn-google { background-color: #4285F4; color: white; }
+    .btn-google:hover { background-color: #357ae8; }
+
+    /* === Encabezado del Servicio (Hero Section) === */
     .service-header {
-        background-color: #f8f9fa; /* Gris claro */
-        padding: 2rem 0;
+        background-color: var(--light-bg);
+        padding: 3rem 0;
     }
-
-    .service-meta p {
-        margin-bottom: 0.5rem;
-        color: #6c757d; /* Gris medio */
-    }
-
-    .btn-primary {
-        background-color: #007bff; /* Azul primario */
-        border-color: #007bff;
-        transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
-        transform: scale(1.05);
-    }
-
-    .img-fluid {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .rounded {
-        border-radius: 0.5rem;
-    }
-
-    .modal-title {
-        color: #343a40; /* Negro suave */
-    }
-
-    .modal-body p {
-        color: #6c757d;
-    }
-
-    .btn-link {
-        color: #007bff;
-        text-decoration: none;
-        transition: color 0.3s ease-in-out;
-    }
-
-    .btn-link:hover {
-        color: #0056b3;
-        text-decoration: underline;
-    }
-
-    .btn-google {
-        background-color: #4285F4;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.25rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        text-decoration: none;
-        transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
-    }
-
-    .btn-google:hover {
-        background-color: #357ae8;
-        transform: scale(1.02);
-    }
-
-    /* Nuevos estilos y animaciones */
     .service-header h1 {
-        font-weight: bold;
-        color: #343a40;
+        font-weight: 700;
+        color: var(--dark-text);
         animation: fadeInDown 1s ease-out;
     }
-
     .service-header .lead {
-        color: #495057;
         animation: fadeInUp 1s ease-out 0.2s;
     }
-
-    .service-meta p {
-        animation: fadeInLeft 0.8s ease-out 0.4s;
+    .service-header .featured-image {
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        animation: fadeInRight 1s ease-out 0.4s;
+    }
+    .service-header .btn-group {
+        animation: fadeInUp 1s ease-out 0.6s;
     }
 
-    .service-header .btn-lg {
-        animation: zoomIn 0.6s ease-out 0.6s;
-    }
-
-    .col-md-6:last-child { /* Imagen */
-        animation: fadeInRight 1s ease-out 0.8s;
-    }
-
-    .modal-content {
-        animation: zoomIn 0.4s ease-out;
-    }
-
-    /* Keyframes para las animaciones */
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes fadeInRight {
-        from {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes zoomIn {
-        from {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    
-    /* Nuevos estilos para galería de imágenes */
-    .service-gallery {
-        margin-top: 3rem;
-    }
-    
-    .gallery-thumbnail {
+    /* === Contenido Principal y Barra Lateral === */
+    .section-title {
+        font-weight: 600;
+        color: var(--dark-text);
         margin-bottom: 1.5rem;
-        transition: transform 0.3s ease;
-        cursor: pointer;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        display: inline-block;
     }
-    
-    .gallery-thumbnail:hover {
-        transform: scale(1.05);
+    .sidebar .card {
+        box-shadow: var(--shadow);
+        border: none;
     }
-    
+    .sidebar .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+    .sidebar .list-group-item { border-left: none; border-right: none; }
+    .sidebar .list-group-item:first-child { border-top: none; }
+    .sidebar .list-group-item:last-child { border-bottom: none; }
+
+    /* === Galería y Videos === */
     .gallery-thumbnail img {
         width: 100%;
         height: 200px;
         object-fit: cover;
         border-radius: 0.5rem;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+    .gallery-thumbnail:hover img {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .video-card {
+        box-shadow: var(--shadow);
+        border: none;
+    }
+
+    /* === Carrusel de Productos === */
+    .products-carousel {
+        background-color: #fff;
+        padding: 3rem 0;
+    }
+    .product-card {
+        border: 1px solid var(--border-color);
+        transition: box-shadow 0.3s ease;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .product-card:hover {
+        box-shadow: var(--shadow);
+    }
+    .product-card .card-img-container {
+        height: 250px;
+        overflow: hidden;
+    }
+    .product-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: var(--dark-text);
+        border-radius: 50%;
+        padding: 1.2rem;
+    }
+    .carousel-indicators [data-bs-target] {
+        background-color: var(--primary-color);
+    }
+
+ /* === ESTILOS PARA DESCRIPCIONES EXPANDIBLES (Servicios y Productos) === */
+
+/* Contenedor padre */
+.service-full-description,
+.product-details {
+    position: relative;
+    z-index: 1;
+}
+
+/* Contenedor de descripción */
+.description-container {
+    position: relative;
+    transition: max-height 0.5s ease-in-out;
+    overflow: hidden;
+    line-height: 1.6;
+}
+.product-description {
+    position: relative;
+    transition: max-height 0.5s ease-in-out;
+    overflow: hidden;
+}
+
+/* Estado colapsado */
+.description-container.collapsed {
+    max-height: 100px;
+}.product-description.collapsed {
+        max-height: 3em; /* Altura para aproximadamente 2 líneas de texto */
+
+}
+
+/* Gradiente cuando está colapsado */
+.description-container.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+    pointer-events: none;
+}
+.product-description.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2em;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+    pointer-events: none;
+}
+
+/* Botón de toggle */
+.toggle-description-btn {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: block !important;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    width: fit-content;
+}
+
+.toggle-description-btn:hover {
+    color: var(--primary-hover);
+    background-color: rgba(0, 123, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.toggle-description-btn i {
+    transition: transform 0.3s ease;
+}
+
+.toggle-description-btn:hover i {
+    transform: translateX(3px);
+}
+
+/* Variante para productos en cards */
+.product-card .toggle-description-btn {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    margin-top: 0.5rem;
+    width: auto;
+    display: inline-block !important;
+}
+
+/* Para productos en el carrusel */
+.product-card .card-text.product-description.collapsed {
+    max-height: 60px; /* Más bajo para cards */
+}
+    /* === Animaciones === */
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="service-header py-5 bg-light">
+
+<section class="service-header">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="display-4 lead">{{ service.name }}</h1>
-                <p class="lead">{{ service.short_description }}</p>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <p class="text-primary fw-bold mb-2">{{ service.category.name }}</p>
+                <h1 class="display-4">{{ service.name }}</h1>
+                <p class="lead text-muted my-4">{{ service.short_description|default:"Una descripción detallada sobre este increíble servicio." }}</p>
+                
+                {% if service.base_price %}
+                    <p class="h4 fw-light mb-4">Precio desde: <strong class="fw-bold text-primary">S/. {{ service.base_price }}</strong></p>
+                {% endif %}
 
-                <div class="service-meta lead">
-                    <p><i class="fas fa-tag me-2"></i> <strong>Categoría:</strong> {{ service.category.name }}</p>
-                    {% if service.base_price %}
-                    <p><i class="fas fa-dollar-sign me-2"></i> <strong>Precio desde:</strong> S/. {{ service.base_price }}</p>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                        <h2 class="mb-4 lead"><i class="fas fa-file-alt me-2"></i>Acerca de este servicio</h2>
-                        <div class="service-content lead">
-                            {{ service.description|linebreaks }}
-                        </div>
-                    </div>
-
-                <!-- Reemplaza el bloque de botones existente en la parte superior -->
-<!-- Reemplaza el bloque de botones existente en la parte superior -->
-{% if user.is_authenticated %}
-<div class="d-flex gap-2 mt-3">
-    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary">
-        <i class="fas fa-calendar-check me-2"></i> Solicitar Servicio
-    </a>
-    <a href="{% url 'services:cotizar' service.id %}" class="btn btn-outline-primary">
-        <i class="fas fa-calculator me-2"></i> Simulación de cotización
-    </a>
-    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
-        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
-    </a>
-</div>
-{% else %}
-<div class="d-flex gap-2 mt-3">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fas fa-sign-in-alt me-2"></i> Solicitar Servicio
-    </button>
-    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fas fa-calculator me-2"></i> Simulación de cotización
-    </button>
-    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
-        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
-    </a>
-</div>
-{% endif %}
-            </div>
-            <div class="col-md-6">
-                {% with featured_image=service.get_featured_image %}
-                    {% if featured_image %}
-                        {% if featured_image.image_url %}
-                            <img src="{{ featured_image.image_url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}"
-                                 onerror="this.onerror=null; this.src='{% if featured_image.image %}{{ featured_image.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}';">
-                        {% elif featured_image.image %}
-                            <img src="{{ featured_image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
-                        {% else %}
-                            <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
-                        {% endif %}
+                <div class="d-flex flex-wrap gap-2 btn-group">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary btn-lg"><i class="fas fa-calendar-check me-2"></i> Consultar Servicio</a>
+                        <a href="{% url 'services:cotizar' service.id %}" class="btn btn-outline-primary btn-lg"><i class="fas fa-calculator me-2"></i> Ver Cotización</a>
                     {% else %}
-                        <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
+                        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-sign-in-alt me-2"></i> Consultar Servicio</button>
+                        <button type="button" class="btn btn-outline-primary btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fas fa-calculator me-2"></i> Ver Cotización</button>
                     {% endif %}
+                    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en el servicio de {{ service.name|urlencode }}" class="btn btn-success btn-lg" target="_blank" rel="noopener"><i class="fab fa-whatsapp me-2"></i> Contactar por WhatsApp</a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                {% with featured_image=service.get_featured_image %}
+                    <img src="{% if featured_image.image %}{{ featured_image.image.url }}{% elif featured_image.image_url %}{{ featured_image.image_url }}{% else %}/static/imagen/default-service.jpg{% endif %}" 
+                         class="img-fluid featured-image" 
+                         alt="{{ service.name }}"
+                         onerror="this.onerror=null; this.src='/static/imagen/default-service.jpg';">
                 {% endwith %}
             </div>
         </div>
     </div>
 </section>
-{% if componentes %}
-<section class="products-carousel py-4 bg-white">
+
+<section class="main-content py-5">
     <div class="container">
-        <h2 class="mb-4 text-center"><i class="fas fa-boxes me-2"></i>Nosotros trabajamos con:</h2>
-        
-        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                {% for componente in componentes %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <div class="card h-100 product-card shadow">
-                                <div class="row g-0">
-                                    <div class="col-md-8">
-                                        <div class="position-relative" style="height: 300px; overflow: hidden;">
-                                            {% with featured_image=componente.product.get_featured_image %}
-                                                {% if featured_image %}
-                                                    {% if featured_image.image %}
-                                                        <img src="{{ featured_image.image.url }}" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% elif featured_image.image_url %}
-                                                        <div style="width: 100%; height: 100%;">
-                                                            {{ featured_image.image_url|safe }}
-                                                        </div>
-                                                    {% else %}
-                                                        <img src="/static/imagen/default-product.jpg" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% endif %}
-                                                {% else %}
-                                                    <img src="/static/imagen/default-product.jpg" class="img-fluid rounded-start" alt="{{ componente.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                                                {% endif %}
-                                            {% endwith %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title">{{ componente.product.name }}</h5>
-                                            <p class="card-text">
-                                                <small class="text-muted">{{ componente.quantity }} {{ componente.product.unit }}</small>
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="badge bg-primary rounded-pill fs-6">S/. {{ componente.product.price_per_unit }}</span>
-                                                {% if componente.product.category %}
-                                                <span class="badge bg-secondary">{{ componente.product.category.name }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <!-- Controles del carrusel -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
-                <span class="visually-hidden">Siguiente</span>
-            </button>
-            
-            <!-- Indicadores del carrusel -->
-            <div class="carousel-indicators" style="bottom: -40px;">
-                {% for componente in componentes %}
-                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
-<section class="service-description py-5">
-    <div class="container">
-        <div class="row">
+        <div class="row g-5">
             <div class="col-lg-8">
-                <div class="card mb-4">
-                    
-                </div>
-                
+                <div class="service-full-description mb-5">
+    <h2 class="section-title"><i class="fas fa-info-circle me-2"></i>Acerca de este Servicio</h2>
+    <div class="description-container collapsed" id="service-description-container">
+        {{ service.description|linebreaks }}
+    </div>
+    <!-- El botón se insertará aquí automáticamente mediante JavaScript -->
+</div>
+
                 {% if service.images.count > 1 %}
-                <div class="service-gallery">
-                    <h3 class="mb-4"><i class="fas fa-images me-2"></i>Galería de imágenes</h3>
+                <div class="service-gallery mb-5">
+                    <h2 class="section-title"><i class="fas fa-images me-2"></i>Galería de Proyectos</h2>
                     <div class="row">
                         {% for imagen in service.images.all %}
-                        <div class="col-md-4 gallery-thumbnail">
-                            <a href="{% if imagen.image_url %}{{ imagen.image_url }}{% elif imagen.image %}{{ imagen.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}" 
-                               data-lightbox="service-gallery" 
-                               data-title="{{ service.name }} - Imagen {{ forloop.counter }}">
-                                {% if imagen.image_url %}
-                                <img src="{{ imagen.image_url }}" alt="{{ service.name }}" 
-                                     onerror="this.onerror=null; this.src='{% if imagen.image %}{{ imagen.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}';">
-                                {% elif imagen.image %}
-                                <img src="{{ imagen.image.url }}" alt="{{ service.name }}">
-                                {% else %}
-                                <img src="/static/imagen/default-service.jpg" alt="{{ service.name }}">
-                                {% endif %}
+                        <div class="col-md-4 mb-4 gallery-thumbnail">
+                            <a href="{% if imagen.image %}{{ imagen.image.url }}{% else %}{{ imagen.image_url }}{% endif %}" data-lightbox="service-gallery" data-title="{{ service.name }} - Imagen {{ forloop.counter }}">
+                                <img src="{% if imagen.image %}{{ imagen.image.url }}{% else %}{{ imagen.image_url }}{% endif %}" alt="Galería {{ service.name }}" onerror="this.onerror=null; this.src='/static/imagen/default-service.jpg';">
                             </a>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if service.videos.exists %}
-                        <div class="service-videos mt-5">
-                            <h3 class="mb-4"><i class="fas fa-video me-2"></i>Videos</h3>
-                            {% for video in service.videos.all %}
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <h4 class="card-title">{{ video.title }}</h4>
-                                    <div class="ratio ratio-16x9 mt-3">
-                                        {% if video.video_url %}
-                                            {# Si hay código de incorporación (iframe), renderízalo directamente #}
-                                            {{ video.video_url|safe }}
-                                        {% elif video.video %}
-                                            {# Si hay un archivo de video subido, usa la etiqueta <video> #}
-                                            <video controls class="w-100">
-                                                {# Asumiendo MP4, podrías necesitar ajustar el 'type' si usas otros formatos #}
-                                                <source src="{{ video.video.url }}" type="video/mp4"> 
-                                                Tu navegador no soporta la etiqueta de video HTML5. Puedes <a href="{{ video.video.url }}">descargar el video aquí</a>.
-                                            </video>
-                                        {% else %}
-                                            {# Caso improbable si la validación del modelo funciona, pero por si acaso #}
-                                            <div class="alert alert-warning" role="alert">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                No hay fuente de video disponible para "{{ video.title }}".
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
+                <div class="service-videos">
+                    <h2 class="section-title"><i class="fas fa-video me-2"></i>Videos Demostrativos</h2>
+                    {% for video in service.videos.all %}
+                    <div class="card video-card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ video.title }}</h5>
+                            <div class="ratio ratio-16x9 mt-3">
+                                {% if video.video_url %}{{ video.video_url|safe }}{% elif video.video %}<video controls class="w-100"><source src="{{ video.video.url }}" type="video/mp4">Tu navegador no soporta videos.</video>{% endif %}
                             </div>
-                            {% endfor %}
                         </div>
-                        {% endif %}
-                
-            </div>
-            
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Detalles del servicio</h3>
                     </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-tag me-2"></i>Categoría</span>
-                                <span class="badge bg-primary rounded-pill">{{ service.category.name }}</span>
-                                <p>{{ service.category.name }}</p>
-                            </li>
-                            {% if service.base_price %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-dollar-sign me-2"></i>Precio desde</span>
-                                <span class="fw-bold">S/. {{ service.base_price }}</span>
-                            </li>
-                            {% endif %}
-                            {% if service.created_at %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-calendar me-2"></i>Disponible desde</span>
-                                <span>{{ service.created_at|date:"d M, Y" }}</span>
-                            </li>
-                            {% endif %}
-                        </ul>
-                        
-<!-- Reemplaza el bloque de botones existente en la parte superior -->
-{% if user.is_authenticated %}
-<div class="d-flex gap-2 mt-3">
-    <a href="{% url 'appointments:request' service.id %}" class="btn btn-primary">
-        <i class="fas fa-calendar-check me-2"></i> Solicitar Servicio
-    </a>
-    <a href="{% url 'services:cotizar' service.id %}" class="btn btn-outline-primary">
-        <i class="fas fa-calculator me-2"></i> Simulación de cotización
-    </a>
-    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
-        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
-    </a>
-</div>
-{% else %}
-<div class="d-flex gap-2 mt-3">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fas fa-sign-in-alt me-2"></i> Solicitar Servicio
-    </button>
-    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fas fa-calculator me-2"></i> Simulación de cotización
-    </button>
-    <a href="https://wa.me/51923614593?text=Hola, estoy interesado en una cotización personalizada para el servicio de {{ service.name|urlencode }}" class="btn btn-success" target="_blank">
-        <i class="fab fa-whatsapp me-2"></i> Consultar por WhatsApp
-    </a>
-</div>
-{% endif %}
-                    </div>
-                </div>
-                
-
-
-
-                {% if related_services %}
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h3 class="mb-0"><i class="fas fa-list me-2"></i>Servicios relacionados</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            {% for related in related_services %}
-                            <li class="list-group-item">
-                                <a href="{% url 'services:detalle_servicio' related.pk %}" class="text-decoration-none">
-                                    <div class="d-flex align-items-center">
-                                        <div class="col-md-6">
-                                            {% with featured_image=service.get_featured_image %}
-                                                {% if featured_image %}
-                                                    {% if featured_image.image_url %}
-                                                        {# Renderizar el código de incorporación (iframe) directamente #}
-                                                        <div class="embed-responsive embed-responsive-16by9 rounded shadow-sm"> {# Contenedor opcional para responsiveness #}
-                                                            {{ featured_image.image_url|safe }}
-                                                        </div>
-                                                    {% elif featured_image.image %}
-                                                        {# Mostrar la imagen subida #}
-                                                        <img src="{{ featured_image.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ service.name }}">
-                                                    {% else %}
-                                                        {# Imagen por defecto si no hay ni url ni archivo #}
-                                                        <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
-                                                    {% endif %}
-                                                {% else %}
-                                                    {# Imagen por defecto si no hay imagen destacada #}
-                                                    <img src="/static/imagen/default-service.jpg" class="img-fluid rounded shadow-sm" alt="{{ service.name }} (Por defecto)">
-                                                {% endif %}
-                                            {% endwith %}
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-0">{{ related.name }}</h6>
-                                            <small class="text-muted">{{ related.category.name }}</small>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
             </div>
+
+            <aside class="col-lg-4 sidebar">
+                <div class="card mb-5">
+                    <div class="card-header"><i class="fas fa-clipboard-list me-2"></i>Resumen del Servicio</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-tag fa-fw me-2 text-muted"></i>Categoría</span>
+                            <span class="badge bg-primary rounded-pill">{{ service.category.name }}</span>
+                        </li>
+                        {% if service.base_price %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-dollar-sign fa-fw me-2 text-muted"></i>Precio Desde</span>
+                            <span class="fw-bold">S/. {{ service.base_price }}</span>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-calendar-alt fa-fw me-2 text-muted"></i>Disponible Desde</span>
+                            <span>{{ service.created_at|date:"d M, Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                {% if related_services %}
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-stream me-2"></i>Servicios Relacionados</div>
+                    <ul class="list-group list-group-flush">
+                        {% for related in related_services %}
+                        <li class="list-group-item">
+                            <a href="{% url 'services:detalle_servicio' related.slug %}" class="text-decoration-none text-dark d-flex align-items-center">
+                                {% with related_image=related.get_featured_image %}
+                                <img src="{% if related_image.image %}{{ related_image.image.url }}{% else %}/static/imagen/default-service.jpg{% endif %}" alt="{{ related.name }}" width="60" height="60" class="rounded me-3" style="object-fit:cover;">
+                                {% endwith %}
+                                <div>
+                                    <h6 class="mb-0">{{ related.name }}</h6>
+                                    <small class="text-muted">{{ related.category.name }}</small>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </aside>
         </div>
     </div>
 </section>
 
+{% if componentes %}
+<section class="products-carousel bg-light">
+    <div class="container">
+        <h2 class="section-title text-center mx-auto"><i class="fas fa-boxes me-2"></i>Materiales que Utilizamos</h2>
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner py-4">
+                {% for componente in componentes %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="card product-card">
+                                <div class="row g-0">
+                                    <div class="col-md-5">
+                                        <div class="card-img-container">
+                                            {% with featured_image=componente.product.get_featured_image %}
+                                            <img src="{% if featured_image.image %}{{ featured_image.image.url }}{% else %}/static/imagen/default-product.jpg{% endif %}" alt="{{ componente.product.name }}">
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                       <div class="card-body d-flex flex-column h-100 p-4">
+    <h5 class="card-title">{{ componente.product.name }}</h5>
+    <div class="product-description collapsed">
+        <p class="card-text text-muted small">{{ componente.product.description }}</p>
+    </div>
+    <p class="card-text mb-3"><small class="text-muted">Precio unitario: {{ componente.quantity }} {{ componente.product.unit }}</small></p>
+    <div class="d-flex justify-content-between align-items-center mt-auto">
+        <span class="badge bg-primary rounded-pill fs-6">S/. {{ componente.product.price_per_unit }}</span>
+        {% if componente.product.category %}<span class="badge bg-secondary">{{ componente.product.category.name }}</span>{% endif %}
+    </div>
+</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Anterior</span></button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Siguiente</span></button>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 {% if not user.is_authenticated %}
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="loginModalLabel"><i class="fas fa-user-lock me-2"></i> Iniciar sesión para continuar</h5>
+                <h5 class="modal-title" id="loginModalLabel"><i class="fas fa-user-lock me-2"></i> Inicia sesión para continuar</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-<h3 class="text-center" style="color: #0070d1;">
-    <i class="fas fa-exclamation-triangle me-5" style="color: #0055ff;"></i>
-    Para solicitar este servicio, necesitas iniciar sesión o crear una cuenta.
-</h3>
-
+            <div class="modal-body text-center p-4">
+                <p class="lead">Para consultar este servicio, necesitas iniciar sesión o crear una cuenta.</p>
                 <hr>
-
-                <div class="text-center">
-                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-link">
-                        <i class="fas fa-envelope me-2"></i> Iniciar sesión con correo electrónico
-                    </a>
-                    <br>
-                    <a href="{% url 'accounts:register' %}?next={{ request.path }}" class="btn btn-link">
-                        <i class="fas fa-user-plus me-2"></i> Registrarse con correo electrónico
-                    </a>
-                    <br>
-                    <div class="text-center mb-4">
-                        <a href="{% provider_login_url 'google' process='signup' %}" class="btn btn-google btn-block w-100">
-                            <i class="fab fa-google me-2"></i>Registrarse con Google
-                        </a>
-                    </div>
+                <div class="d-grid gap-2">
                     {% if 'google' in providers %}
-                    <a href="{% provider_login_url 'google' process='login' next=request.path %}" class="btn btn-google mt-2">
-                        <i class="fab fa-google"></i> Iniciar sesión con Google
-                    </a>
+                    <a href="{% provider_login_url 'google' process='login' next=request.path %}" class="btn btn-google"><i class="fab fa-google me-2"></i> Continuar con Google</a>
                     {% endif %}
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-link"><i class="fas fa-envelope me-2"></i> Usar mi correo electrónico</a>
                 </div>
+                 <p class="mt-3 small">¿No tienes cuenta? <a href="{% url 'accounts:register' %}?next={{ request.path }}">Regístrate aquí</a></p>
             </div>
         </div>
     </div>
@@ -544,39 +437,86 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/js/lightbox.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-{% if show_login_modal %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-        loginModal.show();
-    });
-</script>
-{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/js/lightbox.min.js"></script>
 
 <script>
-    // Configurar lightbox
-    lightbox.option({
-        'resizeDuration': 200,
-        'wrapAround': true,
-        'fadeDuration': 300,
-        'albumLabel': "Imagen %1 de %2",
-        'positionFromTop': 80
-    });
-    
-    // Manejar errores de carga de imágenes
-    document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-            img.addEventListener('error', function() {
-                // Si la URL de la imagen falla, intentamos mostrar una imagen de respaldo
-                if (this.getAttribute('data-fallback')) {
-                    this.src = this.getAttribute('data-fallback');
-                }
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    // === CONFIGURACIÓN DE LIGHTBOX (si existe) ===
+    if (typeof lightbox !== 'undefined') {
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'albumLabel': "Imagen %1 de %2"
         });
-    });
+    }
+
+    // === FUNCIÓN REUTILIZABLE PARA "VER MÁS" ===
+    function initToggleDescription(selector, maxHeight = 100) {
+        const containers = document.querySelectorAll(selector);
+        
+        if (containers.length === 0) return;
+        
+        containers.forEach(container => {
+            // Prevenir que se añada un botón si ya existe uno
+            if (container.parentElement.querySelector('.toggle-description-btn')) {
+                return;
+            }
+
+            const realHeight = container.scrollHeight;
+            
+            // Solo añadir el botón si el contenido es más alto que el límite
+            if (realHeight > maxHeight) {
+                container.classList.add('collapsed');
+                
+                // Aplicar el maxHeight desde JS para asegurar consistencia
+                if (selector.includes('product-description')) {
+                     container.style.maxHeight = '3em'; // ~2 líneas para producto
+                } else {
+                     container.style.maxHeight = '100px'; // Límite para servicio
+                }
+                
+                // Crear el botón
+                const btnElement = document.createElement('a');
+                btnElement.href = '#';
+                btnElement.className = 'toggle-description-btn';
+                btnElement.setAttribute('role', 'button');
+                btnElement.innerHTML = 'Ver más <i class="fas fa-chevron-down ms-1 small"></i>';
+                
+                // Insertar botón después del contenedor de descripción
+                container.parentElement.insertBefore(btnElement, container.nextSibling);
+                
+                // Añadir el evento click
+                btnElement.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (container.classList.contains('collapsed')) {
+                        container.classList.remove('collapsed');
+                        // Quitar el maxHeight para que se expanda a su altura natural
+                        container.style.maxHeight = realHeight + 'px';
+                        btnElement.innerHTML = 'Ver menos <i class="fas fa-chevron-up ms-1 small"></i>';
+                    } else {
+                        container.classList.add('collapsed');
+                        // Restaurar el maxHeight original
+                        if (selector.includes('product-description')) {
+                           container.style.maxHeight = '3em';
+                        } else {
+                           container.style.maxHeight = '100px';
+                        }
+                        btnElement.innerHTML = 'Ver más <i class="fas fa-chevron-down ms-1 small"></i>';
+                    }
+                });
+            }
+        });
+    }
+    
+    // --- INICIALIZACIÓN ---
+    // 1. Para la descripción principal del SERVICIO (usando su ID único)
+    initToggleDescription('#service-description-container', 100);
+    
+    // 2. Para TODAS las descripciones de PRODUCTOS en el carrusel (usando su clase común)
+    initToggleDescription('.product-description', 60);
+
+});
 </script>
 {% endblock %}
