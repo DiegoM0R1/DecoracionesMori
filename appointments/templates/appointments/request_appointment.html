@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load i18n %}      
-{% load form_tags %}  <!-- Añade esta línea al inicio de tu template -->
+{% load i18n %}
+{% load form_tags %} 
 
 {% block title %}Solicitar Cita - DecoracionesMori{% endblock %}
 
@@ -9,21 +9,120 @@
     <div class="container">
         <div class="row mb-4">
             <div class="col-12 text-center">
-                <h1 class="display-4 mb-3">Solicitar Servicio</h1>
-                <p class="lead text-muted">Complete el formulario para solicitar su cita de servicio.</p>
+                <h1 class="display-4 mb-3">Consultar Servicio</h1>
+                <p class="lead text-muted">Complete el formulario y nos comunicaremos contigo para brindarte más detalles.</p>
             </div>
         </div>
+
         <div class="row justify-content-center">
             <div class="col-md-10 col-lg-8">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <form method="post" novalidate>
+                        <form method="post" novalidate id="appointmentForm">
                             {% csrf_token %}
-                            {{ form.as_p }}
-                            <div class="mb-3">
-                                <label class="form-label">Ubicación en Mapa</label>
+                            
+                            <div class="mb-4 text-center">
+                                <label class="form-label fw-bold d-block">¿A nombre de quién es la cita?</label>
+                                <div class="btn-group" role="group" aria-label="Tipo de cliente">
+                                    {% for radio in form.client_type %}
+                                    <div class="form-check form-check-inline">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    
+                                    <div id="section-persona">
+                                        <label class="form-label">{{ form.dni.label }}</label>
+                                        <div class="input-group mb-3">
+                                            {{ form.dni }}
+                                            <button class="btn btn-outline-secondary" type="button" id="btn-buscar-dni">
+                                                <i class="fas fa-search"></i> Buscar DNI
+                                            </button>
+                                        </div>
+                                        {{ form.dni.errors }}
+                                        
+                                        {{ form.nombres_hidden }}
+                                        {{ form.apellido_paterno_hidden }}
+                                        {{ form.apellido_materno_hidden }}
+                                    </div>
+
+                                    <div id="section-empresa" style="display: none;">
+                                        <label class="form-label">{{ form.ruc.label }}</label>
+                                        <div class="input-group mb-2">
+                                            {{ form.ruc }}
+                                            <button class="btn btn-primary" type="button" id="btn-buscar-ruc">
+                                                <i class="fas fa-building"></i> Consultar SUNAT
+                                            </button>
+                                        </div>
+                                        <div id="ruc-feedback" class="form-text mb-3"></div>
+                                        {{ form.ruc.errors }}
+
+                                        <div class="mb-3">
+                                            {{ form.razon_social.label_tag }}
+                                            {{ form.razon_social }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre Completo / Razón Social</label>
+                                        {{ form.name }}
+                                        {{ form.name.errors }}
+                                    </div>
+                                    
+                                    <div class="row">
+                                        {% if not request.user.is_authenticated %}
+                                            <div class="col-md-6 mb-3">
+                                                {{ form.email.label_tag }}
+                                                {{ form.email }}
+                                                {{ form.email.errors }}
+                                            </div>
+                                        {% else %}
+                                            <input type="hidden" name="email" value="{{ request.user.email }}">
+                                        {% endif %}
+
+                                        <div class="col-md-{% if request.user.is_authenticated %}12{% else %}6{% endif %} mb-3">
+                                            {{ form.phone_number.label_tag }}
+                                            {{ form.phone_number }}
+                                            {{ form.phone_number.errors }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form.address.label_tag }}
+                                {{ form.address }} {{ form.address.errors }}
                                 <div id="map_canvas" style="width: 100%; height: 300px; margin-top: 10px; border-radius: 4px;"></div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.appointment_date.label_tag }}
+                                    {{ form.appointment_date }}
+                                    {{ form.appointment_date.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.appointment_time.label_tag }}
+                                    {{ form.appointment_time }}
+                                    {{ form.appointment_time.errors }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form.notes.label_tag }}
+                                {{ form.notes }}
+                            </div>
+
+                            {{ form.service }}
+
                             {% if form.non_field_errors %}
                             <div class="alert alert-danger">
                                 {% for error in form.non_field_errors %}
@@ -32,10 +131,9 @@
                             </div>
                             {% endif %}
 
-                           
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-calendar-check me-2"></i>Solicitar Servicio
+                                    <i class="fas fa-calendar-check me-2"></i>Enviar
                                 </button>
                             </div>
                         </form>
@@ -51,312 +149,302 @@
         </div>
     </div>
 </section>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script> <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('id_appointment_date_form'); // Asegúrate que tu input de fecha tenga este ID
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
-    // Obtener datos de disponibilidad (esto es una simplificación, necesitarías un endpoint real)
-    fetch("{% url 'appointments:api_daily_availability' %}") // URL a tu endpoint de disponibilidad
-        .then(response => response.json())
-        .then(availabilityData => {
-            flatpickr(dateInput, {
-                locale: "es", // Español
-                dateFormat: "Y-m-d", // Formato que Django espera
-                minDate: new Date().fp_incr(1), // Mínimo mañana
-                disable: [
-                    function(date) {
-                        // Deshabilitar fines de semana (ejemplo, si no usas ScheduledWorkDay para esto)
-                        // return (date.getDay() === 0 || date.getDay() === 6);
-
-                        const dateStr = date.toISOString().split('T')[0];
-                        const dayStatus = availabilityData[dateStr];
-
-                        if (dayStatus === "full" || dayStatus === "not_working" || dayStatus === "not_scheduled") {
-                            return true; // Deshabilitar fecha
-                        }
-                        return false; // Habilitar fecha
-                    }
-                ],
-                onChange: function(selectedDates, dateStr, instance) {
-                    // Cuando una fecha es seleccionada, podrías cargar horas disponibles
-                    console.log("Fecha seleccionada:", dateStr);
-                    // Aquí llamarías a otra función para cargar/validar horas
-                    // loadAvailableTimes(dateStr);
-                }
-            });
-        })
-        .catch(error => console.error("Error cargando datos de disponibilidad:", error));
-
-    // Función para cargar horas (concepto)
-    // function loadAvailableTimes(dateStr) {
-    //     const timeInput = document.getElementById('id_appointment_time_form');
-    //     // Fetch a /api/available-times-for-date?date=dateStr
-    //     // y luego actualiza el input de hora (ej. min/max o un select)
-    // }
-});
-</script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Script de búsqueda de DNI iniciado (v2).');
-        const dniInput = document.getElementById('id_dni');
-        const nameInput = document.getElementById('id_name'); // Campo visible de Nombre Completo
+document.addEventListener('DOMContentLoaded', function() {
     
-        // Referencias a los NUEVOS campos ocultos (debes añadirlos en el Django Form)
-        const nombresHiddenInput = document.getElementById('id_nombres_hidden');
-        const paternoHiddenInput = document.getElementById('id_apellido_paterno_hidden');
-        const maternoHiddenInput = document.getElementById('id_apellido_materno_hidden');
+    // --- 1. LÓGICA DE PERSONA VS EMPRESA ---
+    const radioPersona = document.querySelector('input[name="client_type"][value="persona"]');
+    const radioEmpresa = document.querySelector('input[name="client_type"][value="empresa"]');
+    const sectionPersona = document.getElementById('section-persona');
+    const sectionEmpresa = document.getElementById('section-empresa');
+    const nameInput = document.getElementById('id_name');
     
-        if (!dniInput || !nameInput || !nombresHiddenInput || !paternoHiddenInput || !maternoHiddenInput) {
-            console.error('No se encontraron todos los campos necesarios (DNI, Nombre visible, o campos ocultos de nombre). Verifica los IDs.');
+    function toggleClientType() {
+        if (radioEmpresa && radioEmpresa.checked) {
+            sectionPersona.style.display = 'none';
+            sectionEmpresa.style.display = 'block';
+            nameInput.readOnly = true; 
+            nameInput.placeholder = "Se llenará al buscar RUC";
+        } else {
+            sectionPersona.style.display = 'block';
+            sectionEmpresa.style.display = 'none';
+            nameInput.readOnly = false;
+            nameInput.placeholder = "Tu nombre completo";
+        }
+    }
+
+    if(radioPersona && radioEmpresa) {
+        radioPersona.addEventListener('change', toggleClientType);
+        radioEmpresa.addEventListener('change', toggleClientType);
+        toggleClientType(); // Inicializar
+    }
+// --- NUEVO: SI YA HAY DIRECCIÓN AL CARGAR, ACTUALIZAR EL MAPA ---
+    if (addressInput && addressInput.value.trim() !== "") {
+        // Esperamos un poco para asegurar que el mapa cargó
+        setTimeout(() => {
+            updateMapFromAddress(addressInput.value);
+        }, 1000);
+    }
+    // ======================================================
+    // === NUEVA FUNCIÓN PARA ACTUALIZAR EL MAPA ===
+    // ======================================================
+    function updateMapFromAddress(address) {
+        // Verificamos que el mapa y el geocoder existan (cargados por el otro script)
+        if (typeof geocoder === 'undefined' || !map || !marker) {
+            console.warn("El mapa aún no está listo o no se cargó la API.");
             return;
         }
-    
-        let debounceTimeout = null;
-    
-        async function fetchDniData(dniValue) {
-            const dni = dniValue.trim();
-            if (dni.length !== 8) return;
-    
-            console.log('Buscando DNI (v2):', dni);
-            nameInput.placeholder = 'Buscando...';
-            nameInput.disabled = true;
-            nameInput.value = ''; // Limpiar campo visible
-            // Limpiar campos ocultos
-            nombresHiddenInput.value = '';
-            paternoHiddenInput.value = '';
-            maternoHiddenInput.value = '';
-    
-    
-            const csrftokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-            if (!csrftokenElement) {
-                console.error('Token CSRF no encontrado.');
-                alert('Error de configuración interna.');
-                nameInput.placeholder = 'Tu nombre completo';
-                nameInput.disabled = false;
-                return;
+        
+        const queryAddress = address + ", Peru"; // Añadimos país para precisión
+
+        geocoder.geocode({ 'address': queryAddress }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                const location = results[0].geometry.location;
+                map.setCenter(location);
+                map.setZoom(17);
+                marker.setPosition(location);
+                console.log("Mapa movido a:", address);
+            } else {
+                console.warn("No se pudo localizar la dirección en el mapa:", status);
             }
-            const csrftoken = csrftokenElement.value;
-    
+        });
+    }
+
+    // --- 2. BÚSQUEDA DE RUC (SUNAT) ---
+    const btnRuc = document.getElementById('btn-buscar-ruc');
+    const rucInput = document.getElementById('id_ruc');
+    const razonSocialInput = document.getElementById('id_razon_social');
+    const rucFeedback = document.getElementById('ruc-feedback');
+    const addressInput = document.getElementById('id_address_input');
+
+    if(btnRuc) {
+        btnRuc.addEventListener('click', async function() {
+            const ruc = rucInput.value.trim();
+            if (ruc.length !== 11) { alert('El RUC debe tener 11 dígitos'); return; }
+
+            btnRuc.disabled = true;
+            btnRuc.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+            rucFeedback.textContent = '';
+
             try {
-                const response = await fetch('{% url "appointments:buscar_dni" %}', {
+                const formData = new FormData();
+                formData.append('ruc', ruc);
+                
+                const response = await fetch('{% url "appointments:buscar_ruc" %}', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': csrftoken
-                    },
-                    body: new URLSearchParams({ 'dni': dni })
+                    body: formData,
+                    headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
                 });
-    
                 const data = await response.json();
-                console.log('Datos DNI recibidos (v2):', data);
-    
-                if (!response.ok) throw new Error(data.error || `Error HTTP ${response.status}`);
-                if (data.error) throw new Error(data.error);
-    
-                let nombresApi = data.nombres || '';
-                let paternoApi = data.apellidoPaterno || '';
-                let maternoApi = data.apellidoMaterno || '';
-    
-                // Rellenar los campos ocultos con los datos estructurados de la API
-                nombresHiddenInput.value = nombresApi;
-                paternoHiddenInput.value = paternoApi;
-                maternoHiddenInput.value = maternoApi;
-    
-                // Construir el nombre completo para el campo VISIBLE (Nombres ApellidoPaterno ApellidoMaterno)
-                let nombreCompletoVisible = `${nombresApi} ${paternoApi} ${maternoApi}`.trim().replace(/\s+/g, ' ');
-    
-                if (nombreCompletoVisible) {
-                    const nombreFormateado = nombreCompletoVisible
-                        .toLowerCase()
-                        .split(' ')
-                        .filter(palabra => palabra.length > 0)
-                        .map(palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-                        .join(' ');
-                    nameInput.value = nombreFormateado; // Rellena el campo de nombre visible
-                    console.log('Campo visible "Nombre Completo" actualizado:', nombreFormateado);
-                    nameInput.classList.add('is-valid');
-                    setTimeout(() => nameInput.classList.remove('is-valid'), 2000);
-                } else {
-                    // Si no hay datos para el nombre visible, intentar con data.nombre_completo (fallback)
-                    let fallbackNombre = (data.nombre_completo || "").trim();
-                    if (fallbackNombre) {
-                         if (fallbackNombre.includes(',')) { // "APELLIDOS, NOMBRES"
-                            const partes = fallbackNombre.split(',');
-                            if (partes.length === 2) fallbackNombre = `${partes[1].trim()} ${partes[0].trim()}`;
-                            else fallbackNombre = fallbackNombre.replace(/,/g, '');
-                        }
-                        nameInput.value = fallbackNombre.toLowerCase().split(' ').filter(p=>p).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' ');
-                        console.log('Campo visible "Nombre Completo" actualizado con fallback:', nameInput.value);
-                    } else {
-                        alert('No se encontró información de nombre para el DNI.');
+
+                if (response.ok) {
+                    const rs = data.razon_social || '';
+                    razonSocialInput.value = rs;
+                    nameInput.value = rs; 
+                    
+                    // Construir dirección completa
+                    let dirParts = [];
+                    if (data.direccion && data.direccion !== '-') dirParts.push(data.direccion);
+                    if (data.distrito && data.distrito !== '-') dirParts.push(data.distrito);
+                    if (data.provincia && data.provincia !== '-') dirParts.push(data.provincia);
+                    if (data.departamento && data.departamento !== '-') dirParts.push(data.departamento);
+                    
+                    const dirCompleta = dirParts.join(', ');
+                    
+                    if (dirCompleta && addressInput) {
+                        addressInput.value = dirCompleta;
+                        
+                        // >>> LLAMADA PARA MOVER EL MAPA <<<
+                        updateMapFromAddress(dirCompleta);
                     }
+
+                    rucFeedback.className = 'text-success';
+                    rucFeedback.innerHTML = `<i class="fas fa-check-circle"></i> ${data.estado} - ${data.condicion}`;
+                    nameInput.classList.add('is-valid');
+                } else {
+                    throw new Error(data.error || 'Error desconocido');
                 }
-    
             } catch (error) {
-                console.error('Error en fetchDniData (v2):', error);
-                alert(`Error al buscar DNI: ${error.message}`);
-                nameInput.value = ''; // Limpiar en caso de error
-                nombresHiddenInput.value = '';
-                paternoHiddenInput.value = '';
-                maternoHiddenInput.value = '';
+                console.error(error);
+                rucFeedback.className = 'text-danger';
+                rucFeedback.textContent = 'Error: ' + error.message;
             } finally {
-                nameInput.placeholder = 'Tu nombre completo (se autocompleta con DNI)';
-                nameInput.disabled = false;
+                btnRuc.disabled = false;
+                btnRuc.innerHTML = '<i class="fas fa-building"></i> Consultar SUNAT';
             }
+        });
+    }
+
+    // --- 3. BÚSQUEDA DE DNI (RENIEC) ---
+    const dniInput = document.getElementById('id_dni');
+    const nombresHidden = document.getElementById('id_nombres_hidden');
+    const paternoHidden = document.getElementById('id_apellido_paterno_hidden');
+    const maternoHidden = document.getElementById('id_apellido_materno_hidden');
+    let debounceTimeout = null;
+
+    async function fetchDniData(dniValue) {
+        if (dniValue.length !== 8) return;
+        nameInput.placeholder = 'Buscando...';
+        nameInput.disabled = true;
+
+        try {
+            const response = await fetch('{% url "appointments:buscar_dni" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new URLSearchParams({ 'dni': dniValue })
+            });
+            const data = await response.json();
+            
+            if (response.ok && !data.error) {
+                let nom = data.nombres || '';
+                let pat = data.apellidoPaterno || '';
+                let mat = data.apellidoMaterno || '';
+                
+                nombresHidden.value = nom;
+                paternoHidden.value = pat;
+                maternoHidden.value = mat;
+
+                let fullName = `${nom} ${pat} ${mat}`.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+                nameInput.value = fullName;
+                nameInput.classList.add('is-valid');
+            } else {
+                console.warn(data.error);
+            }
+        } catch (e) { console.error(e); } 
+        finally {
+            nameInput.disabled = false;
+            nameInput.placeholder = 'Tu nombre completo';
         }
-    
+    }
+
+    if (dniInput) {
         dniInput.addEventListener('input', function() {
             clearTimeout(debounceTimeout);
-            const dniValue = this.value.trim();
-            if (dniValue.length === 8) {
-                debounceTimeout = setTimeout(() => fetchDniData(dniValue), 300);
-            } else {
-                // Opcional: Limpiar campos si el DNI ya no es válido
-                // nameInput.value = '';
-                // nombresHiddenInput.value = ''; // etc.
+            const val = this.value.trim();
+            if (val.length === 8) {
+                debounceTimeout = setTimeout(() => fetchDniData(val), 300);
             }
         });
-    
-        dniInput.addEventListener('blur', function() {
-            clearTimeout(debounceTimeout);
-            const dniValue = this.value.trim();
-            if (dniValue.length === 8) fetchDniData(dniValue);
-        });
-    });
-    </script>
+        const btnDniSearch = document.getElementById('btn-buscar-dni');
+        if(btnDniSearch) {
+            btnDniSearch.addEventListener('click', () => fetchDniData(dniInput.value.trim()));
+        }
+    }
+
+    // --- 4. FLATPICKR (FECHA) ---
+    const dateInput = document.getElementById('id_appointment_date_form');
+    if (dateInput) {
+        fetch("{% url 'appointments:api_daily_availability' %}")
+            .then(r => r.json())
+            .then(availabilityData => {
+                flatpickr(dateInput, {
+                    locale: "es",
+                    dateFormat: "Y-m-d",
+                    minDate: new Date().fp_incr(1),
+                    disable: [
+                        function(date) {
+                            const dateStr = date.toISOString().split('T')[0];
+                            const dayStatus = availabilityData[dateStr];
+                            return (dayStatus === "full" || dayStatus === "not_working" || dayStatus === "not_scheduled");
+                        }
+                    ]
+                });
+            })
+            .catch(e => console.error("Error disponibilidad:", e));
+    }
+});
+</script>
 
 
-<!-- Google Maps integration -->
 {{ js_translations|json_script:"js-translations" }}
 {% if MAPS_API_KEY %}
 <script>
-// Define global variables
-let map = null; 
-let marker = null;
-let autocomplete = null;
-let geocoder = null;
+// Variables globales necesarias para el callback
+let map, marker, autocomplete, geocoder;
 
 function initMapAndAutocomplete() {
-    console.log("Google Maps API cargada. Inicializando mapa y autocomplete...");
-    
-    // Get the address input
+    console.log("Inicializando Google Maps...");
     const addressInput = document.getElementById('id_address_input');
     const mapCanvas = document.getElementById('map_canvas');
     
-    if (!addressInput) {
-        console.error("Input de dirección ('id_address_input') no encontrado");
+    if (!addressInput || !mapCanvas) {
+        console.error("Faltan elementos del mapa (input o canvas)");
         return;
     }
     
-    // Create map container if it doesn't exist
-    if (!mapCanvas) {
-        console.log("Elemento de mapa ('map_canvas') no encontrado, creando uno nuevo...");
-        const mapContainer = document.createElement('div');
-        mapContainer.id = 'map_canvas';
-        mapContainer.style.width = '100%';
-        mapContainer.style.height = '300px';
-        mapContainer.style.marginTop = '10px';
-        mapContainer.style.borderRadius = '4px';
-        
-        // Insert after address field
-        addressInput.parentNode.insertAdjacentElement('afterend', mapContainer);
-    }
+    // Coordenadas iniciales (Chiclayo por defecto, cambia según necesites)
+    const initialLatLng = { lat: -6.7714, lng: -79.8409 }; 
     
-    try {
-        // Initialize geocoder
-        geocoder = new google.maps.Geocoder();
-        
-        // Default coordinates (Chiclayo)
-        const initialLatLng = { lat: -6.7714, lng: -79.8409 };
-        
-        // Initialize map (visible from the start)
-        map = new google.maps.Map(document.getElementById('map_canvas'), {
-            center: initialLatLng,
-            zoom: 15,
-            mapTypeControl: true,
-            streetViewControl: false
-        });
-        
-        // Initialize marker
-        marker = new google.maps.Marker({
-            position: initialLatLng,
-            map: map,
-            draggable: true,
-            title: 'Arrastra para ajustar la ubicación'
-        });
-        
-        // Listen for marker drag events
-        google.maps.event.addListener(marker, 'dragend', function() {
-            const position = marker.getPosition();
-            map.setCenter(position);
-            
-            // Reverse geocode to get address
-            geocoder.geocode({ 'location': position }, function(results, status) {
-                if (status === 'OK' && results[0]) {
-                    addressInput.value = results[0].formatted_address;
-                } else {
-                    console.warn("Geocodificación inversa falló:", status);
-                }
-            });
-        });
-        
-        // Listen for map click events
-        google.maps.event.addListener(map, 'click', function(event) {
-            marker.setPosition(event.latLng);
-            
-            // Trigger dragend to update address
-            google.maps.event.trigger(marker, 'dragend');
-        });
-        
-        // Initialize autocomplete
-        const autocompleteOptions = {
-            componentRestrictions: { country: "pe" },
-            fields: ["formatted_address", "geometry", "name"]
-        };
-        
-        autocomplete = new google.maps.places.Autocomplete(addressInput, autocompleteOptions);
-        
-        // Prevent form submission when pressing Enter
-        addressInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
+    geocoder = new google.maps.Geocoder();
+    map = new google.maps.Map(mapCanvas, {
+        center: initialLatLng,
+        zoom: 15,
+        mapTypeControl: false,
+        streetViewControl: false
+    });
+    
+    marker = new google.maps.Marker({
+        position: initialLatLng,
+        map: map,
+        draggable: true,
+        title: 'Arrastra para ajustar'
+    });
+    
+    // Evento: Arrastrar marcador
+    marker.addListener('dragend', function() {
+        const pos = marker.getPosition();
+        map.setCenter(pos);
+        geocoder.geocode({ 'location': pos }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                addressInput.value = results[0].formatted_address;
             }
         });
+    });
+    
+    // Evento: Clic en mapa
+    map.addListener('click', function(e) {
+        marker.setPosition(e.latLng);
+        google.maps.event.trigger(marker, 'dragend');
+    });
+    
+    // Autocomplete
+    autocomplete = new google.maps.places.Autocomplete(addressInput, {
+        componentRestrictions: { country: "pe" },
+        fields: ["formatted_address", "geometry", "name"]
+    });
+    
+    autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
         
-        // Handle place selection
-        autocomplete.addListener('place_changed', function() {
-            const place = autocomplete.getPlace();
-            
-            if (!place.geometry || !place.geometry.location) {
-                console.warn("Lugar seleccionado no tiene datos de geometría:", place.name);
-                return;
-            }
-            
-            // Update map and marker
-            if (place.geometry.viewport) {
-                map.fitBounds(place.geometry.viewport);
-            } else {
-                map.setCenter(place.geometry.location);
-                map.setZoom(17);
-            }
-            
-            marker.setPosition(place.geometry.location);
-        });
-        
-        console.log("Mapa y autocomplete inicializados correctamente");
-    } catch (error) {
-        console.error("Error inicializando Google Maps:", error);
-    }
+        if (place.geometry.viewport) map.fitBounds(place.geometry.viewport);
+        else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+        }
+        marker.setPosition(place.geometry.location);
+    });
+
+    // Prevenir submit al dar Enter en dirección
+    addressInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') e.preventDefault();
+    });
 }
 
-// Make function global for callback
+// Exponer globalmente
 window.initMapAndAutocomplete = initMapAndAutocomplete;
 </script>
 
-<!-- Fix the API key in the script URL and use async loading -->
 <script async src="https://maps.googleapis.com/maps/api/js?key={{ MAPS_API_KEY }}&libraries=places&callback=initMapAndAutocomplete&language=es"></script>
 {% else %}
-<script>console.error("Google Maps API Key (MAPS_API_KEY) no configurada o no recibida por la plantilla.");</script>
+<div class="alert alert-warning">Google Maps API Key no configurada.</div>
 {% endif %}
+
 {% endblock %}

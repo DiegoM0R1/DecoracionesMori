@@ -6,6 +6,7 @@ from .views import (
     AppointmentRequestView, # Mantenemos la CBV
     # AppointmentCalendarView, # Comentado hasta que se redefina
     buscar_cliente_por_dni,
+    buscar_empresa_por_ruc,
     appointment_detail,
     get_availabilities,
     get_daily_availability_status,
@@ -29,9 +30,9 @@ urlpatterns = [
     path('api/daily-availability/', get_daily_availability_status, name='api_daily_availability'),
     # --- Endpoints Auxiliares / API ---
     path('buscar-dni/', buscar_cliente_por_dni, name='buscar_dni'),
+    path('api/buscar-ruc/', buscar_empresa_por_ruc, name='buscar_ruc'),
     path('api/disponibilidades/', get_availabilities, name='get_availabilities'), # API actualizada (básica)
     path('cancel/<int:appointment_id>/', cancel_appointment_view, name='cancel_appointment'),
-
     # --- Otras (si aplican) ---
     # path('home/', TemplateView.as_view(template_name='home.html'), name='home'), # Evalúa si es necesaria
 ]

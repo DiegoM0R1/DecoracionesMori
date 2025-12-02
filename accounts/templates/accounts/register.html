@@ -6,21 +6,11 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white text-center">
-                    <h2>Registro</h2>
+                <div class="card-header bg-danger text-white text-center">
+                    <h2>Registro con Google</h2>
                 </div>
                 <div class="card-body">
-                    <div class="text-center mb-4">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-google btn-block w-100">
-                            <i class="fab fa-google me-2"></i>Registrarse con Google
-                        </a>
-                    </div>
                     
-                    <div class="text-center mb-3">
-                        <hr class="my-2">
-                        <span class="px-2 text-muted bg-white">O</span>
-                        <hr class="my-2">
-                    </div>
                     
                     <form method="post" action="{% url 'accounts:register' %}">
                         {% csrf_token %}
@@ -28,7 +18,16 @@
                         {% for field in form %}
                             <div class="form-group mb-3">
                                 {{ field.label_tag }}
-                                {{ field }}
+                                {% if field.name == 'password1' or field.name == 'password2' %}
+                                    <div class="input-group">
+                                        {{ field }}
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" title="ver contraseña">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
                                 {% if field.errors %}
                                     <div class="text-danger">
                                         {% for error in field.errors %}
@@ -67,8 +66,37 @@
         background-color: #c33422;
         color: white;
     }
+    .toggle-password {
+        border-left: none;
+    }
+    
+    .toggle-password:focus {
+        box-shadow: none;
+    }
 </style>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+});
+</script>
 {% comment %}
 <!-- Este script estaba redirigiendo todos los clics en el botón "Registrarse" a Google -->
 <script>
@@ -79,6 +107,7 @@
             window.location.href = "{% provider_login_url 'google' %}";
         });
     });
+    
 </script>
 {% endcomment %}
 

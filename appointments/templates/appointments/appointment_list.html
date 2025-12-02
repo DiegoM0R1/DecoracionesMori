@@ -27,7 +27,7 @@
                 </thead>
                 <tbody>
                     {% for appointment in appointments %}
-                    <tr>
+                    <tr class="{% if appointment.status == 'cancelled' %}text-muted table-light{% endif %}">
                         <th scope="row">{{ appointment.id }}</th>
                         <td>{{ appointment.service.name }}</td>
                         <td>
@@ -46,10 +46,11 @@
                         </td>
                          
                         <td>
-                            <span class="status-badge {% if appointment.status == 'pending' %}badge-warning{% elif appointment.status == 'confirmed' %}badge-success{% elif appointment.status == 'completed' %}badge-info{% elif appointment.status == 'cancelled' %}badge-danger{% endif %}">
-                                {{ appointment.get_status_display }}
-                            </span>
-                        </td>
+        {% if appointment.status == 'cancelled' %}
+            <span class="badge badge-secondary">Cancelada</span>
+        {% else %}
+            {% endif %}
+    </td>
                         <td>
                             <a href="{% url 'appointments:appointment_detail' appointment.id %}" class="btn btn-sm btn-info">
                                 {% trans "Ver Detalle" %}

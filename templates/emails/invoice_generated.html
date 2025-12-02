@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { background-color: #e3f2fd; padding: 10px; text-align: center; border-bottom: 3px solid #17a2b8; }
+        .amount-box { text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 20px 0; }
+        .btn { background-color: #17a2b8; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="color: #0c5460;">Comprobante Electrónico</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+            <p>Se ha generado tu <strong>{{ doc_type }}</strong> por el servicio realizado.</p>
+
+            <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #17a2b8; margin: 15px 0;">
+                <p style="margin: 5px 0;"><strong>Documento:</strong> {{ invoice.series }}-{{ invoice.number }}</p>
+                <p style="margin: 5px 0;"><strong>Total:</strong> S/ {{ amount }}</p>
+            </div>
+
+            <p style="text-align: center; margin-top: 30px;">
+                <a href="{{ download_link }}" class="btn">Descargar {{ doc_type }} (PDF)</a>
+            </p>
+            
+            <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
+                Si el botón no funciona, copia este enlace: <br> {{ download_link }}
+            </p>
+        </div>
+        <div style="text-align: center; border-top: 1px solid #eee; padding-top: 15px; color: #777;">
+            <p>Gracias por tu preferencia.<br>Decoraciones Mori</p>
+        </div>
+    </div>
+</body>
+</html>

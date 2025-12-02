@@ -50,7 +50,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                     'advance_payment', 'pending_balance', 'status', 'payment_method', 
                     'inventory_status', 'register_payment_button')
 
-    list_filter = ('status', 'payment_method', 'date_issued', 'inventory_processed')
+    list_filter = ('invoice_type','status', 'payment_method', 'date_issued', 'inventory_processed')
     search_fields = ('series', 'number', 'client__first_name', 'client__last_name', 'client__dni')
     readonly_fields = ('subtotal', 'igv', 'total', 'pending_balance', 'inventory_processed')
     

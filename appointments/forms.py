@@ -12,6 +12,16 @@ User = get_user_model()
 
 
 class AppointmentRequestForm(forms.ModelForm):
+    TIPO_CLIENTE_CHOICES = [
+        ('persona', 'Persona (DNI)'),
+        ('empresa', 'Empresa (RUC)'),
+    ]
+    client_type = forms.ChoiceField(
+        choices=TIPO_CLIENTE_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'btn-check', 'autocomplete': 'off'}),
+        initial='persona',
+        label=_("Tipo de Cliente")
+    )
     # Campos para obtener datos del cliente
     # 1. CAMBIO DE ORDEN: DNI ahora está antes de 'name'
     dni = forms.CharField(
@@ -19,6 +29,15 @@ class AppointmentRequestForm(forms.ModelForm):
         max_length=20, # Coincide con User.dni
         required=False, # El DNI puede ser opcional
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Tu número de documento')})
+    )
+    # --- NUEVOS CAMPOS PARA EMPRESA ---
+    ruc = forms.CharField(
+        label=_("RUC"), max_length=11, required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa el RUC de la empresa'})
+    )
+    razon_social = forms.CharField(
+        label=_("Razón Social"), max_length=200, required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
     )
     name = forms.CharField(
         label=_("Nombre Completo"),
@@ -74,33 +93,60 @@ class AppointmentRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # ... (tu __init__ existente para user, service_id, initial, ocultar email, etc.) ...
-        # Este método __init__ que ya tienes para pre-rellenar datos y ocultar el email
-        # para usuarios logueados es correcto y no necesita cambios para estas nuevas reglas.
         self.user = kwargs.pop('user', None)
         self.service_id = kwargs.pop('service_id', None)
+        
+        # Obtenemos los valores iniciales que puedan venir de la vista
         initial = kwargs.get('initial', {})
 
+        # --- LÓGICA DE AUTOCOMPLETADO ---
         if self.user and self.user.is_authenticated:
+            # 1. Datos de Contacto Comunes (Siempre se llenan)
             initial.setdefault('email', self.user.email)
-            initial.setdefault('dni', getattr(self.user, 'dni', ''))
             initial.setdefault('phone_number', getattr(self.user, 'phone_number', ''))
             initial.setdefault('address', getattr(self.user, 'address', ''))
-        
+            
+            # 2. Decidir si es EMPRESA o PERSONA basado en los datos guardados
+            user_ruc = getattr(self.user, 'ruc', '')
+            user_dni = getattr(self.user, 'dni', '')
+            
+            # Si tiene RUC guardado (y tiene 11 dígitos), asumimos que es EMPRESA
+            if user_ruc and len(str(user_ruc).strip()) == 11:
+                initial['client_type'] = 'empresa'
+                initial['ruc'] = user_ruc
+                # En la lógica de guardado anterior, pusimos la Razón Social en first_name
+                initial['razon_social'] = self.user.first_name 
+                initial['name'] = self.user.first_name # Campo visible compartido
+            
+            # Si no tiene RUC, asumimos que es PERSONA
+            else:
+                initial['client_type'] = 'persona'
+                if user_dni:
+                    initial['dni'] = user_dni
+                # Para persona, el nombre es Nombre + Apellido
+                initial['name'] = self.user.get_full_name() 
+
+        # Pasamos el diccionario 'initial' actualizado al formulario
         kwargs['initial'] = initial
         super().__init__(*args, **kwargs)
 
+        # --- AJUSTES DE WIDGETS ---
+        
+        # Si está logueado, ocultamos el email (ya lo tenemos)
         if self.user and self.user.is_authenticated:
             if 'email' in self.fields:
                 self.fields['email'].widget = forms.HiddenInput()
         
+        # Pre-seleccionar servicio si viene en la URL
         if self.service_id:
             try:
                 service = Service.objects.get(pk=self.service_id)
-                if 'service' in self.fields: self.fields['service'].initial = service
+                if 'service' in self.fields: 
+                    self.fields['service'].initial = service
             except Service.DoesNotExist:
-                if 'service' in self.fields: self.fields['service'].queryset = Service.objects.none()
+                pass
         
+        # Limpiar campo staff si no hay personal
         if 'staff' in self.fields and not self.fields['staff'].queryset.exists():
             del self.fields['staff']
 
@@ -135,65 +181,26 @@ class AppointmentRequestForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        appointment_date = cleaned_data.get('appointment_date')
-        appointment_time = cleaned_data.get('appointment_time')
+        client_type = cleaned_data.get('client_type')
+        dni = cleaned_data.get('dni')
+        ruc = cleaned_data.get('ruc')
 
-        # Si appointment_date ya tuvo un error en su validación individual, no continuar.
-        if self.errors.get('appointment_date'):
-            return cleaned_data
-
-        # REGLA 2: Límite de 3 citas por día.
-        if appointment_date:
-            # Contar citas existentes (pendientes o confirmadas) para esa fecha.
-            # No contamos la cita actual si se está editando y no cambia de fecha.
-            query_filter = Appointment.objects.filter(
-                appointment_date=appointment_date,
-                status__in=['pending', 'confirmed'] # Solo estas cuentan para el cupo
-            )
-
-            # Si estamos editando una cita (self.instance.pk existe), la excluimos del conteo
-            # para permitir guardar cambios que no afecten al cupo (ej. cambiar notas).
-            if self.instance and self.instance.pk:
-                query_filter = query_filter.exclude(pk=self.instance.pk)
+        # Validación condicional
+        if client_type == 'persona':
+            if not dni:
+                self.add_error('dni', _("El DNI es obligatorio para personas."))
+            # Limpiamos datos de empresa para evitar basura
+            cleaned_data['ruc'] = ''
+            cleaned_data['razon_social'] = ''
             
-            existing_appointments_count = query_filter.count()
-
-            if existing_appointments_count >= 3:
-                # Formatear la fecha para el mensaje
-                # date_formatted = appointment_date.strftime('%d de %B de %Y') # Considera localizar el mes
-                self.add_error('appointment_date', ValidationError(
-                    _("Lo sentimos, ya no hay cupos disponibles para el día {date}. "
-                      "Se permite un máximo de 3 citas diarias.").format(
-                        date=appointment_date.strftime("%d/%m/%Y") # Formato simple
-                    )
-                ))
-                # No tiene sentido validar la hora si el día ya está lleno.
-                # Pero si se validara, se podría quitar 'appointment_time' de cleaned_data o añadir error.
-                # if 'appointment_time' in cleaned_data:
-                # del cleaned_data['appointment_time']
-                # return cleaned_data # Salir temprano si el día está lleno
-
-        # Validación de hora contra el ScheduledWorkDay (si la fecha es válida y hay hora)
-        if appointment_date and appointment_time and not self.errors.get('appointment_date'): # Solo si no hay error previo en fecha
-            try:
-                workday = ScheduledWorkDay.objects.get(date=appointment_date)
-                # workday.is_working ya fue verificado en clean_appointment_date
-                if workday.start_time and workday.end_time:
-                    if not (workday.start_time <= appointment_time < workday.end_time):
-                        self.add_error('appointment_time', ValidationError(
-                            _("La hora seleccionada ({time}) está fuera del horario laboral ({start}-{end}) para el día {date}.").format(
-                                time=appointment_time.strftime('%H:%M'),
-                                start=workday.start_time.strftime('%H:%M'),
-                                end=workday.end_time.strftime('%H:%M'),
-                                date=appointment_date.strftime('%d/%m/%Y')
-                            )
-                        ))
-                # else: Si el día es laborable pero no tiene start/end time definidos,
-                # se podría asumir que cualquier hora es válida o que se maneja de otra forma.
-                # Actualmente, si no hay start/end time, no se valida la hora.
-            except ScheduledWorkDay.DoesNotExist:
-                # Esto ya debería haber sido capturado por clean_appointment_date.
-                # No es necesario añadir otro error aquí si clean_appointment_date es robusto.
-                pass
-        
+        elif client_type == 'empresa':
+            if not ruc:
+                self.add_error('ruc', _("El RUC es obligatorio para empresas."))
+            if len(ruc) != 11:
+                self.add_error('ruc', _("El RUC debe tener 11 dígitos."))
+            # Limpiamos datos de persona
+            cleaned_data['dni'] = ''
+            
         return cleaned_data
+
+

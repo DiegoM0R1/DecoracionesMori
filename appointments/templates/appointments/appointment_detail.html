@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %} {# Cargar tags de internacionalización si usas _() directamente en plantilla #}
+{% load i18n %}
 
 {% block title %}{% trans "Detalle de Cita" %}{% endblock %}
 
@@ -8,7 +8,6 @@
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                {# Usamos trans para traducir texto estático #}
                 <h2>{% trans "Cita" %} #{{ appointment.id }}</h2>
                 <span class="status-badge
                     {% if appointment.status == 'pending' %}badge-warning
@@ -16,7 +15,6 @@
                     {% elif appointment.status == 'completed' %}badge-info
                     {% elif appointment.status == 'cancelled' %}badge-danger
                     {% endif %}">
-                    {# Usamos get_status_display para obtener la versión legible del choice #}
                     {{ appointment.get_status_display }}
                 </span>
             </div>
@@ -35,7 +33,6 @@
                             <tr>
                                 <th scope="row">{% trans "Fecha" %}:</th>
                                 <td>
-                                    {# CORREGIDO: Usar appointment_date y verificar si existe #}
                                     {% if appointment.appointment_date %}
                                         {{ appointment.appointment_date|date:"d/m/Y" }}
                                     {% else %}
@@ -46,16 +43,13 @@
                             <tr>
                                 <th scope="row">{% trans "Hora" %}:</th>
                                 <td>
-                                    {# CORREGIDO: Usar appointment_time y verificar si existe #}
                                     {% if appointment.appointment_time %}
                                         {{ appointment.appointment_time|time:"H:i" }}
                                     {% else %}
-                                         <span class="text-muted">{% trans "Pendiente" %}</span>
+                                        <span class="text-muted">{% trans "Pendiente" %}</span>
                                     {% endif %}
-                                    {# Nota: Ya no mostramos hora de fin aquí porque no la tenemos directamente #}
                                 </td>
                             </tr>
-                            
                             <tr>
                                 <th scope="row">{% trans "Fecha de Solicitud" %}:</th>
                                 <td>{{ appointment.created_at|date:"d/m/Y H:i" }}</td>
@@ -66,13 +60,12 @@
 
                 <div class="col-md-6">
                     <h3>{% trans "Proceso de la Cita" %}</h3>
-                    {# La lógica del timeline basada en status no necesita cambios #}
                     <div class="appointment-timeline">
                         <div class="timeline-item {% if appointment.status == 'pending' or appointment.status == 'confirmed' or appointment.status == 'completed' %}active{% endif %}">
                             <div class="timeline-marker"></div>
                             <div class="timeline-content">
-                                <h4>{% trans "Cita Solicitada" %}</h4>
-                                <p>{% trans "La cita ha sido solicitada y está pendiente de confirmación." %}</p>
+                                <h4>{% trans "Solicitud Recibida" %}</h4>
+                                <p>{% trans "En espera de confirmación." %}</p>
                             </div>
                         </div>
 
@@ -80,7 +73,7 @@
                             <div class="timeline-marker"></div>
                             <div class="timeline-content">
                                 <h4>{% trans "Cita Confirmada" %}</h4>
-                                <p>{% trans "La cita ha sido confirmada por nuestro equipo." %}</p>
+                                <p>{% trans "Confirmada por el equipo." %}</p>
                             </div>
                         </div>
 
@@ -88,27 +81,75 @@
                             <div class="timeline-marker"></div>
                             <div class="timeline-content">
                                 <h4>{% trans "Servicio Completado" %}</h4>
-                                <p>{% trans "El servicio ha sido realizado exitosamente." %}</p>
+                                <p>{% trans "Servicio realizado con éxito." %}</p>
                             </div>
                         </div>
-                            {% if appointment.status == 'cancelled' %}
-       <div class="timeline-item active">
-           <div class="timeline-marker bg-danger border-danger"></div>
-           <div class="timeline-content">
-               <h4 class="text-danger">{% trans "Cita Cancelada" %}</h4>
-               <p>{% trans "La cita ha sido cancelada." %}</p>
-           </div>
-       </div>
-   {% endif %}
 
+                        {% if appointment.status == 'cancelled' %}
+                        <div class="timeline-item active">
+                            <div class="timeline-marker bg-danger border-danger"></div>
+                            <div class="timeline-content">
+                                <h4 class="text-danger">{% trans "Cancelada" %}</h4>
+                                <p>{% trans "La cita ha sido cancelada." %}</p>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
+            {% if appointment.invoices.all %}
+            <div class="mt-4">
+                <h3 class="mb-3">{% trans "Comprobantes de Pago" %}</h3>
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-white">
+                                <tr>
+                                    <th>{% trans "Documento" %}</th>
+                                    <th>{% trans "Fecha" %}</th>
+                                    <th>{% trans "Monto" %}</th>
+                                    <th>{% trans "Estado" %}</th>
+                                    <th class="text-right">{% trans "Descargar" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in appointment.invoices.all %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file-invoice text-primary mr-2"></i>
+                                        <strong>{{ invoice.get_invoice_type_display }}</strong>
+                                        <small class="text-muted d-block">{{ invoice.series }}-{{ invoice.number|default:"Pendiente" }}</small>
+                                    </td>
+                                    <td class="align-middle">{{ invoice.date_issued|date:"d/m/Y" }}</td>
+                                    <td class="align-middle font-weight-bold">S/ {{ invoice.total }}</td>
+                                    <td class="align-middle">
+                                        {% if invoice.status == 'pagada' %}
+                                            <span class="badge badge-success">{% trans "Pagado" %}</span>
+                                        {% elif invoice.status == 'anulada' %}
+                                            <span class="badge badge-danger">{% trans "Anulado" %}</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">{% trans "Pendiente" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle text-right">
+                                        <a href="{% url 'invoices:client_print_invoice' invoice.id %}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             {% if appointment.notes %}
             <div class="appointment-notes mt-4">
                 <h3>{% trans "Notas" %}</h3>
-                <div class="card bg-light">
+                <div class="card bg-light border-0">
                     <div class="card-body">
                         {{ appointment.notes|linebreaks }}
                     </div>
@@ -117,9 +158,18 @@
             {% endif %}
         </div>
 
-        <div class="card-footer text-muted">
-             {# Asegúrate que la URL 'appointments:appointment_list' exista en tus urls.py #}
-            <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary">{% trans "Volver a Mis Citas" %}</a>
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Volver" %}
+                </a>
+
+                {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+    <i class="fas fa-times"></i> {% trans "Cancelar Cita" %}
+</button>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -136,103 +186,71 @@
             </div>
             <div class="modal-body">
                 <p>{% trans "¿Está seguro que desea cancelar esta cita?" %}</p>
-                <p class="text-danger"><strong>{% trans "Esta acción no se puede deshacer." %}</strong></p>
+                <p class="text-danger mb-0"><strong>{% trans "Esta acción no se puede deshacer." %}</strong></p>
             </div>
             <div class="modal-footer">
-                    <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}" style="display: inline;">
-       {% csrf_token %}
-       <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar Cita" %}</button>
-   </form>
-
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No, Mantener Cita" %}</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No, Mantener" %}</button>
+                <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar" %}</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
+{% endblock %}
 
 {% block extra_css %}
-{# Mover los estilos aquí o a un archivo CSS separado #}
 <style>
+/* Estilos para el Timeline Vertical */
 .appointment-timeline {
     position: relative;
-    border-left: 2px solid #ddd; /* Línea base de la timeline */
-    padding-left: 28px; /* Espacio para los marcadores */
-    margin-left: 10px; /* Margen para que no pegue al borde */
+    border-left: 2px solid #ddd;
+    padding-left: 28px;
+    margin-left: 10px;
+    margin-top: 20px;
 }
 
 .timeline-item {
     position: relative;
     margin-bottom: 30px;
-    opacity: 0.6; /* Items no activos se ven más tenues */
+    opacity: 0.6;
 }
-.timeline-item:last-child {
-    margin-bottom: 0;
-}
-
-.timeline-item.active {
-    opacity: 1; /* Items activos son opacos */
-}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-item.active { opacity: 1; }
 
 .timeline-marker {
     position: absolute;
-    left: -39px; /* Posicionar sobre la línea (-28px - 10px - 1px) */
+    left: -39px;
     top: 0;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background-color: #aaa; /* Marcador por defecto */
-    border: 3px solid #fff; /* Borde blanco para separar de la línea */
+    background-color: #aaa;
+    border: 3px solid #fff;
     z-index: 1;
 }
 
-.timeline-item.active .timeline-marker {
-    background-color: #28a745; /* Marcador activo (verde) */
-}
-.timeline-item .bg-danger { /* Estilo específico para marcador cancelado */
-     background-color: #dc3545 !important;
-}
-.timeline-item .border-danger {
-     border-color: #dc3545 !important;
-}
+.timeline-item.active .timeline-marker { background-color: #28a745; }
+.timeline-item .bg-danger { background-color: #dc3545 !important; }
+.timeline-item .border-danger { border-color: #dc3545 !important; }
 
+.timeline-content h4 { margin-top: 0; font-size: 1.1rem; font-weight: bold; }
+.timeline-content p { margin-bottom: 0; font-size: 0.9rem; color: #555; }
+.timeline-item.active .timeline-content p { color: #333; }
 
-.timeline-content h4 {
-    margin-top: 0;
-    font-size: 1.1rem;
-    font-weight: bold;
-}
-.timeline-content p {
-    margin-bottom: 0;
-    font-size: 0.9rem;
-    color: #555;
-}
-.timeline-item.active .timeline-content p {
-    color: #333;
-}
-
+/* Estilos para Badges de estado */
 .status-badge {
     padding: 0.4em 0.7em;
     font-size: 0.85em;
     font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
     border-radius: 0.25rem;
     color: #fff;
 }
-
-.badge-warning { background-color: #ffc107; color: #212529;}
+.badge-warning { background-color: #ffc107; color: #212529; }
 .badge-success { background-color: #28a745; }
 .badge-info { background-color: #17a2b8; }
 .badge-danger { background-color: #dc3545; }
-
-/* Asegurar que float-right funcione bien en BS4/BS5 */
-.float-right { float: right !important; }
-
 </style>
 {% endblock %}
-
-{% endblock %}
-

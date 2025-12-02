@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { background-color: #f8f9fa; padding: 10px; text-align: center; border-bottom: 3px solid #007bff; }
+        .content { padding: 20px 0; }
+        .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>¡Solicitud Recibida!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+            <p>Hemos recibido tu solicitud de cita para el servicio: <strong>{{ service.name }}</strong>.</p>
+            <p><strong>Número de solicitud:</strong> #{{ appointment.id }}</p>
+            <hr>
+            <p>Nuestro equipo está revisando la disponibilidad. En breve nos comunicaremos contigo para brindarte más información.</p>
+            
+            <p>Puedes ver el estado de tu cita ingresando a tu cuenta:</p>
+            <p style="text-align: center;">
+                <a href="{{ web_link }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ir a Mis Citas</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>Decoraciones Mori - Servicios Profesionales</p>
+        </div>
+    </div>
+</body>
+</html>

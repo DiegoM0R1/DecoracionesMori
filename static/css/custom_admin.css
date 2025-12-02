@@ -2,3 +2,10 @@
     max-width: 100px !important;  /* Ajusta este valor según sea necesario */
     height: auto !important;      /* Mantiene la proporción del logo */
 }
+
+ol.breadcrumb li.breadcrumb-item:nth-child(2) a {
+    pointer-events: none;  /* Desactiva el clic */
+    color: inherit;        /* Usa el color de texto normal */
+    text-decoration: none; /* Quita el subrayado */
+}
+

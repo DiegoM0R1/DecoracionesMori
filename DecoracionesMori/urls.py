@@ -97,12 +97,12 @@ def dashboard_data(request):
 # IMPORTANTE: Definimos primero la ruta específica del dashboard antes de la ruta general de admin
 urlpatterns = [
     path('admin/dashboard-data/', dashboard_data, name='dashboard-data'),
+path('admin/reports/', include('reports.urls', namespace='reports')),
     path('admin/', admin.site.urls),
     
     path('', HomeView.as_view(template_name='home.html'), name='home'),
     path('home/', HomeView.as_view(template_name='home.html'), name='home'),
     path('nosotros/', TemplateView.as_view(template_name='nosotros.html'), name='nosotros'),
-    path('contacto/', TemplateView.as_view(template_name='contacto.html'), name='contacto'),
     
     path('servicios/', include('services.urls', namespace='services')),
     path('appointments/', include('appointments.urls', namespace='appointments')),
@@ -119,6 +119,7 @@ urlpatterns = [
 
     path('admin/inventory/inventory_report/',
          RedirectView.as_view(url='/admin/inventory/inventory_report/', permanent=False)),
+
 
     path('admin_api/calendar-events/', appointments_api_views.calendar_events_api, name='admin_calendar_events_api'),
     path('admin_api/update-appointment/', appointments_api_views.update_appointment_api, name='admin_update_appointment_api'),

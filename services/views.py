@@ -418,3 +418,57 @@ def get_service_components(request, service_id):
     
     except Service.DoesNotExist:
         return JsonResponse({'error': 'Servicio no encontrado'}, status=404)
+    
+
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.contrib import messages
+from django.conf import settings # <-- Asegúrate de importar settings
+
+# ASEGÚRATE DE QUE TU FUNCIÓN SE VEA ASÍ:
+def contacto_view(request):
+    
+    # Lógica para manejar el envío del formulario (POST)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        service = request.POST.get('service')
+        message = request.POST.get('message')
+
+        if not name or not email or not message:
+            messages.error(request, 'Por favor, completa todos los campos requeridos.')
+            return redirect('services:contacto') # Redirige de vuelta
+
+        subject = f'Nuevo mensaje de contacto de: {name}'
+        message_body = f"""
+        Nombre: {name}
+        Correo: {email}
+        Teléfono: {phone if phone else 'No proporcionado'}
+        Servicio de interés: {service if service else 'No especificado'}
+        
+        Mensaje:
+        {message}
+        """
+        
+        try:
+            # Enviar el correo
+            send_mail(
+                subject,
+                message_body,
+                settings.EMAIL_HOST_USER, # Remitente (tu correo)
+                [settings.EMAIL_HOST_USER], # Destinatario (tú mismo)
+                fail_silently=False,
+            )
+            messages.success(request, '¡Tu mensaje ha sido enviado con éxito! Te contactaremos pronto.')
+            return redirect('services:contacto') # Redirige a la misma pág.
+
+        except Exception as e:
+            messages.error(request, f'Hubo un error al enviar tu mensaje: {e}')
+            return redirect('services:contacto') # Redirige de vuelta
+
+    # Lógica para mostrar la página (GET)
+    # Si la petición NO es POST, simplemente muestra la plantilla.
+    # Asegúrate de que tu plantilla esté en 'templates/contacto.html'
+    
+    return render(request, 'contacto.html')    

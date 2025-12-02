@@ -51,13 +51,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'import_export',
+    'accounts.apps.AccountsConfig',
     'services',  # Ensure this line is present
     'appointments', 
     'invoices',
     'site_config',
     'inventory',
-
+'reports',
     #plottly dash
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'channels',
@@ -179,8 +180,10 @@ JAZZMIN_SETTINGS = {
         "quotations", 
         "appointments"
     ],
-   
-    "menu": [
+    
+    # En tu settings.py, reemplaza la sección de "menu" en JAZZMIN_SETTINGS:
+
+ "menu": [
         {"app": "auth", "label": "Autenticación", "icon": "fas fa-users-cog"},
         {"app": "accounts", "label": "Cuentas", "icon": "fas fa-users"},
         {
@@ -201,6 +204,17 @@ JAZZMIN_SETTINGS = {
                 {"model": "services.ProductCategory", "label": "Categorías de Productos"}
             ]
         },
+        
+        # ✅ NUEVA CONFIGURACIÓN DE REPORTES
+        {
+            "app": "reports",
+            "label": "Reportes",
+            "icon": "fas fa-chart-line",
+            "models": [
+                {"model": "reports.ReporteDummy", "label": "Ver Reportes"}
+            ]
+        },
+        
         {"app": "appointments", "label": "Citas", "icon": "fas fa-calendar-alt"},
         {"app": "quotations", "label": "Cotizaciones", "icon": "fas fa-file-invoice-dollar"},
         {
@@ -211,13 +225,16 @@ JAZZMIN_SETTINGS = {
                 {"model": "site_config.ContactInfo", "label": "Información de Contacto"},
                 {"model": "site_config.SocialMediaLinks", "label": "Enlaces de Redes Sociales"},
             ]
-            
         },
     ],
     
-
+    # ✅ AGREGA ESTOS ICONOS
+    "icons": {
+        # ... tus iconos existentes ...
+        "reports": "fas fa-chart-line",
+        "reports.ReporteDummy": "fas fa-chart-bar",
+    },
 }
-
 # Configuración adicional para traducir textos estáticos de Jazzmin
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
@@ -313,7 +330,7 @@ WSGI_APPLICATION = 'DecoracionesMori.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -331,7 +348,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

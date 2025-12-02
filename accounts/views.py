@@ -48,12 +48,40 @@ def user_logout_view(request):
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect('home')
 
+import re
+
 def register_view(request):
     """
     Vista para el registro de nuevos usuarios
     """
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
+        
+        # Obtener la contraseña ingresada
+        password1 = request.POST.get('password1', '')
+        
+        # Validar requisitos de contraseña
+        password_errors = []
+        
+        if len(password1) < 8:
+            password_errors.append('La contraseña debe tener al menos 8 caracteres.')
+        
+        if not re.search(r'[A-Z]', password1):
+            password_errors.append('La contraseña debe contener al menos una letra mayúscula.')
+        
+        if not re.search(r'[a-z]', password1):
+            password_errors.append('La contraseña debe contener al menos una letra minúscula.')
+        
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/;\'`~]', password1):
+            password_errors.append('La contraseña debe contener al menos un símbolo (ej: !@#$%^&*).')
+        
+        # Si hay errores de validación de contraseña, agregarlos al formulario
+        if password_errors:
+            for error in password_errors:
+                form.add_error('password1', error)
+            return render(request, 'accounts/register.html', {'form': form})
+        
+        # Si pasa las validaciones personalizadas, continuar con el proceso normal
         if form.is_valid():
             user = form.save(commit=False)
             
@@ -65,17 +93,21 @@ def register_view(request):
             user.save()
             
             # Enviar correo con código de verificación
-            send_verification_email(request, user, verification_code)
+            try:
+                send_verification_email(request, user, verification_code)
+            except Exception as e:
+                # Manejo de error si falla el envío de correo (opcional)
+                messages.warning(request, "Error enviando el correo. Contacte soporte.")
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            # Iniciar sesión automáticamente
+            login(request, user)
+            messages.success(request, "Registro exitoso. Por favor verifica tu correo electrónico.")
+            return redirect('accounts:verify')
             
-            # Iniciar sesión automáticamente después del registro
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Registro exitoso. Por favor verifica tu correo electrónico.")
-                return redirect('accounts:verify')
+        else:
+            # Si el formulario NO es válido, los errores ya están dentro de 'form'
+            # y se mostrarán automáticamente en el HTML gracias a {{ field.errors }}
+            messages.error(request, "Por favor corrige los errores en el formulario.")
     else:
         form = UserRegistrationForm()
     

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Ventas</title>
+</head>
+<body>
+    {% if site_settings.logo %}
+        <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" class="logo">
+    {% endif %}
+
+    <div class="company-info">
+        {% if site_settings.name %}<b style="font-size: 12pt;">{{ site_settings.name }}</b><br>{% endif %}
+        {% if site_settings.address %}{{ site_settings.address }}<br>{% endif %}
+        {% if site_settings.phone %}{{ site_settings.phone }}<br>{% endif %}
+        {% if site_settings.email %}{{ site_settings.email }}{% endif %}
+    </div>
+
+    <h1>Reporte de Ventas de Servicios</h1>
+    <p style="text-align: center;">Desde el {{ start_date }} hasta el {{ end_date }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Servicio</th>
+                <th>Cantidad Vendida</th>
+                <th>Ingresos Totales (S/)</th>
+                <th>Precio Promedio (S/)</th>
+                <th>% Ingresos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report_data %}
+            <tr>
+                <td>{{ item.service_name }}</td>
+                <td>{{ item.total_sold }}</td>
+                <td>S/ {{ item.total_revenue|floatformat:2 }}</td>
+                <td>S/ {{ item.average_price|floatformat:2 }}</td>
+                <td>{{ item.revenue_percentage|floatformat:2 }}%</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center;">No se encontraron ventas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>TOTAL</th>
+                <th>{{ grand_total_sold }}</th>
+                <th>S/ {{ grand_total_revenue|floatformat:2 }}</th>
+                <th></th>
+                <th>100%</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        Generado el {% now "d/m/Y H:i" %}
+    </div>
+</body>
+</html>

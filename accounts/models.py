@@ -11,6 +11,7 @@ class User(AbstractUser):
     phone_number = models.CharField(_("Phone number"), max_length=15, blank=True)
     address = models.TextField(_("Address"), blank=True)
     dni = models.CharField(_("DNI"), max_length=20, blank=True)
+    ruc = models.CharField(_("RUC"), max_length=11, blank=True, null=True)
     is_verified = models.BooleanField(_("Is verified"), default=False)
     verification_code = models.CharField(_("Verification code"), max_length=10, blank=True, null=True)
     code_expiry = models.DateTimeField(_("Code expiry"), blank=True, null=True)

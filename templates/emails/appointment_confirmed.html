@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { background-color: #e8f5e9; padding: 10px; text-align: center; border-bottom: 3px solid #28a745; }
+        .content { padding: 20px 0; }
+        .details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="color: #155724;">¡Cita Confirmada!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+            <p>Nos complace informarte que tu cita ha sido aprobada.</p>
+            
+            <div class="details">
+                <p><strong>Servicio:</strong> {{ service.name }}</p>
+                <p><strong>Fecha:</strong> {{ date|date:"d/m/Y" }}</p>
+                <p><strong>Hora:</strong> {{ time|time:"H:i" }}</p>
+            </div>
+
+            <p>Te esperamos en nuestra dirección. Por favor intenta llegar 5 minutos antes.</p>
+        </div>
+        <div style="text-align: center; color: #777; font-size: 12px; margin-top: 20px;">
+            <p>Decoraciones Mori</p>
+        </div>
+    </div>
+</body>
+</html>

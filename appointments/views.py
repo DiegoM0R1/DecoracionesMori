@@ -22,6 +22,7 @@ from django.urls import reverse # O reverse_lazy si es necesario
 from django.utils.translation import gettext # Importa gettext
 # Al inicio de tu appointments/views.py
 from django.contrib.auth import get_user_model
+from .utils import send_appointment_received_email
 # ... otras importaciones ...
 User = get_user_model() # En lugar de User = settings.AUTH_USER_MODEL
 
@@ -68,78 +69,96 @@ class AppointmentRequestView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Procesar el formulario válido:
-        1. Actualizar el perfil del usuario logueado con datos del formulario.
-        2. Asignar el usuario como cliente de la cita.
-        3. Guardar la cita.
+        Procesa el formulario: actualiza el usuario (Cliente) según sea Empresa o Persona
+        y asigna la cita.
         """
         user_to_update = self.request.user
+        client_type = form.cleaned_data.get('client_type')
 
-        # --- Actualización de Nombre y Apellidos usando campos ocultos ---
-        nombres_capturados = form.cleaned_data.get('nombres_hidden', '').strip()
-        paterno_capturado = form.cleaned_data.get('apellido_paterno_hidden', '').strip()
-        materno_capturado = form.cleaned_data.get('apellido_materno_hidden', '').strip()
-
-        # Usar los nombres capturados del DNI para first_name
-        # y la combinación de apellidos para last_name.
-        if nombres_capturados: # Si la búsqueda de DNI llenó estos campos
-            # Formatear a Title Case (primera letra mayúscula en cada palabra)
-            formatted_first_name = ' '.join(word.capitalize() for word in nombres_capturados.lower().split())
+        # ---------------------------------------------------------
+        # 1. LÓGICA PARA EMPRESA (RUC)
+        # ---------------------------------------------------------
+        if client_type == 'empresa':
+            ruc = form.cleaned_data.get('ruc')
+            razon_social = form.cleaned_data.get('razon_social')
             
-            surnames_list = []
-            if paterno_capturado:
-                surnames_list.append(' '.join(word.capitalize() for word in paterno_capturado.lower().split()))
-            if materno_capturado:
-                surnames_list.append(' '.join(word.capitalize() for word in materno_capturado.lower().split()))
-            formatted_last_name = ' '.join(surnames_list).strip()
+            # Guardar RUC
+            if hasattr(user_to_update, 'ruc'):
+                user_to_update.ruc = ruc
+            
+            # Usamos el campo first_name para la Razón Social
+            if razon_social:
+                user_to_update.first_name = razon_social
+                user_to_update.last_name = "" # Las empresas no tienen apellidos
 
-            if user_to_update.first_name != formatted_first_name or \
-               user_to_update.last_name != formatted_last_name:
-                user_to_update.first_name = formatted_first_name
-                user_to_update.last_name = formatted_last_name
+        # ---------------------------------------------------------
+        # 2. LÓGICA PARA PERSONA (DNI)
+        # ---------------------------------------------------------
         else:
-            # Fallback: Si los campos ocultos del DNI están vacíos (ej. DNI no encontrado o no ingresado),
-            # usar el valor del campo de nombre visible (que el usuario podría haber llenado manualmente).
-            visible_full_name = form.cleaned_data.get('name', "").strip()
-            if visible_full_name:
-                name_parts = visible_full_name.split(' ', 1)
-                # Asignación simple: primera palabra a nombres, resto a apellidos.
-                user_to_update.first_name = name_parts[0].capitalize() # Solo la primera palabra capitalizada
-                user_to_update.last_name = ' '.join(word.capitalize() for word in (name_parts[1] if len(name_parts) > 1 else '').lower().split())
+            dni = form.cleaned_data.get('dni', '').strip()
+            
+            # Guardar DNI
+            if hasattr(user_to_update, 'dni'):
+                user_to_update.dni = dni
 
-        
-        # DNI (asumiendo que tu modelo User tiene un campo 'dni')
-        form_dni = form.cleaned_data.get('dni', "").strip()
-        if hasattr(user_to_update, 'dni'): # Comprueba si el usuario tiene el atributo dni
-            if user_to_update.dni != form_dni:
-                user_to_update.dni = form_dni
-        
-        # Teléfono (asumiendo que tu modelo User tiene un campo 'phone_number')
-        form_phone_number = form.cleaned_data.get('phone_number', "").strip()
-        if hasattr(user_to_update, 'phone_number'):
-            if user_to_update.phone_number != form_phone_number:
-                user_to_update.phone_number = form_phone_number
-        
-        # Dirección (asumiendo que tu modelo User tiene un campo 'address')
-        form_address = form.cleaned_data.get('address', "").strip()
-        if hasattr(user_to_update, 'address'):
-            if user_to_update.address != form_address:
-                user_to_update.address = form_address
-        
-        user_to_update.save() # Guardar todos los cambios en el perfil del usuario
+            # Recuperar datos ocultos de la API de DNI
+            nombres_api = form.cleaned_data.get('nombres_hidden', '').strip()
+            paterno_api = form.cleaned_data.get('apellido_paterno_hidden', '').strip()
+            materno_api = form.cleaned_data.get('apellido_materno_hidden', '').strip()
 
-        # 2. Preparar la instancia de la cita
-        form.instance.client = user_to_update # Asignar el cliente (usuario logueado)
+            if nombres_api: 
+                # CASO A: Si la búsqueda de DNI fue exitosa, usamos los datos precisos
+                # Formatear nombres (Ej: "JUAN CARLOS" -> "Juan Carlos")
+                user_to_update.first_name = ' '.join(w.capitalize() for w in nombres_api.lower().split())
+                
+                # Construir apellidos
+                apellidos_list = []
+                if paterno_api: apellidos_list.append(paterno_api)
+                if materno_api: apellidos_list.append(materno_api)
+                
+                full_lastname = ' '.join(apellidos_list)
+                user_to_update.last_name = ' '.join(w.capitalize() for w in full_lastname.lower().split())
 
-        # Asegurar que el servicio está asignado (el form debería manejarlo con HiddenInput e initial)
-        if not form.instance.service and self.kwargs.get('service_id'):
-             form.instance.service = get_object_or_404(Service, pk=self.kwargs.get('service_id'))
+            else:
+                # CASO B: Fallback (ingreso manual o error de API)
+                # Usamos el campo visible 'name' y tratamos de dividirlo
+                visible_full_name = form.cleaned_data.get('name', "").strip()
+                if visible_full_name:
+                    name_parts = visible_full_name.split(' ', 1)
+                    user_to_update.first_name = name_parts[0].capitalize()
+                    # Si hay más partes, el resto va a apellidos
+                    user_to_update.last_name = name_parts[1].title() if len(name_parts) > 1 else ''
+
+        # ---------------------------------------------------------
+        # 3. DATOS COMUNES (Teléfono y Dirección)
+        # ---------------------------------------------------------
+        phone = form.cleaned_data.get('phone_number', '').strip()
+        address = form.cleaned_data.get('address', '').strip()
+
+        if hasattr(user_to_update, 'phone_number') and phone:
+            user_to_update.phone_number = phone
         
-        # 3. Dejar que CreateView guarde la cita y maneje la redirección.
-        # super().form_valid(form) llamará a form.save() (que guarda form.instance)
-        # y luego redirigirá usando get_success_url().
-        # El mensaje de éxito se ha movido a get_success_url.
-        return super().form_valid(form)
+        if hasattr(user_to_update, 'address') and address:
+            user_to_update.address = address
+
+        # Guardamos todos los cambios en el perfil del usuario
+        user_to_update.save()
+
+        # ---------------------------------------------------------
+        # 4. PREPARAR LA INSTANCIA DE LA CITA
+        # ---------------------------------------------------------
+        # Asignar el usuario logueado (y actualizado) como cliente
+        form.instance.client = user_to_update
+        
+        # Asegurar que el servicio esté asignado (si viene por URL y no por input hidden)
+        if not form.instance.service_id and self.kwargs.get('service_id'):
+            from django.shortcuts import get_object_or_404
+            from services.models import Service
+            form.instance.service = get_object_or_404(Service, pk=self.kwargs.get('service_id'))
+        response = super().form_valid(form)
+        send_appointment_received_email(self.request, self.object)
+        # super().form_valid(form) se encarga de hacer form.save() y redirigir
+        return response
 
     def form_invalid(self, form):
         # (Opcional pero recomendado) Mejorar el mensaje de error
@@ -204,8 +223,11 @@ def buscar_cliente_por_dni(request):
 # --- Vistas de Lista y Detalle (Ajustadas para LoginRequired y cliente) ---
 @login_required(login_url='account_login') # Asegúrate que esta URL exista
 def appointment_list(request):
-    """Lista de todas las citas del cliente logueado"""
-    appointments = Appointment.objects.filter(client=request.user).order_by('-appointment_date', '-appointment_time')
+    # Agregamos .exclude(status='cancelled') para que no las traiga
+    appointments = Appointment.objects.filter(client=request.user)\
+                                      .exclude(status='cancelled')\
+                                      .order_by('-appointment_date', '-appointment_time')
+    
     context = {'appointments': appointments}
     return render(request, 'appointments/appointment_list.html', context)
 
@@ -282,31 +304,33 @@ def get_availabilities(request):
 #     # Your logic here
 #     return render(request, 'template_name.html')
 
-# --- ASEGÚRATE QUE ESTA VISTA EXISTA ---
-@require_POST # Solo permite método POST
-@login_required(login_url='account_login') # Usuario debe estar logueado
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+from .models import Appointment
+
+# appointments/views.py
+
+@require_POST
+@login_required
 def cancel_appointment_view(request, appointment_id):
-    # Busca la cita
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
-    # Verifica permisos: ¿Es el cliente de la cita o un miembro del staff?
+    # CORRECCIÓN AQUÍ: Permitir si es el dueño O si es Staff (Administrador)
     if appointment.client != request.user and not request.user.is_staff:
-        messages.error(request, _("No tienes permiso para cancelar esta cita."))
-        # Redirige a la lista o a donde corresponda
+        messages.error(request, "No tienes permiso para cancelar esta cita.")
         return redirect('appointments:appointment_list')
 
-    # Verifica si el estado actual permite la cancelación
-    allowed_statuses = ['pending', 'confirmed'] # Define qué estados se pueden cancelar
-    if appointment.status in allowed_statuses:
-        appointment.status = 'cancelled' # Cambia el estado
-        appointment.save()             # Guarda el cambio
-        messages.success(request, _("La cita #{id} ha sido cancelada.").format(id=appointment.id))
+    # Validar estado
+    if appointment.status in ['pending', 'confirmed']:
+        appointment.status = 'cancelled'
+        appointment.save()
+        messages.success(request, "Cita cancelada correctamente.")
     else:
-        messages.warning(request, _("Esta cita ya no se puede cancelar (Estado: {status}).").format(status=appointment.get_status_display()))
+        messages.error(request, "No se puede cancelar una cita completada o ya cancelada.")
 
-    # Redirige de vuelta a la página de detalle de la cita (ahora cancelada)
-    # o a la lista de citas. Redirigir al detalle es útil para ver el cambio.
-    return redirect('appointments:appointment_detail', appointment_id=appointment.id)
+    return redirect('appointments:appointment_list')
 # ------------------------------------
 # en appointments/views.py
 def get_daily_availability_status(request):
@@ -340,3 +364,46 @@ def get_daily_availability_status(request):
 
     return JsonResponse(data_summary)
 
+# ... importaciones existentes ...
+import requests
+
+@csrf_exempt # O usa @login_required si prefieres
+def buscar_empresa_por_ruc(request):
+    if request.method == 'POST':
+        ruc = request.POST.get('ruc')
+        if not ruc:
+            return JsonResponse({'error': 'RUC es requerido'}, status=400)
+
+        # ⚠️ RECOMENDACIÓN: Mueve esto a settings.py -> settings.DECOLECTA_API_KEY
+        token = 'sk_12062.BW7ZrmYioluxNOeo0nKnUQlO6Gs6yAUJ' 
+        
+        url = f"https://api.decolecta.com/v1/sunat/ruc/full?numero={ruc}"
+        
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                # Mapeamos la respuesta de Decolecta a lo que necesita tu frontend
+                return JsonResponse({
+                    'razon_social': data.get('razon_social'),
+                    'direccion': data.get('direccion'),
+                    'departamento': data.get('departamento'),
+                    'provincia': data.get('provincia'),
+                    'distrito': data.get('distrito'),
+                    'estado': data.get('estado'),
+                    'condicion': data.get('condicion'),
+                    'ruc': data.get('numero_documento')
+                })
+            else:
+                return JsonResponse({'error': 'No se encontró el RUC o hubo un error en la API externa.'}, status=404)
+
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': f'Error de conexión: {str(e)}'}, status=500)
+
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

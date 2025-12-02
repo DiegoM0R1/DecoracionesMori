@@ -104,7 +104,7 @@ class Invoice(models.Model):
     class Meta:
         db_table = 'boleta_venta'
         verbose_name = _('Boleta de Venta')
-        verbose_name_plural = _('Boletas de Venta')
+        verbose_name_plural = _('Facturación')
         ordering = ['-date_issued', '-number']
         # Restricción única para serie y número
         unique_together = ['series', 'number']

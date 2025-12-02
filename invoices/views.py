@@ -100,3 +100,28 @@ def register_pending_payment(request, invoice_id):
         'available_apps': admin.site.get_app_list(request),
         'opts': invoice._meta,
     })
+
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+
+
+@login_required
+def client_print_invoice(request, invoice_id):
+    """
+    Vista para que el cliente descargue su propio comprobante.
+    """
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    
+    # SEGURIDAD: Verificar que el invoice pertenece al usuario logueado
+    # (Permitimos también al staff verlo por si acaso)
+    if invoice.client != request.user and not request.user.is_staff:
+        return HttpResponseForbidden("No tiene permisos para ver este comprobante.")
+    
+    # Reutilizamos tu plantilla HTML de impresión
+    return render(request, 'invoices/invoice_print.html', {
+        'invoice': invoice,
+        'items': invoice.invoiceitem_set.all(),
+        'today': timezone.now(),
+        'company_name': 'Decoraciones Mori', # Puedes hacerlo dinámico si quieres
+        'print_view': True,
+    })
