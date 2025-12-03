@@ -6,6 +6,7 @@
 {% block content %}
 <div class="container mt-4 appointment-detail">
     <div class="card">
+        <!-- ENCABEZADO -->
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <h2>{% trans "Cita" %} #{{ appointment.id }}</h2>
@@ -20,8 +21,10 @@
             </div>
         </div>
 
+        <!-- CUERPO -->
         <div class="card-body">
             <div class="row">
+                <!-- DETALLES -->
                 <div class="col-md-6 mb-3 mb-md-0">
                     <h3>{% trans "Detalles de la Cita" %}</h3>
                     <table class="table table-bordered table-striped">
@@ -58,6 +61,7 @@
                     </table>
                 </div>
 
+                <!-- TIMELINE -->
                 <div class="col-md-6">
                     <h3>{% trans "Proceso de la Cita" %}</h3>
                     <div class="appointment-timeline">
@@ -98,6 +102,7 @@
                 </div>
             </div>
 
+            <!-- COMPROBANTES DE PAGO (Con A Cuenta y Saldo) -->
             {% if appointment.invoices.all %}
             <div class="mt-4">
                 <h3 class="mb-3">{% trans "Comprobantes de Pago" %}</h3>
@@ -108,7 +113,9 @@
                                 <tr>
                                     <th>{% trans "Documento" %}</th>
                                     <th>{% trans "Fecha" %}</th>
-                                    <th>{% trans "Monto" %}</th>
+                                    <th>{% trans "Total" %}</th>
+                                    <th>{% trans "A Cuenta" %}</th> <!-- NUEVO -->
+                                    <th>{% trans "Saldo" %}</th>    <!-- NUEVO -->
                                     <th>{% trans "Estado" %}</th>
                                     <th class="text-right">{% trans "Descargar" %}</th>
                                 </tr>
@@ -122,14 +129,21 @@
                                         <small class="text-muted d-block">{{ invoice.series }}-{{ invoice.number|default:"Pendiente" }}</small>
                                     </td>
                                     <td class="align-middle">{{ invoice.date_issued|date:"d/m/Y" }}</td>
-                                    <td class="align-middle font-weight-bold">S/ {{ invoice.total }}</td>
+                                    
+                                    <!-- MONTOS -->
+                                    <td class="align-middle font-weight-bold">S/ {{ invoice.total|floatformat:2 }}</td>
+                                    <td class="align-middle text-success">S/ {{ invoice.advance_payment|floatformat:2 }}</td>
+                                    <td class="align-middle text-danger">S/ {{ invoice.pending_balance|floatformat:2 }}</td>
+                                    
                                     <td class="align-middle">
                                         {% if invoice.status == 'pagada' %}
                                             <span class="badge badge-success">{% trans "Pagado" %}</span>
                                         {% elif invoice.status == 'anulada' %}
                                             <span class="badge badge-danger">{% trans "Anulado" %}</span>
+                                        {% elif invoice.status == 'emitida' %}
+                                            <span class="badge badge-primary">{% trans "Emitida" %}</span>
                                         {% else %}
-                                            <span class="badge badge-warning">{% trans "Pendiente" %}</span>
+                                            <span class="badge badge-warning">{% trans "Borrador" %}</span>
                                         {% endif %}
                                     </td>
                                     <td class="align-middle text-right">
@@ -146,6 +160,7 @@
             </div>
             {% endif %}
 
+            <!-- NOTAS -->
             {% if appointment.notes %}
             <div class="appointment-notes mt-4">
                 <h3>{% trans "Notas" %}</h3>
@@ -158,6 +173,7 @@
             {% endif %}
         </div>
 
+        <!-- FOOTER & BOTONES -->
         <div class="card-footer bg-white">
             <div class="d-flex justify-content-between">
                 <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary">
@@ -165,31 +181,31 @@
                 </a>
 
                 {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                <!-- Botón Cancelar actualizado para Bootstrap 5 -->
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
-    <i class="fas fa-times"></i> {% trans "Cancelar Cita" %}
-</button>
+                    <i class="fas fa-times"></i> {% trans "Cancelar Cita" %}
+                </button>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
+<!-- MODAL CANCELAR (Bootstrap 5) -->
 {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
-<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="cancelModalLabel">{% trans "Confirmar Cancelación" %}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>{% trans "¿Está seguro que desea cancelar esta cita?" %}</p>
                 <p class="text-danger mb-0"><strong>{% trans "Esta acción no se puede deshacer." %}</strong></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "No, Mantener" %}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "No, Mantener" %}</button>
                 <form method="post" action="{% url 'appointments:cancel_appointment' appointment.id %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">{% trans "Sí, Cancelar" %}</button>
@@ -199,11 +215,14 @@
     </div>
 </div>
 {% endif %}
+
+<!-- SCRIPT NECESARIO PARA QUE FUNCIONEN LOS MODALES -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-/* Estilos para el Timeline Vertical */
+/* Estilos Timeline */
 .appointment-timeline {
     position: relative;
     border-left: 2px solid #ddd;
@@ -211,46 +230,30 @@
     margin-left: 10px;
     margin-top: 20px;
 }
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 30px;
-    opacity: 0.6;
-}
+.timeline-item { position: relative; margin-bottom: 30px; opacity: 0.6; }
 .timeline-item:last-child { margin-bottom: 0; }
 .timeline-item.active { opacity: 1; }
-
 .timeline-marker {
-    position: absolute;
-    left: -39px;
-    top: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: #aaa;
-    border: 3px solid #fff;
-    z-index: 1;
+    position: absolute; left: -39px; top: 0;
+    width: 20px; height: 20px;
+    border-radius: 50%; background-color: #aaa;
+    border: 3px solid #fff; z-index: 1;
 }
-
 .timeline-item.active .timeline-marker { background-color: #28a745; }
 .timeline-item .bg-danger { background-color: #dc3545 !important; }
-.timeline-item .border-danger { border-color: #dc3545 !important; }
-
 .timeline-content h4 { margin-top: 0; font-size: 1.1rem; font-weight: bold; }
 .timeline-content p { margin-bottom: 0; font-size: 0.9rem; color: #555; }
-.timeline-item.active .timeline-content p { color: #333; }
 
-/* Estilos para Badges de estado */
+/* Badges */
 .status-badge {
     padding: 0.4em 0.7em;
-    font-size: 0.85em;
-    font-weight: 700;
-    border-radius: 0.25rem;
-    color: #fff;
+    font-size: 0.85em; font-weight: 700;
+    border-radius: 0.25rem; color: #fff;
 }
 .badge-warning { background-color: #ffc107; color: #212529; }
 .badge-success { background-color: #28a745; }
 .badge-info { background-color: #17a2b8; }
+.badge-primary { background-color: #007bff; } /* Color para Emitida */
 .badge-danger { background-color: #dc3545; }
 </style>
 {% endblock %}

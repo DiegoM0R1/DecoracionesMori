@@ -311,7 +311,7 @@ from django.contrib import messages
 from .models import Appointment
 
 # appointments/views.py
-
+from .utils import send_appointment_cancelled_email # <--- se importó
 @require_POST
 @login_required
 def cancel_appointment_view(request, appointment_id):
@@ -326,6 +326,7 @@ def cancel_appointment_view(request, appointment_id):
     if appointment.status in ['pending', 'confirmed']:
         appointment.status = 'cancelled'
         appointment.save()
+        send_appointment_cancelled_email(request, appointment)
         messages.success(request, "Cita cancelada correctamente.")
     else:
         messages.error(request, "No se puede cancelar una cita completada o ya cancelada.")
@@ -366,6 +367,8 @@ def get_daily_availability_status(request):
 
 # ... importaciones existentes ...
 import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt # O usa @login_required si prefieres
 def buscar_empresa_por_ruc(request):

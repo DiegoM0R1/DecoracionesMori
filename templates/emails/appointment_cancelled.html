@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { background-color: #f8d7da; padding: 10px; text-align: center; border-bottom: 3px solid #dc3545; }
+        .btn { background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 style="color: #721c24;">Cita Cancelada</h2>
+        </div>
+        <div style="padding: 20px;">
+            <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+            <p>Te informamos que tu cita #{{ appointment.id }} para el servicio <strong>{{ service.name }}</strong> ha sido cancelada.</p>
+            
+            <p>Si esto fue un error o deseas programar una nueva cita, puedes hacerlo aquí:</p>
+            
+            <p style="text-align: center; margin-top: 30px;">
+                <a href="{{ rebook_link }}" class="btn">Solicitar Nueva Cita</a>
+            </p>
+        </div>
+        <div style="text-align: center; border-top: 1px solid #eee; padding-top: 15px; color: #777; font-size: 12px;">
+            <p>Decoraciones Mori</p>
+        </div>
+    </div>
+</body>
+</html>

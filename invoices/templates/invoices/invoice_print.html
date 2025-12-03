@@ -2,299 +2,279 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ invoice.get_invoice_type_display }} {{ invoice.series }}-{{ invoice.number }}</title>
+    <title>Comprobante {{ invoice.series }}-{{ invoice.number }}</title>
     <style>
-        @page {
-            size: A4;
-            margin: 1cm;
-        }
+        /* --- ESTILOS GENERALES Y DE "MESA" --- */
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            color: #000;
+            font-size: 11px;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-color: #525659; /* Fondo gris oscuro tipo visor de PDF */
+            display: flex;
+            justify-content: center; /* Centrar la hoja horizontalmente */
+            padding-top: 20px;
+            padding-bottom: 20px;
         }
-        .container {
+
+        /* --- LA HOJA DE PAPEL --- */
+        .invoice-page {
+            background-color: white;
+            width: 21cm;        /* Ancho exacto A4 */
+            min-height: 29.7cm; /* Alto exacto A4 */
+            padding: 1.5cm;     /* Márgenes internos de la hoja */
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Sombra para efecto 3D */
+            box-sizing: border-box; /* Para que el padding no aumente el ancho */
+            position: relative;
+        }
+
+        /* --- CONFIGURACIÓN DE IMPRESIÓN --- */
+        @media print {
+            body {
+                background: none;
+                display: block;
+                padding: 0;
+            }
+            .invoice-page {
+                width: 100%; /* Al imprimir, usa el ancho disponible del papel */
+                height: auto;
+                box-shadow: none; /* Quitar sombra */
+                margin: 0;
+                padding: 0; /* La impresora pone sus propios márgenes o usamos @page */
+            }
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            .no-print { display: none !important; }
+        }
+
+        /* --- UTILITARIOS --- */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        
+        /* Botones flotantes bonitos */
+        .no-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .btn-print { background: #007bff; color: white; }
+        .btn-close { background: #dc3545; color: white; }
+
+        /* --- ESTRUCTURA INTERNA (TABLAS) --- */
+        table {
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+            border-collapse: collapse;
         }
         
-        /* --- CABECERA --- */
-        .header-container {
-            display: table;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .header-left {
-            display: table-cell;
-            width: 60%;
-            vertical-align: top;
-            padding-right: 20px;
-        }
-        .header-right {
-            display: table-cell;
-            width: 40%;
-            vertical-align: top;
-        }
-
-        /* Logo y Empresa */
-        .company-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1ea5e3; /* El rojo de tu ejemplo Tres Peces */
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .company-info {
-            font-size: 11px;
-            line-height: 1.4;
-        }
-
-        /* Cuadro de RUC (Estilo SUNAT) */
+        /* CABECERA */
+        .header-table td { vertical-align: top; }
+        
+        /* CAJA RUC (Estilo Tres Peces) */
         .ruc-box {
             border: 2px solid #000;
             text-align: center;
-            padding: 15px 0;
+            padding: 10px 0;
+            width: 280px; 
+            float: right; /* Asegura que se pegue a la derecha */
         }
-        .ruc-number {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .doc-type {
-            font-size: 18px;
-            font-weight: bold;
-            background-color: #eee; /* Fondo gris opcional */
+        .ruc-number { font-size: 14px; font-weight: bold; margin-bottom: 8px; }
+        .doc-title { 
+            font-size: 16px; 
+            font-weight: bold; 
+            background-color: #f0f0f0; 
             padding: 5px 0;
             margin: 5px 0;
             display: block;
         }
-        .doc-number {
-            font-size: 18px;
-            margin-top: 10px;
-        }
+        .doc-number { font-size: 16px; margin-top: 5px; }
 
-        /* --- CAJAS DE INFORMACIÓN (Cliente, Fechas) --- */
-        .box-container {
+        /* LOGO Y EMPRESA */
+        .company-logo img { max-height: 80px; max-width: 250px; }
+        .company-info { font-size: 10px; line-height: 1.3; margin-top: 5px; }
+        .company-name { font-size: 14px; font-weight: bold; color: #1ea5e3; text-transform: uppercase; }
+
+        /* CAJA CLIENTE */
+        .client-box {
             border: 1px solid #000;
-            margin-bottom: 10px;
             padding: 5px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 10px;
         }
-        .info-row {
-            display: flex;
-            margin-bottom: 4px;
-        }
-        .label {
+        .row-info { display: flex; margin-bottom: 2px; }
+        .lbl { font-weight: bold; width: 80px; }
+        .val { flex: 1; }
+
+        /* TABLAS DE DATOS (Fechas e Items) */
+        .standard-table { margin-bottom: 10px; border: 1px solid #000; }
+        .standard-table th {
+            background-color: #cccccc;
+            border: 1px solid #000;
+            padding: 3px;
+            font-size: 10px;
             font-weight: bold;
-            width: 100px; /* Ancho fijo para etiquetas */
-        }
-        .value {
-            flex: 1;
-        }
-
-        /* --- TABLA DE FECHAS (Estilo franja gris) --- */
-        .dates-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-            border: 1px solid #000;
-        }
-        .dates-table th {
-            background-color: #ccc; /* Gris como la imagen */
-            border: 1px solid #000;
-            padding: 5px;
-            font-size: 11px;
             text-align: center;
         }
-        .dates-table td {
+        .standard-table td {
             border: 1px solid #000;
-            padding: 5px;
-            text-align: center;
-        }
-
-        /* --- TABLA DE ITEMS --- */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .items-table th {
-            border: 1px solid #000;
-            background-color: #ccc;
-            padding: 5px;
-            font-size: 11px;
-        }
-        .items-table td {
-            border: 1px solid #000;
-            padding: 5px;
-            font-size: 11px;
-        }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        /* --- TOTALES --- */
-        .totals-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-        .totals-table {
-            border-collapse: collapse;
-            width: 300px;
-        }
-        .totals-table td {
             padding: 4px;
-            border: 1px solid #000;
-        }
-        .total-label { font-weight: bold; text-align: right; background-color: #f0f0f0; }
-        .total-value { text-align: right; }
-
-        /* --- OBSERVACIONES Y FOOTER --- */
-        .notes-box {
-            border: 1px solid #000;
-            padding: 5px;
-            margin-top: 10px;
-            min-height: 30px;
-            font-size: 11px;
-        }
-        .notes-header {
-            background-color: #ccc;
-            font-weight: bold;
-            padding: 2px 5px;
-            display: inline-block;
-            border: 1px solid #000;
-            border-bottom: none;
+            font-size: 10px;
         }
         
-        /* Botones de impresión */
-        .print-actions {
-            text-align: center;
-            margin-bottom: 20px;
+        /* OBSERVACION */
+        .obs-label { 
+            font-size: 10px; font-weight: bold; 
+            background:#ccc; border:1px solid #000; border-bottom:none; 
+            padding: 2px 5px; display:inline-block; margin-left: 0;
         }
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #4b90f0;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        .obs-box {
+            border: 1px solid #000; padding: 3px 5px; margin-bottom: 15px; font-size: 10px; min-height: 14px;
         }
-        @media print {
-            .print-actions { display: none; }
-        }
+
+        /* PIE DE PAGINA */
+        .footer-left { width: 60%; vertical-align: top; padding-right: 15px; }
+        .footer-right { width: 40%; vertical-align: top; }
+        
+        /* SON: */
+        .amount-text { font-size: 10px; margin-bottom: 10px; font-weight: bold; }
+        
+        /* QR AREA */
+        .qr-area { display: flex; align-items: flex-start; }
+        .legal-text { font-size: 9px; margin-left: 10px; line-height: 1.3; color: #444; }
+
+        /* TABLA TOTALES */
+        .totals-table td { padding: 3px 5px; border-bottom: 1px solid #000; font-size: 10px; }
+        .totals-table tr:last-child td { border-bottom: none; } /* Quitar borde al ultimo */
+        .t-lbl { font-weight: bold; border-right: 1px solid #000; }
+        .t-val { text-align: right; }
+        
+        /* COLORES ADELANTO */
+        .bg-green { color: #008000; }
+        .bg-red { background-color: #ffe6e6; color: #cc0000; }
+        .bg-gray { background-color: #f0f0f0; }
+
     </style>
 </head>
 <body>
 
-    <div class="print-actions">
-        <button onclick="window.print()">🖨️ Imprimir</button>
-        <button onclick="window.close()" style="background:#666;">Cerrar</button>
+    <div class="no-print">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-close" onclick="window.close()">Cerrar</button>
     </div>
 
-    <div class="container">
-        
-        <div class="header-container">
-            <div class="header-left">
-                <div style="margin-bottom: 10px;">
-                    <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="Logo" style="width: 100px;">
-                </div>
-                
-                <div class="company-name">DECORACIONES MORI</div>
-                <div class="company-info">
-                    <strong>DE: </strong>DECORACIONES MORI<br>
-                    Urbanización Mariscal Cáceres Mz P6 Lt 23<br>
-                    San Juan de Lurigancho, Lima<br>
-                    Teléfono: 987654321<br>
-                    Email: lizandro.morih1@gmail.com
-                </div>
-            </div>
+    <div class="invoice-page">
 
-            <div class="header-right">
-                <div class="ruc-box">
-                    <div class="ruc-number">R.U.C. 10767644430</div>
-                    
-                    <div class="doc-type">
+        <table class="header-table">
+            <tr>
+                <td>
+                    <div class="company-logo">
+                        <img src="https://diegom0r1.github.io/decomoriweb/img/milogo.png" alt="Logo">
+                    </div>
+                    <div class="company-name">DECORACIONES MORI E.I.R.L.</div>
+                    <div class="company-info">
+                        JR. TU DIRECCION REAL 123 - CHACHAPOYAS<br>
+                        Telf: 987 654 321 | Email: contacto@decoracionesmori.com
+                    </div>
+                </td>
+                <td style="width: 280px;">
+                    <div class="ruc-box">
+                        <div class="ruc-number">RUC: 10767644430</div>
+                        <div class="doc-title">
+                            {% if invoice.invoice_type == 'factura' %}
+                                FACTURA ELECTRÓNICA
+                            {% else %}
+                                BOLETA DE VENTA<br>ELECTRÓNICA
+                            {% endif %}
+                        </div>
+                        <div class="doc-number">
+                            {{ invoice.series }}-{{ invoice.number|stringformat:"08d" }}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="client-box">
+            <div class="row-info">
+                <span class="lbl">Cliente:</span>
+                <span class="val uppercase">{{ invoice.client.get_full_name }}</span>
+            </div>
+            <div class="row-info">
+                <span class="lbl">Dirección:</span>
+                <span class="val uppercase">{{ invoice.client.address|default:"-" }}</span>
+            </div>
+            
+            <table style="width: 100%; margin-top: 2px;">
+                <tr>
+                    <td style="width: 30%; border:none; padding:0;">
+                        <span class="lbl">RUC/DNI:</span> 
                         {% if invoice.invoice_type == 'factura' %}
-                            FACTURA ELECTRÓNICA
+                            {{ invoice.client.ruc }}
                         {% else %}
-                            BOLETA DE VENTA ELECTRÓNICA
+                            {{ invoice.client.dni }}
                         {% endif %}
-                    </div>
-                    
-                    <div class="doc-number">
-                        {{ invoice.series }}-{{ invoice.number|stringformat:"08d" }}
-                    </div>
-                </div>
-            </div>
+                    </td>
+                    <td style="width: 30%; border:none; padding:0;">
+                        <span class="lbl">FOR. PAGO:</span>
+                        <span class="uppercase">
+                            {% if invoice.pending_balance > 0 %}CRÉDITO{% else %}CONTADO{% endif %}
+                        </span>
+                    </td>
+                    <td style="border:none; padding:0;">
+                        <span class="lbl">VENDEDOR:</span>
+                        <span class="uppercase">{{ invoice.created_by.first_name|default:"ADMIN" }}</span>
+                    </td>
+                </tr>
+            </table>
         </div>
 
-        <div class="box-container">
-            <div class="info-row">
-                <div class="label">Cliente:</div>
-                <div class="value">{{ invoice.client.get_full_name|upper }}</div>
-            </div>
-            <div class="info-row">
-                <div class="label">Dirección:</div>
-                <div class="value">
-                    {{ invoice.client.address|default:"-"|upper }}
-                </div>
-            </div>
-            <div class="info-row">
-                <div class="label">
-                    {% if invoice.invoice_type == 'factura' %}RUC:{% else %}DNI:{% endif %}
-                </div>
-                <div class="value">
-                    {% if invoice.invoice_type == 'factura' %}
-                        {{ invoice.client.ruc|default:"-" }}
-                    {% else %}
-                        {{ invoice.client.dni|default:"-" }}
-                    {% endif %}
-                </div>
-                
-                <div class="label">F. Pago:</div>
-                <div class="value">{{ invoice.get_payment_method_display|upper }}</div>
-                
-                <div class="label">Vendedor:</div>
-                <div class="value">{{ invoice.created_by.first_name|default:"Admin"|upper }}</div>
-            </div>
-        </div>
-
-        <table class="dates-table">
+        <table class="standard-table">
             <thead>
                 <tr>
                     <th>Fecha Emisión</th>
-                    <th>N° Orden Compra</th> <th>Fecha Vencimiento</th>
+                    <th>N° Orden Compra</th>
+                    <th>Fecha Vencimiento</th>
                     <th>Tipo Moneda</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ invoice.date_issued|date:"d/m/Y" }}</td>
-                    <td>-</td>
-                    <td>{{ invoice.date_issued|date:"d/m/Y" }}</td> <td>SOLES</td>
+                    <td class="text-center">{{ invoice.date_issued|date:"d-m-Y" }}</td>
+                    <td class="text-center">{{ invoice.appointment.id|default:"-" }}</td>
+                    <td class="text-center">{{ invoice.date_issued|date:"d-m-Y" }}</td>
+                    <td class="text-center">SOLES</td>
                 </tr>
             </tbody>
         </table>
 
-        {% if invoice.notes %}
-        <div style="margin-bottom: 5px;">
-            <span style="background:#ccc; padding:2px 5px; border:1px solid #000; font-weight:bold; font-size:10px;">Observación</span>
+        <div class="obs-label">Observacion</div>
+        <div class="obs-box">
+            {{ invoice.notes|default:"-"|upper }}
         </div>
-        <div style="border:1px solid #000; padding:5px; margin-bottom:15px; font-size:11px;">
-            {{ invoice.notes|upper }}
-        </div>
-        {% endif %}
 
-        <table class="items-table">
+        <table class="standard-table">
             <thead>
                 <tr>
                     <th width="5%">N°</th>
-                    <th width="10%">Cant.</th>
-                    <th width="10%">U.M.</th>
-                    <th width="55%">Descripción</th>
+                    <th width="10%">Código</th>
+                    <th width="8%">Cant.</th>
+                    <th width="8%">U.M.</th>
+                    <th width="49%">Descripcion</th>
                     <th width="10%">P.U.</th>
                     <th width="10%">Importe</th>
                 </tr>
@@ -303,48 +283,80 @@
                 {% for item in items %}
                 <tr>
                     <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-center">{{ item.service.id|default:"SERV" }}</td>
                     <td class="text-center">{{ item.quantity|floatformat:0 }}</td>
-                    <td class="text-center">
-                        {% if item.item_type == 'service' %}SERV{% else %}UND{% endif %}
-                    </td>
+                    <td class="text-center">NIU</td>
                     <td>{{ item.description|upper }}</td>
                     <td class="text-right">{{ item.unit_price|floatformat:2 }}</td>
                     <td class="text-right">{{ item.subtotal|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
                 
-                {% for i in "123" %} 
-                {% if items|length < 3 %}
-                <tr style="height: 20px;">
-                    <td></td><td></td><td></td><td></td><td></td><td></td>
-                </tr>
-                {% endif %}
+                {% for i in "12345" %} 
+                    {% if items|length < 5 %}
+                    <tr>
+                        <td style="color:white">.</td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>
 
-        <div class="totals-container">
-            <table class="totals-table">
-                <tr>
-                    <td class="total-label">OP. GRAVADA</td>
-                    <td class="total-value">{{ invoice.subtotal|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td class="total-label">I.G.V. 18%</td>
-                    <td class="total-value">{{ invoice.igv|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td class="total-label">IMPORTE TOTAL</td>
-                    <td class="total-value" style="font-weight:bold;">S/ {{ invoice.total|floatformat:2 }}</td>
-                </tr>
-            </table>
-        </div>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td class="footer-left">
+                    <div class="amount-text">
+                        SON: {{ invoice.total_in_words|default:"CON 00/100 SOLES"|upper }}
+                    </div>
+                    
+                    <div class="qr-area">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ invoice.series }}-{{ invoice.number }}" width="80" height="80">
+                        <div class="legal-text">
+                            Representación impresa de la 
+                            {% if invoice.invoice_type == 'factura' %}FACTURA ELECTRÓNICA{% else %}BOLETA DE VENTA ELECTRÓNICA{% endif %}
+                            <br><br>
+                            Consultar en: www.decoracionesmori.com/consultas<br>
+                            Autorizado mediante Resolución de Intendencia<br>
+                            N° 0340050005813/SUNAT
+                        </div>
+                    </div>
+                </td>
+                
+                <td class="footer-right">
+                    <table class="totals-table" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                        <tr>
+                            <td class="t-lbl">Op. Gravada</td>
+                            <td class="t-val">{{ invoice.subtotal|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="t-lbl">Op. Exonerada</td>
+                            <td class="t-val">0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="t-lbl">I.G.V. (18%)</td>
+                            <td class="t-val">{{ invoice.igv|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="t-lbl bg-gray">Importe Total</td>
+                            <td class="t-val bg-gray bold">{{ invoice.total|floatformat:2 }}</td>
+                        </tr>
+                        
+                        {% if invoice.advance_payment > 0 and invoice.pending_balance > 0 %}
+                        <tr>
+                            <td class="t-lbl bg-green bold">(-) Adelanto</td>
+                            <td class="t-val bg-green bold">{{ invoice.advance_payment|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="t-lbl bg-red bold">Saldo Pendiente</td>
+                            <td class="t-val bg-red bold">{{ invoice.pending_balance|floatformat:2 }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </td>
+            </tr>
+        </table>
+        
+        <div class="text-center" style="margin-top: 20px; font-size: 9px;">Página 1 de 1</div>
 
-        <div style="margin-top: 30px; font-size: 10px; text-align: center; border-top: 1px solid #ccc; padding-top:10px;">
-            Representación impresa de la {{ invoice.get_invoice_type_display|upper }} ELECTRÓNICA.<br>
-            Consulte su documento en www.decoracionesmori.com
-        </div>
-
-    </div>
-</body>
+    </div> </body>
 </html>

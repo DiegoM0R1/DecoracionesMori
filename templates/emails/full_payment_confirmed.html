@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
+        .header { background-color: #007bff; color: white; padding: 15px; text-align: center; }
+        .success-box { 
+            background-color: #d4edda; 
+            color: #155724; 
+            padding: 20px; 
+            text-align: center; 
+            border: 1px solid #c3e6cb;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Pago Completado</h2>
+        </div>
+        
+        <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+        
+        <div class="success-box">
+            <h3 style="margin-top:0;">¡Todo listo!</h3>
+            <p>Hemos confirmado el pago total de tu servicio.</p>
+            <p style="font-size: 1.2em; font-weight: bold;">Saldo Pendiente: S/ 0.00</p>
+        </div>
+
+        <p>Tu comprobante <strong>{{ invoice_number }}</strong> ha sido actualizado para reflejar la cancelación total de la deuda.</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ download_link }}" class="btn">Ver Comprobante Actualizado</a>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+            Gracias por confiar en Decoraciones Mori. ¡Esperamos que hayas disfrutado del servicio!
+        </p>
+    </div>
+</body>
+</html>

@@ -1,4 +1,3 @@
-# appointments/utils.py
 from django.utils import timezone
 from django.contrib import messages
 from datetime import timedelta, datetime, time
@@ -7,12 +6,12 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+from django.urls import reverse
 
-# --- TU LÓGICA EXISTENTE ---
+# ==========================================
+# LÓGICA DE MANTENIMIENTO (CITAS VENCIDAS)
+# ==========================================
 def check_and_cancel_expired_appointments(request=None):
-    """
-    Verifica citas vencidas. (Tu código original se mantiene aquí)
-    """
     now = timezone.now()
     start_date = now - timedelta(days=730)
     end_date = now + timedelta(days=5)
@@ -53,17 +52,13 @@ def check_and_cancel_expired_appointments(request=None):
 
     return cancelled_count
 
-# --- NUEVA LÓGICA DE CORREOS ---
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.conf import settings
-from django.urls import reverse
 
-# --- LÓGICA DE CORREOS ---
+# ==========================================
+# LÓGICA DE ENVÍO DE CORREOS
+# ==========================================
 
 def send_html_email(subject, template_name, context, recipient_list):
-    """Función auxiliar para enviar correos HTML"""
+    """Función auxiliar para enviar correos HTML con depuración."""
     try:
         html_message = render_to_string(template_name, context)
         plain_message = strip_tags(html_message)
@@ -71,59 +66,157 @@ def send_html_email(subject, template_name, context, recipient_list):
         send_mail(
             subject,
             plain_message,
-            settings.DEFAULT_FROM_EMAIL, # Asegúrate de tener esto en settings.py
+            settings.DEFAULT_FROM_EMAIL,
             recipient_list,
             html_message=html_message,
-            fail_silently=True,
+            fail_silently=False, 
         )
-        print(f"Correo '{subject}' enviado correctamente a {recipient_list}")
+        print(f"✅ CORREO ENVIADO: '{subject}' a {recipient_list}")
     except Exception as e:
-        print(f"Error enviando correo: {e}")
+        print(f"❌ ERROR CRÍTICO ENVIANDO CORREO '{subject}': {e}")
+
 
 def send_appointment_received_email(request, appointment):
-    """1. Correo cuando el cliente envía el formulario (Solicitud Recibida)"""
+    """1. Solicitud Recibida"""
     subject = f'Hemos recibido tu solicitud - Cita #{appointment.id}'
-    
+    try:
+        web_link = request.build_absolute_uri(
+            reverse('appointments:appointment_detail', kwargs={'appointment_id': appointment.id})
+        )
+    except Exception:
+        web_link = "#"
+
     context = {
         'appointment': appointment,
         'client': appointment.client,
         'service': appointment.service,
-        # Si tienes una vista para ver el detalle en web, genérala aquí
-        'web_link': request.build_absolute_uri(reverse('appointments:appointment_list'))
+        'web_link': web_link
     }
-    
     send_html_email(subject, 'emails/appointment_received.html', context, [appointment.client.email])
 
+
 def send_appointment_confirmation_email(request, appointment):
-    """2. Correo cuando el administrador confirma la cita"""
+    """2. Confirmación de Cita"""
     subject = f'¡Tu Cita #{appointment.id} ha sido CONFIRMADA!'
     
+    # Link al detalle de la cita en la web
+    try:
+        web_link = request.build_absolute_uri(
+            reverse('appointments:appointment_detail', kwargs={'appointment_id': appointment.id})
+        )
+    except Exception:
+        web_link = "#"
+
     context = {
         'appointment': appointment,
         'client': appointment.client,
         'service': appointment.service,
         'date': appointment.appointment_date,
         'time': appointment.appointment_time,
+        'web_link': web_link 
     }
-    
     send_html_email(subject, 'emails/appointment_confirmed.html', context, [appointment.client.email])
 
+
 def send_invoice_generated_email(request, invoice):
-    """3. Correo cuando se genera la boleta/factura (con enlace de descarga)"""
+    """3. Aviso de documento legal generado"""
     doc_type = invoice.get_invoice_type_display()
-    subject = f'Tu {doc_type} {invoice.series}-{invoice.number} está disponible'
+    subject = f'Documento Electrónico {invoice.series}-{invoice.number}'
     
-    # Generamos el enlace absoluto (http://tusitio.com/...) para que funcione desde Gmail
-    download_link = request.build_absolute_uri(reverse('invoices:client_print_invoice', args=[invoice.id]))
+    # CORRECCIÓN: Mandamos al cliente a ver el detalle de su cita donde sale la boleta
+    try:
+        download_link = request.build_absolute_uri(
+            reverse('appointments:appointment_detail', kwargs={'appointment_id': invoice.appointment.id})
+        )
+    except Exception:
+        download_link = "#"
     
     context = {
         'invoice': invoice,
         'client': invoice.client,
         'doc_type': doc_type,
         'amount': invoice.total,
-        'download_link': download_link # <--- Esto es lo que permite descargar
+        'download_link': download_link
     }
-    
     send_html_email(subject, 'emails/invoice_generated.html', context, [invoice.client.email])
 
-# (Mantén aquí abajo tu función check_and_cancel_expired_appointments sin cambios)
+
+def send_appointment_cancelled_email(request, appointment):
+    """4. Cancelación"""
+    subject = f'Cita Cancelada #{appointment.id} - Decoraciones Mori'
+    try:
+        rebook_link = request.build_absolute_uri(reverse('appointments:request', args=[appointment.service.id]))
+    except Exception:
+        rebook_link = "#"
+
+    context = {
+        'appointment': appointment,
+        'client': appointment.client,
+        'service': appointment.service,
+        'rebook_link': rebook_link
+    }
+    send_html_email(subject, 'emails/appointment_cancelled.html', context, [appointment.client.email])
+
+
+def send_advance_payment_confirmation_email(request, invoice):
+    """
+    5. Confirmación del ADELANTO.
+    CORREGIDO: El link lleva al 'appointment_detail' (Panel del Cliente).
+    """
+    subject = f'✅ Adelanto Recibido - Cita Confirmada #{invoice.appointment.id}'
+    
+    try:
+        # Apuntamos a la vista 'appointment_detail' que está en tu views.py
+        dashboard_link = request.build_absolute_uri(
+            reverse('appointments:appointment_detail', kwargs={'appointment_id': invoice.appointment.id})
+        )
+    except Exception as e:
+        print(f"⚠️ Error generando link al dashboard: {e}")
+        dashboard_link = "#"
+
+    # Calculamos saldos
+    total = float(invoice.total) if invoice.total else 0.0
+    paid = float(invoice.advance_payment) if invoice.advance_payment else 0.0
+    pending = total - paid
+
+    context = {
+        'client': invoice.client,
+        'appointment': invoice.appointment,
+        'amount_paid': paid,
+        'total': total,
+        'pending_balance': pending,
+        'invoice_number': f"{invoice.series}-{invoice.number}",
+        'download_link': dashboard_link,  # <--- Este link va al sitio web del cliente
+        'doc_type': invoice.get_invoice_type_display()
+    }
+    
+    send_html_email(subject, 'emails/advance_payment_confirmed.html', context, [invoice.client.email])
+
+
+def send_full_payment_confirmation_email(request, invoice):
+    """
+    6. Confirmación de PAGO TOTAL.
+    CORREGIDO: El link lleva al 'appointment_detail' (Panel del Cliente).
+    """
+    print(f"📧 Preparando correo de PAGO TOTAL para factura #{invoice.id}...")
+    
+    subject = f'🎉 Pago Completado - Comprobante {invoice.series}-{invoice.number}'
+    
+    try:
+        # Apuntamos a la vista 'appointment_detail'
+        dashboard_link = request.build_absolute_uri(
+            reverse('appointments:appointment_detail', kwargs={'appointment_id': invoice.appointment.id})
+        )
+    except Exception as e:
+        print(f"⚠️ Error generando link al dashboard: {e}")
+        dashboard_link = "#"
+    
+    context = {
+        'client': invoice.client,
+        'invoice': invoice,
+        'invoice_number': f"{invoice.series}-{invoice.number}",
+        'total': invoice.total,
+        'download_link': dashboard_link # <--- Este link va al sitio web del cliente
+    }
+    
+    send_html_email(subject, 'emails/full_payment_confirmed.html', context, [invoice.client.email])

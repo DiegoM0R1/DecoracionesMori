@@ -156,13 +156,33 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // --- 1. LÓGICA DE PERSONA VS EMPRESA ---
+    // ======================================================
+    // 1. DEFINICIÓN DE VARIABLES GLOBALES DEL DOM
+    // (Definimos todo aquí arriba para evitar errores de referencia)
+    // ======================================================
     const radioPersona = document.querySelector('input[name="client_type"][value="persona"]');
     const radioEmpresa = document.querySelector('input[name="client_type"][value="empresa"]');
     const sectionPersona = document.getElementById('section-persona');
     const sectionEmpresa = document.getElementById('section-empresa');
-    const nameInput = document.getElementById('id_name');
     
+    const nameInput = document.getElementById('id_name');
+    const addressInput = document.getElementById('id_address_input'); // <--- Ahora está definido al inicio
+    
+    const btnRuc = document.getElementById('btn-buscar-ruc');
+    const rucInput = document.getElementById('id_ruc');
+    const razonSocialInput = document.getElementById('id_razon_social');
+    const rucFeedback = document.getElementById('ruc-feedback');
+
+    const dniInput = document.getElementById('id_dni');
+    const nombresHidden = document.getElementById('id_nombres_hidden');
+    const paternoHidden = document.getElementById('id_apellido_paterno_hidden');
+    const maternoHidden = document.getElementById('id_apellido_materno_hidden');
+    
+    const dateInput = document.getElementById('id_appointment_date_form');
+
+    // ======================================================
+    // 2. LÓGICA DE PERSONA VS EMPRESA
+    // ======================================================
     function toggleClientType() {
         if (radioEmpresa && radioEmpresa.checked) {
             sectionPersona.style.display = 'none';
@@ -180,26 +200,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if(radioPersona && radioEmpresa) {
         radioPersona.addEventListener('change', toggleClientType);
         radioEmpresa.addEventListener('change', toggleClientType);
-        toggleClientType(); // Inicializar
+        toggleClientType(); // Estado inicial
     }
-// --- NUEVO: SI YA HAY DIRECCIÓN AL CARGAR, ACTUALIZAR EL MAPA ---
-    if (addressInput && addressInput.value.trim() !== "") {
-        // Esperamos un poco para asegurar que el mapa cargó
-        setTimeout(() => {
-            updateMapFromAddress(addressInput.value);
-        }, 1000);
-    }
+
     // ======================================================
-    // === NUEVA FUNCIÓN PARA ACTUALIZAR EL MAPA ===
+    // 3. ACTUALIZACIÓN AUTOMÁTICA DEL MAPA (Geocoding)
     // ======================================================
     function updateMapFromAddress(address) {
-        // Verificamos que el mapa y el geocoder existan (cargados por el otro script)
+        // Verificamos si Google Maps está listo
         if (typeof geocoder === 'undefined' || !map || !marker) {
-            console.warn("El mapa aún no está listo o no se cargó la API.");
+            // Si el mapa aún no carga, reintentamos en 500ms
+            setTimeout(() => updateMapFromAddress(address), 500);
             return;
         }
         
-        const queryAddress = address + ", Peru"; // Añadimos país para precisión
+        const queryAddress = address + ", Peru"; 
 
         geocoder.geocode({ 'address': queryAddress }, function(results, status) {
             if (status === 'OK' && results[0]) {
@@ -209,18 +224,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 marker.setPosition(location);
                 console.log("Mapa movido a:", address);
             } else {
-                console.warn("No se pudo localizar la dirección en el mapa:", status);
+                console.warn("No se pudo localizar en mapa:", status);
             }
         });
     }
 
-    // --- 2. BÚSQUEDA DE RUC (SUNAT) ---
-    const btnRuc = document.getElementById('btn-buscar-ruc');
-    const rucInput = document.getElementById('id_ruc');
-    const razonSocialInput = document.getElementById('id_razon_social');
-    const rucFeedback = document.getElementById('ruc-feedback');
-    const addressInput = document.getElementById('id_address_input');
+    // --- IMPORTANTE: SI AL CARGAR YA HAY DIRECCIÓN (Edición o Recarga) ---
+    if (addressInput && addressInput.value.trim() !== "") {
+        // Esperamos 1 segundo para dar tiempo a que cargue el mapa visualmente
+        setTimeout(() => {
+            updateMapFromAddress(addressInput.value);
+        }, 1000);
+    }
 
+    // ======================================================
+    // 4. BÚSQUEDA DE RUC (SUNAT)
+    // ======================================================
     if(btnRuc) {
         btnRuc.addEventListener('click', async function() {
             const ruc = rucInput.value.trim();
@@ -234,10 +253,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formData = new FormData();
                 formData.append('ruc', ruc);
                 
+                // Asegúrate de que el token CSRF exista
+                const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+                const csrfToken = csrfElement ? csrfElement.value : '';
+
                 const response = await fetch('{% url "appointments:buscar_ruc" %}', {
                     method: 'POST',
                     body: formData,
-                    headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
+                    headers: { 'X-CSRFToken': csrfToken }
                 });
                 const data = await response.json();
 
@@ -246,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     razonSocialInput.value = rs;
                     nameInput.value = rs; 
                     
-                    // Construir dirección completa
+                    // Construir dirección
                     let dirParts = [];
                     if (data.direccion && data.direccion !== '-') dirParts.push(data.direccion);
                     if (data.distrito && data.distrito !== '-') dirParts.push(data.distrito);
@@ -257,8 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (dirCompleta && addressInput) {
                         addressInput.value = dirCompleta;
-                        
-                        // >>> LLAMADA PARA MOVER EL MAPA <<<
+                        // Actualizar mapa al encontrar dirección
                         updateMapFromAddress(dirCompleta);
                     }
 
@@ -279,11 +301,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 3. BÚSQUEDA DE DNI (RENIEC) ---
-    const dniInput = document.getElementById('id_dni');
-    const nombresHidden = document.getElementById('id_nombres_hidden');
-    const paternoHidden = document.getElementById('id_apellido_paterno_hidden');
-    const maternoHidden = document.getElementById('id_apellido_materno_hidden');
+    // ======================================================
+    // 5. BÚSQUEDA DE DNI (RENIEC)
+    // ======================================================
     let debounceTimeout = null;
 
     async function fetchDniData(dniValue) {
@@ -292,11 +312,13 @@ document.addEventListener('DOMContentLoaded', function() {
         nameInput.disabled = true;
 
         try {
+            const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+            
             const response = await fetch('{% url "appointments:buscar_dni" %}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': csrfElement ? csrfElement.value : ''
                 },
                 body: new URLSearchParams({ 'dni': dniValue })
             });
@@ -307,9 +329,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 let pat = data.apellidoPaterno || '';
                 let mat = data.apellidoMaterno || '';
                 
-                nombresHidden.value = nom;
-                paternoHidden.value = pat;
-                maternoHidden.value = mat;
+                if(nombresHidden) nombresHidden.value = nom;
+                if(paternoHidden) paternoHidden.value = pat;
+                if(maternoHidden) maternoHidden.value = mat;
 
                 let fullName = `${nom} ${pat} ${mat}`.trim().toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
                 nameInput.value = fullName;
@@ -325,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (dniInput) {
+        // Búsqueda automática al escribir
         dniInput.addEventListener('input', function() {
             clearTimeout(debounceTimeout);
             const val = this.value.trim();
@@ -332,14 +355,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 debounceTimeout = setTimeout(() => fetchDniData(val), 300);
             }
         });
+        
+        // Búsqueda por botón
         const btnDniSearch = document.getElementById('btn-buscar-dni');
         if(btnDniSearch) {
-            btnDniSearch.addEventListener('click', () => fetchDniData(dniInput.value.trim()));
+            btnDniSearch.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevenir submit del form
+                fetchDniData(dniInput.value.trim());
+            });
         }
     }
 
-    // --- 4. FLATPICKR (FECHA) ---
-    const dateInput = document.getElementById('id_appointment_date_form');
+    // ======================================================
+    // 6. FLATPICKR (FECHA Y DISPONIBILIDAD)
+    // ======================================================
     if (dateInput) {
         fetch("{% url 'appointments:api_daily_availability' %}")
             .then(r => r.json())

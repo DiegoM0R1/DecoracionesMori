@@ -1,15 +1,17 @@
-# appointments/admin.py
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from .models import Appointment, WorkScheduleTemplate, ScheduledWorkDay
-from django.contrib import messages # No se usa directamente en el admin modificado, pero está bien tenerla
-from django.shortcuts import get_object_or_404, redirect # No se usa directamente, pero está bien tenerla
+from django.contrib import messages 
+from django.shortcuts import get_object_or_404, redirect
 from urllib.parse import quote
-# Estas importaciones las necesitaremos para el contexto en changelist_view
-from services.models import Service # Asegúrate que esta app y modelo existan
+from services.models import Service 
 from django.contrib.auth import get_user_model
+from django.urls import reverse 
+from django.utils.html import format_html
+# Quitamos las importaciones de envio de correo de aquí, ya no se usan en esta vista
+from .utils import check_and_cancel_expired_appointments 
 
-User = get_user_model() # Obtenemos el modelo User
+User = get_user_model() 
 
 # --- Admin para Modelos de Horario ---
 
@@ -23,41 +25,18 @@ class WorkScheduleTemplateAdmin(admin.ModelAdmin):
         return obj.get_day_of_week_display()
     get_day_of_week_display.short_description = _('Día de la semana')
 
-from .utils import check_and_cancel_expired_appointments 
-
 # --- MODIFICACIÓN EN ScheduledWorkDayAdmin ---
 @admin.register(ScheduledWorkDay)
 class ScheduledWorkDayAdmin(admin.ModelAdmin):
     change_list_template = 'admin/appointments/calendar.html'
 
     def changelist_view(self, request, extra_context=None):
-        from .utils import check_and_cancel_expired_appointments
-        
-        # ---> CAMBIO AQUÍ: Pasamos 'request' para ver los mensajes <--
         cancelled = check_and_cancel_expired_appointments(request)
-        
         if cancelled > 0:
-            from django.contrib import messages
             messages.warning(request, f"MANTENIMIENTO: Se han cancelado {cancelled} citas vencidas automáticamente.")
-            
         return super().changelist_view(request, extra_context=extra_context)
 
-
-    # La función get_day_name ya no es estrictamente necesaria aquí si no usamos list_display
-    # def get_day_name(self, obj):
-    #     days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-    #     return days[obj.date.weekday()]
-    # get_day_name.short_description = _('Día')
-
-# --- Admin para Citas (Modificado de tu código original) ---
-# (Este AppointmentAdmin sigue como lo tenías, mostrando la lista de tabla estándar)
-# A MENOS que también quieras cambiarlo a un calendario.
-from django.urls import reverse # Asegúrate que esta importación esté al inicio del archivo si no está ya
-from django.utils.html import format_html
-# from django.http import JsonResponse # Movido a admin_views.py
-# from django.utils import timezone # Movido a admin_views.py
-# from datetime import datetime, timedelta # Movido a admin_views.py
-from .utils import check_and_cancel_expired_appointments, send_appointment_confirmation_email, send_invoice_generated_email
+# --- Admin para Citas ---
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = (
@@ -76,7 +55,6 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'client')
     list_per_page = 25
     
-    # --- NUEVO: Botón Manual en el menú de acciones ---
     actions = ['action_clean_expired_appointments']
 
     fieldsets = (
@@ -95,47 +73,31 @@ class AppointmentAdmin(admin.ModelAdmin):
         }),
     )
 
-    # --- 1. ESTO HACE QUE SE ACTUALICE AL REFRESCAR LA PÁGINA ---
     def changelist_view(self, request, extra_context=None):
-        from .utils import check_and_cancel_expired_appointments
-        
-        # Ejecutamos la limpieza y pasamos 'request' para ver mensajes
         cancelled = check_and_cancel_expired_appointments(request)
-        
         return super().changelist_view(request, extra_context=extra_context)
-    # -----------------------------------------------------------
 
-    # --- 2. ESTO AGREGA EL BOTÓN MANUAL EN "ACCIONES" ---
     def action_clean_expired_appointments(self, request, queryset):
-        from .utils import check_and_cancel_expired_appointments
-        from django.contrib import messages
-        
-        # Ejecutamos la limpieza forzada
         cancelled = check_and_cancel_expired_appointments(request)
-        
         if cancelled == 0:
             self.message_user(request, "El sistema está al día. No se encontraron citas vencidas.", level=messages.INFO)
         else:
             self.message_user(request, f"Limpieza completada: Se cancelaron {cancelled} citas vencidas.", level=messages.SUCCESS)
             
     action_clean_expired_appointments.short_description = "Verificar y Cancelar citas vencidas (Regla 24h)"
-    # ----------------------------------------------------
 
     def get_client_full_name(self, obj):
         if obj.client:
             return obj.client.get_full_name() or obj.client.username
         return "N/A"
     get_client_full_name.short_description = _('Nombre')
-
+    
     def get_client_address(self, obj):
         if obj.client:
             address = getattr(obj.client, 'address', None)
             if address and address != 'N/A' and address.strip():
-                # Codificamos la dirección para URL (espacios -> %20, etc.)
                 encoded_address = quote(address)
                 google_maps_url = f"https://www.google.com/maps/search/?api=1&query={encoded_address}"
-                
-                # Retornamos el link azulito (#007bff) que abre en nueva pestaña
                 return format_html(
                     '<a href="{}" target="_blank" style="color: #007bff; font-weight: bold;">'
                     '<i class="fas fa-map-marker-alt"></i> {}'
@@ -217,14 +179,13 @@ class AppointmentAdmin(admin.ModelAdmin):
             try:
                 from invoices.models import Invoice
                 invoice = Invoice.objects.filter(appointment=obj).latest('created_at')
-                # Determinar color según estado
                 color = "#28a745" if invoice.status == 'pagada' else "#007bff"
                 return format_html(
                     '<a href="{}" class="button" style="background-color: {}; color: white;">'
                     '<i class="fas fa-file-invoice"></i> Ver {} #{}</a>',
                     reverse('admin:invoices_invoice_change', args=[invoice.pk]),
                     color,
-                    invoice.get_invoice_type_display(), # Muestra "Factura" o "Boleta"
+                    invoice.get_invoice_type_display(),
                     invoice.number or "(borrador)"
                 )
             except Exception:
@@ -241,7 +202,6 @@ class AppointmentAdmin(admin.ModelAdmin):
         from invoices.models import Invoice, InvoiceItem
         from decimal import Decimal
         from django.utils import timezone
-        from django.contrib import messages
         
         appointment = get_object_or_404(Appointment, id=appointment_id)
         existing = Invoice.objects.filter(appointment=appointment).first()
@@ -250,17 +210,16 @@ class AppointmentAdmin(admin.ModelAdmin):
             self.message_user(request, f"La cita ya tiene un comprobante asociado.", level=messages.INFO)
             return redirect('admin:invoices_invoice_change', existing.id)
         
-        # --- LÓGICA DE FACTURA VS BOLETA ---
+        # Lógica de Factura vs Boleta
         client = appointment.client
-        # Verificamos si tiene RUC (asumiendo que guardaste el RUC en el modelo User)
         has_ruc = getattr(client, 'ruc', None) and len(str(client.ruc).strip()) == 11
         
         if has_ruc:
             doc_type = 'factura'
-            series = 'F001' # Serie estándar para Facturas electrónicas
+            series = 'F001'
         else:
             doc_type = 'boleta'
-            series = 'B001' # Serie estándar para Boletas electrónicas
+            series = 'B001'
             
         invoice = Invoice(
             invoice_type=doc_type,
@@ -278,11 +237,9 @@ class AppointmentAdmin(admin.ModelAdmin):
             invoice.appointment = appointment
             invoice.save()
             
-            # Obtener precio del servicio
             price_val = getattr(appointment.service, 'base_price', getattr(appointment.service, 'price', 0))
             price = Decimal(str(price_val)) if price_val else Decimal('0.00')
 
-            # Crear el item
             InvoiceItem.objects.create(
                 invoice=invoice, 
                 item_type='service', 
@@ -293,24 +250,15 @@ class AppointmentAdmin(admin.ModelAdmin):
                 subtotal=price
             )
             
-            # Recalcular totales (esto llama al save del modelo Invoice que ya tiene la lógica)
             invoice.save()
-            send_invoice_generated_email(request, invoice)
+            
+            # --- AQUÍ ESTÁ EL CAMBIO: YA NO ENVIAMOS CORREO AHORA ---
+            # Solo avisamos al admin que se creó el borrador.
+            
             msg_type = "Factura" if has_ruc else "Boleta"
-            self.message_user(request, f"{msg_type} creada correctamente.")
+            self.message_user(request, f"{msg_type} generada en Borrador. Ingrese el adelanto (mín. 50 soles) y guarde para confirmar la cita.", level=messages.SUCCESS)
             return redirect('admin:invoices_invoice_change', invoice.id)
             
         except Exception as e:
             self.message_user(request, f"Error al generar comprobante: {e}", level=messages.ERROR)
             return redirect(f'admin:{self.model._meta.app_label}_{self.model._meta.model_name}_changelist')
-        
-    def save_model(self, request, obj, form, change):
-        if change:
-            old_obj = Appointment.objects.get(pk=obj.pk)
-            # Si cambia a confirmado
-            if old_obj.status != 'confirmed' and obj.status == 'confirmed':
-                # ---> AQUÍ: Pasamos 'request'
-                send_appointment_confirmation_email(request, obj)
-                self.message_user(request, f"Correo de confirmación enviado a {obj.client.email}", level=messages.SUCCESS)
-        
-        super().save_model(request, obj, form, change)    

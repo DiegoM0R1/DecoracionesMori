@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; }
+        .header { background-color: #1287ee; color: white; padding: 15px; text-align: center; }
+        .amount-box { background-color: #f8f9fa; padding: 15px; border-left: 5px solid #28a745; margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .total { font-weight: bold; font-size: 1.1em; }
+        .footer { font-size: 0.8em; color: #777; text-align: center; margin-top: 20px; }
+        
+        /* Estilo del Botón */
+        .btn {
+            display: inline-block;
+            background-color: #007bff; /* Azul */
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>¡Adelanto Confirmado!</h2>
+        </div>
+        
+        <p>Hola <strong>{{ client.first_name }}</strong>,</p>
+        
+        <p>Hemos recibido tu pago correctamente. Tu cita ha sido confirmada en nuestro calendario.</p>
+
+        <div class="amount-box">
+            <h3>Detalle del Pago</h3>
+            <div class="detail-row">
+                <span>Servicio:</span>
+                <strong>{{ appointment.service.name }}</strong>
+            </div>
+            <div class="detail-row">
+                <span>Total del Servicio:</span>
+                <span>S/ {{ total }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Adelanto Pagado:</span>
+                <span style="color: #28a745; font-weight: bold;">- S/ {{ amount_paid }}</span>
+            </div>
+            <hr>
+            <div class="detail-row total">
+                <span>Saldo Pendiente:</span>
+                <span style="color: #dc3545;">S/ {{ pending_balance }}</span>
+            </div>
+        </div>
+
+        <p><strong>Fecha de la Cita:</strong> {{ appointment.appointment_date }} a las {{ appointment.appointment_time }}</p>
+        
+        <p>Se ha generado tu <strong>{{ doc_type }} {{ invoice_number }}</strong> con el detalle del adelanto.</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="{{ download_link }}" class="btn">Ver mi Comprobante</a>
+        </div>
+        
+        <p style="font-size: 0.9em; color: #555;">
+            * Recuerda que el saldo pendiente deberá ser cancelado al finalizar el servicio.
+        </p>
+
+        <div class="footer">
+            <p>Decoraciones Mori<br>Si tienes dudas, contáctanos.</p>
+        </div>
+    </div>
+</body>
+</html>
